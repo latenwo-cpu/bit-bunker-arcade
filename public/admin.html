@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/bitbunker-icon.svg">
+<title>ARCADE — Admin Panel</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#0b0e1a; --panel:#141a30; --panel-alt:#1b2340; --text:#e8ecff; --text-dim:#8892b8;
+    --border:#2a3363; --cyan:#2de2c8; --magenta:#ff3e9d; --amber:#ffb400; --violet:#9b6bff; --green:#5cf27a;
+  }
+  *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:'JetBrains Mono',monospace; min-height:100vh; }
+  header{ padding:16px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; position:sticky; top:0; background:var(--bg); z-index:20; }
+  header h1{ font-size:16px; letter-spacing:1px; margin:0; color:var(--cyan); display:flex; align-items:center; gap:12px; }
+  header .who{ font-size:12px; color:var(--text-dim); }
+  header .header-actions{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  button{ font-family:inherit; cursor:pointer; }
+  .btn{ background:var(--panel-alt); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:8px 14px; font-weight:700; font-size:12px; letter-spacing:.5px; white-space:nowrap; transition:border-color .15s, color .15s; }
+  .btn:hover{ border-color:var(--cyan); color:var(--cyan); }
+  .btn.primary{ border-color:var(--cyan); color:var(--cyan); }
+  .btn.danger{ border-color:var(--magenta); color:var(--magenta); }
+  .btn.sm{ padding:6px 10px; font-size:11px; }
+
+  #login-screen{ max-width:360px; width:88%; margin:14vh auto; padding:28px; background:var(--panel); border:1px solid var(--border); border-radius:10px; }
+  #login-screen h2{ margin-top:0; font-size:15px; color:var(--amber); }
+  #login-screen input{ width:100%; padding:10px; margin:6px 0 14px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:14px; }
+  #login-screen .err{ color:var(--magenta); font-size:12px; min-height:16px; }
+  #config-warning{ max-width:640px; width:88%; margin:10vh auto; padding:24px; background:var(--panel); border:1px solid var(--amber); border-radius:10px; font-size:13px; line-height:1.6; }
+  #config-warning code{ background:var(--panel-alt); padding:2px 6px; border-radius:4px; word-break:break-all; }
+
+  main{ display:none; max-width:1200px; margin:0 auto; padding:20px 24px 60px; }
+  .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+  .tab{ background:var(--panel-alt); border:1px solid var(--border); border-radius:6px; padding:9px 16px; font-size:12px; font-weight:700; color:var(--text-dim); }
+  .tab.active{ border-color:var(--cyan); color:var(--cyan); }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  .filter-bar{ display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:16px; }
+  .filter-group{ display:flex; flex-direction:column; gap:4px; }
+  .filter-group label{ font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; }
+  .filter-group input[type="date"]{ padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:12px; }
+  .filter-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  .kpi-row{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:22px; }
+  .kpi{ background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .kpi .v{ font-size:26px; font-weight:700; color:var(--cyan); }
+  .kpi .l{ font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+
+  .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:8px; }
+  table{ width:100%; border-collapse:collapse; font-size:12px; background:var(--panel); border:1px solid var(--border); border-radius:8px; }
+  .table-wrap table{ min-width:520px; border-radius:0; }
+  th,td{ text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+  th{ color:var(--text-dim); text-transform:uppercase; font-size:10px; letter-spacing:1px; background:var(--panel-alt); position:sticky; top:0; }
+  tr:last-child td{ border-bottom:none; }
+  tr:hover td{ background:rgba(255,255,255,.02); }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:800px){ .grid-2{ grid-template-columns:1fr; } }
+  .section-title{ font-size:13px; color:var(--amber); letter-spacing:1px; margin:26px 0 10px; text-transform:uppercase; }
+  .section-title-row{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin:26px 0 10px; }
+  .section-title-row .section-title{ margin:0; }
+  .muted{ color:var(--text-dim); font-size:12px; }
+  .badge{ display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; }
+  .badge.win{ background:rgba(92,242,122,.15); color:var(--green); }
+  .badge.loss{ background:rgba(255,62,157,.15); color:var(--magenta); }
+  .badge.draw{ background:rgba(155,107,255,.15); color:var(--violet); }
+
+  @media (max-width:640px){
+    header{ padding:12px 14px; }
+    header h1{ font-size:13px; gap:8px; }
+    header h1 img{ height:26px; width:26px; }
+    main{ padding:14px 12px 50px; }
+    .tabs{ gap:6px; }
+    .tab{ padding:8px 11px; font-size:10.5px; }
+    .kpi-row{ grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; }
+    .kpi{ padding:12px; }
+    .kpi .v{ font-size:20px; }
+    table{ font-size:11px; }
+    th,td{ padding:7px 8px; }
+    .filter-bar{ padding:12px; gap:10px; }
+    .filter-group, .filter-actions{ width:100%; }
+    .filter-group input[type="date"]{ width:100%; }
+    .slot-grid{ grid-template-columns:1fr; }
+    form.ads-form{ padding:14px; }
+    .row-inline{ flex-wrap:wrap; }
+    .row-inline span{ width:auto; }
+    #login-screen, #config-warning{ margin-top:8vh; padding:20px; }
+  }
+
+  form.ads-form{ background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px; max-width:720px; }
+  form.ads-form label{ display:block; font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin:14px 0 4px; }
+  form.ads-form input, form.ads-form select, form.ads-form textarea{
+    width:100%; padding:9px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:12px;
+  }
+  form.ads-form textarea{ min-height:70px; }
+  .mode-radios{ display:flex; gap:16px; margin:6px 0 10px; }
+  .mode-radios label{ display:flex; align-items:center; gap:6px; font-size:12px; text-transform:none; letter-spacing:0; color:var(--text); }
+  .slot-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; }
+  .save-msg{ font-size:12px; color:var(--green); margin-top:10px; min-height:16px; }
+  fieldset{ border:1px solid var(--border); border-radius:8px; padding:14px; margin-top:16px; }
+  legend{ padding:0 6px; color:var(--text-dim); font-size:11px; text-transform:uppercase; letter-spacing:1px; }
+  .row-inline{ display:flex; gap:10px; align-items:center; }
+  .row-inline input{ flex:1; }
+  .row-inline span{ font-size:11px; color:var(--text-dim); width:150px; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<div id="config-warning" style="display:none">
+  <h2 style="color:var(--amber);margin-top:0;">Firebase not configured</h2>
+  <p>This admin panel reads live data from Firestore, so it needs the same Firebase project as <code>arcade.html</code>.</p>
+  <p>Open this file and fill in <code>FIREBASE_CONFIG</code> near the top of the script with your Firebase web config (same values you put in <code>arcade.html</code>). See <code>SETUP-README.md</code> for the full walkthrough, including how to create an admin login and Firestore security rules.</p>
+</div>
+
+<div id="login-screen" style="display:none">
+  <h2>◆ ARCADE ADMIN ◆</h2>
+  <label class="muted">Email</label>
+  <input id="login-email" type="email" placeholder="admin@yourdomain.com">
+  <label class="muted">Password</label>
+  <input id="login-password" type="password" placeholder="••••••••">
+  <button class="btn primary" style="width:100%" onclick="doLogin()">Sign In</button>
+  <div class="err" id="login-err"></div>
+</div>
+
+<header id="app-header" style="display:none">
+  <h1 style="display:flex;align-items:center;gap:12px">
+    <img src="/bitbunker-icon.svg" alt="Bit Bunker" style="height:32px;width:32px;border-radius:8px;">
+    BIT BUNKER ADMIN
+  </h1>
+  <div class="header-actions">
+    <span class="who" id="who-label"></span>
+    <button class="btn" onclick="refreshAll()">↻ Refresh</button>
+    <button class="btn primary" onclick="exportAllExcel()">⬇ Export All (Excel)</button>
+    <button class="btn danger" onclick="doLogout()">Sign Out</button>
+  </div>
+</header>
+
+<main id="app-main">
+  <div class="tabs">
+    <button class="tab active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab" data-tab="sessions" onclick="switchTab('sessions')">Users & Sessions</button>
+    <button class="tab" data-tab="games" onclick="switchTab('games')">Games & Levels</button>
+    <button class="tab" data-tab="ads" onclick="switchTab('ads')">Ad Clicks</button>
+    <button class="tab" data-tab="settings" onclick="switchTab('settings')">Ad Settings</button>
+    <button class="tab" data-tab="raw" onclick="switchTab('raw')">Raw Events</button>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>From</label>
+      <input type="date" id="filter-from">
+    </div>
+    <div class="filter-group">
+      <label>To</label>
+      <input type="date" id="filter-to">
+    </div>
+    <div class="filter-actions">
+      <button class="btn primary" onclick="applyDateFilter()">Apply</button>
+      <button class="btn sm" onclick="quickRange(0)">Today</button>
+      <button class="btn sm" onclick="quickRange(7)">7 Days</button>
+      <button class="btn sm" onclick="quickRange(30)">30 Days</button>
+      <button class="btn" onclick="clearDateFilter()">Clear</button>
+    </div>
+  </div>
+
+  <p class="muted" id="data-window-note">Loading…</p>
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview">
+    <div class="kpi-row">
+      <div class="kpi"><div class="v" id="kpi-sessions">–</div><div class="l">Sessions</div></div>
+      <div class="kpi"><div class="v" id="kpi-users">–</div><div class="l">Unique Users</div></div>
+      <div class="kpi"><div class="v" id="kpi-gamestarts">–</div><div class="l">Games Played</div></div>
+      <div class="kpi"><div class="v" id="kpi-adclicks">–</div><div class="l">Ad Clicks</div></div>
+      <div class="kpi"><div class="v" id="kpi-adimpr">–</div><div class="l">Ad Impressions</div></div>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="section-title">Devices</div>
+        <div class="table-wrap"><table><thead><tr><th>Type</th><th>Count</th></tr></thead><tbody id="tbl-devices"></tbody></table></div>
+      </div>
+      <div>
+        <div class="section-title">Operating System</div>
+        <div class="table-wrap"><table><thead><tr><th>OS</th><th>Count</th></tr></thead><tbody id="tbl-os"></tbody></table></div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:20px">
+      <div>
+        <div class="section-title">Top Locations</div>
+        <div class="table-wrap"><table><thead><tr><th>Country</th><th>City</th><th>Count</th></tr></thead><tbody id="tbl-geo"></tbody></table></div>
+      </div>
+      <div>
+        <div class="section-title">Browsers</div>
+        <div class="table-wrap"><table><thead><tr><th>Browser</th><th>Count</th></tr></thead><tbody id="tbl-browser"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSIONS -->
+  <div class="panel" id="panel-sessions">
+    <div class="section-title-row">
+      <div class="section-title">Recent Sessions</div>
+      <button class="btn" onclick="exportSessionsExcel()">⬇ Download Excel</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>First Seen</th><th>User</th><th>Device / OS / Browser</th><th>Location</th><th>IP</th><th>Games Played</th><th>Flow</th></tr></thead>
+        <tbody id="tbl-sessions"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GAMES -->
+  <div class="panel" id="panel-games">
+    <div class="section-title">Plays by Game</div>
+    <div class="table-wrap"><table><thead><tr><th>Game</th><th>Started</th><th>Finished</th><th>Vs Computer</th><th>Difficulty Breakdown</th></tr></thead><tbody id="tbl-games"></tbody></table></div>
+    <div class="section-title-row">
+      <div class="section-title">Recent Game Results</div>
+      <button class="btn" onclick="exportGamesExcel()">⬇ Download Excel</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Time</th><th>Game</th><th>Mode</th><th>Level</th><th>Result</th><th>Score</th></tr></thead><tbody id="tbl-results"></tbody></table></div>
+  </div>
+
+  <!-- ADS -->
+  <div class="panel" id="panel-ads">
+    <div class="section-title">Clicks by Ad Slot</div>
+    <div class="table-wrap"><table><thead><tr><th>Ad Slot ID</th><th>Impressions</th><th>Clicks</th><th>CTR</th></tr></thead><tbody id="tbl-adslots"></tbody></table></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="panel" id="panel-settings">
+    <div class="section-title">Ad Configuration</div>
+    <p class="muted">Choose how ads render across the arcade. This is read live by <code>arcade.html</code> — changes apply immediately for new page loads.</p>
+    <form class="ads-form" onsubmit="return false;">
+      <label>Ad Mode</label>
+      <div class="mode-radios">
+        <label><input type="radio" name="adMode" value="manual" checked> Manual ads</label>
+        <label><input type="radio" name="adMode" value="adsense"> Google AdSense</label>
+        <label><input type="radio" name="adMode" value="admob"> Google AdMob (mobile app wrapper)</label>
+      </div>
+
+      <fieldset id="fs-adsense">
+        <legend>AdSense</legend>
+        <label>Publisher ID (ca-pub-XXXXXXXXXXXXXXXX)</label>
+        <input id="adsense-client" placeholder="ca-pub-1234567890123456">
+        <label>Per-slot Ad Unit IDs</label>
+        <div class="slot-grid" id="adsense-slot-grid"></div>
+      </fieldset>
+
+      <fieldset id="fs-admob">
+        <legend>AdMob</legend>
+        <p class="muted" style="margin-top:0">AdMob only renders inside a native app shell (e.g. this page wrapped with Capacitor/Cordova) that exposes <code>window.AdMobBridge.showBanner(unitId, slot)</code>. In a plain browser tab it shows a text placeholder instead.</p>
+        <label>App ID (ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX)</label>
+        <input id="admob-app" placeholder="ca-app-pub-1234567890123456~1234567890">
+        <label>Per-slot Ad Unit IDs</label>
+        <div class="slot-grid" id="admob-slot-grid"></div>
+      </fieldset>
+
+      <fieldset id="fs-manual">
+        <legend>Manual Ads</legend>
+        <p class="muted" style="margin-top:0">Pick a slot, then upload an image file (stored free, directly in your database — no hosting needed) or paste an image URL, plus a click-through link. Or use raw HTML.</p>
+        <label>Slot</label>
+        <select id="manual-slot-select"></select>
+
+        <label>Upload Image File</label>
+        <input type="file" id="manual-file" accept="image/png,image/jpeg,image/webp,image/gif">
+        <div id="manual-file-status" class="muted" style="margin:6px 0 14px; font-size:11px;"></div>
+        <div id="manual-file-preview" style="display:none; margin-bottom:14px;">
+          <img id="manual-file-preview-img" style="max-width:200px; max-height:120px; border:1px solid var(--border); border-radius:6px; display:block; margin-bottom:6px;">
+          <button type="button" class="btn" onclick="clearManualUpload()">Remove Upload</button>
+        </div>
+
+        <label>OR Image URL <span class="muted">(ignored if a file is uploaded above)</span></label>
+        <input id="manual-image" placeholder="https://...">
+
+        <label>Click-through Link</label>
+        <input id="manual-link" placeholder="https://...">
+        <label>OR raw HTML (overrides image/link + upload if set)</label>
+        <textarea id="manual-html" placeholder="<a href='...'>...</a>"></textarea>
+        <button class="btn" style="margin-top:12px" onclick="saveManualSlot()">Save This Slot</button>
+        <div class="section-title" style="margin-top:20px">Configured Manual Slots</div>
+        <div class="table-wrap"><table><thead><tr><th>Slot</th><th>Preview</th><th></th></tr></thead><tbody id="tbl-manual-ads"></tbody></table></div>
+      </fieldset>
+
+      <button class="btn primary" style="margin-top:18px" onclick="saveAdConfig()">Save Ad Mode + Credentials</button>
+      <div class="save-msg" id="save-msg"></div>
+    </form>
+  </div>
+
+  <!-- RAW -->
+  <div class="panel" id="panel-raw">
+    <div class="section-title-row">
+      <div class="section-title">Raw Event Log (within selected date range, up to 500 shown)</div>
+      <button class="btn" onclick="exportRawExcel()">⬇ Download Excel</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Time</th><th>Type</th><th>User</th><th>Details</th></tr></thead><tbody id="tbl-raw"></tbody></table></div>
+  </div>
+</main>
+
+<script>
+/* =========================================================================
+   Paste the SAME Firebase config used in arcade.html here.
+   ========================================================================= */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBiCLtT7DvYUQezanInnHr2jwfFBokXLwM",
+  authDomain: "bit-bunker.firebaseapp.com",
+  projectId: "bit-bunker",
+  storageBucket: "bit-bunker.firebasestorage.app",
+  messagingSenderId: "814954999993",
+  appId: "1:814954999993:web:c45e27045a534c5971eb68"
+};
+
+// All ad slot IDs that exist in arcade.html — keep in sync if you add more games.
+const AD_SLOTS = [
+  'hub-top',
+  'game-top-1','game-top-2','game-top-3','game-top-4','game-top-5',
+  'game-top-6','game-top-7','game-top-8','game-top-9','game-top-10',
+  'screen-bottom-1','screen-bottom-2','screen-bottom-3','screen-bottom-4','screen-bottom-5',
+  'screen-bottom-6','screen-bottom-7','screen-bottom-8','screen-bottom-9','screen-bottom-10','screen-bottom-11'
+];
+
+let db, auth;
+const FIREBASE_ENABLED = !!FIREBASE_CONFIG.apiKey;
+
+if(!FIREBASE_ENABLED){
+  document.getElementById('config-warning').style.display='block';
+} else {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+  auth = firebase.auth();
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('app-header').style.display='flex';
+      document.getElementById('app-main').style.display='block';
+      document.getElementById('who-label').textContent = user.email;
+      refreshAll();
+    } else {
+      document.getElementById('login-screen').style.display='block';
+      document.getElementById('app-header').style.display='none';
+      document.getElementById('app-main').style.display='none';
+    }
+  });
+}
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-password').value;
+  document.getElementById('login-err').textContent='';
+  auth.signInWithEmailAndPassword(email,pass).catch(e=>{
+    document.getElementById('login-err').textContent = e.message;
+  });
+}
+function doLogout(){ auth.signOut(); }
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
+}
+
+/* ---------- date filter ---------- */
+let CURRENT_FILTER = {fromMs:null, toMs:null};
+function getDateRangeMs(){
+  const f = document.getElementById('filter-from').value;
+  const t = document.getElementById('filter-to').value;
+  const fromMs = f ? new Date(f+'T00:00:00').getTime() : null;
+  const toMs = t ? new Date(t+'T23:59:59.999').getTime() : null;
+  return {fromMs, toMs};
+}
+function applyDateFilter(){
+  CURRENT_FILTER = getDateRangeMs();
+  refreshAll();
+}
+function clearDateFilter(){
+  document.getElementById('filter-from').value = '';
+  document.getElementById('filter-to').value = '';
+  CURRENT_FILTER = {fromMs:null, toMs:null};
+  refreshAll();
+}
+function quickRange(daysBack){
+  const to = new Date();
+  const from = new Date();
+  from.setDate(from.getDate() - daysBack);
+  const fmt = d => d.toISOString().slice(0,10);
+  document.getElementById('filter-from').value = fmt(from);
+  document.getElementById('filter-to').value = fmt(to);
+  applyDateFilter();
+}
+
+/* ---------- data load + aggregation ---------- */
+let ALL_EVENTS=[];
+async function refreshAll(){
+  const filtered = !!(CURRENT_FILTER.fromMs || CURRENT_FILTER.toMs);
+  document.getElementById('data-window-note').textContent = filtered ? 'Loading events for selected dates…' : 'Loading recent events…';
+  try{
+    let q = db.collection('events').orderBy('ts','desc');
+    if(CURRENT_FILTER.toMs) q = q.where('ts','<=',CURRENT_FILTER.toMs);
+    if(CURRENT_FILTER.fromMs) q = q.where('ts','>=',CURRENT_FILTER.fromMs);
+    q = q.limit(filtered ? 5000 : 1500);
+    const snap = await q.get();
+    ALL_EVENTS = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    const rangeLabel = filtered
+      ? `Filtered: ${CURRENT_FILTER.fromMs ? new Date(CURRENT_FILTER.fromMs).toLocaleDateString() : 'earliest'} → ${CURRENT_FILTER.toMs ? new Date(CURRENT_FILTER.toMs).toLocaleDateString() : 'latest'}`
+      : 'Showing most recent events (no date filter applied)';
+    document.getElementById('data-window-note').textContent =
+      `${rangeLabel} — ${ALL_EVENTS.length} event${ALL_EVENTS.length===1?'':'s'} loaded` + (ALL_EVENTS.length ? ` (oldest shown: ${new Date(ALL_EVENTS[ALL_EVENTS.length-1].ts).toLocaleString()})` : '');
+  }catch(e){
+    document.getElementById('data-window-note').textContent = 'Failed to load events: '+e.message +
+      (/index/i.test(e.message) ? ' — open the browser console for a link to auto-create the required Firestore index, then retry.' : '');
+    ALL_EVENTS=[];
+  }
+  renderOverview(); renderSessions(); renderGames(); renderAds(); renderRaw();
+  loadAdConfigIntoForm();
+}
+
+function countBy(arr, keyFn){
+  const m={};
+  arr.forEach(x=>{ const k=keyFn(x)||'Unknown'; m[k]=(m[k]||0)+1; });
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]);
+}
+function fillTable(tbodyId, rows, mapFn){
+  const tbody=document.getElementById(tbodyId);
+  tbody.innerHTML = rows.length ? rows.map(mapFn).join('') : '<tr><td colspan="10" class="muted">No data yet</td></tr>';
+}
+
+function renderOverview(){
+  const sessions = new Set(ALL_EVENTS.map(e=>e.sid)).size;
+  const users = new Set(ALL_EVENTS.map(e=>e.uid)).size;
+  const gamestarts = ALL_EVENTS.filter(e=>e.type==='game_start').length;
+  const adclicks = ALL_EVENTS.filter(e=>e.type==='ad_click').length;
+  const adimpr = ALL_EVENTS.filter(e=>e.type==='ad_impression').length;
+  document.getElementById('kpi-sessions').textContent=sessions;
+  document.getElementById('kpi-users').textContent=users;
+  document.getElementById('kpi-gamestarts').textContent=gamestarts;
+  document.getElementById('kpi-adclicks').textContent=adclicks;
+  document.getElementById('kpi-adimpr').textContent=adimpr;
+
+  const sessionEvents = dedupeBySession(ALL_EVENTS);
+  fillTable('tbl-devices', countBy(sessionEvents,e=>e.deviceType), ([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`);
+  fillTable('tbl-os', countBy(sessionEvents,e=>e.os), ([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`);
+  fillTable('tbl-browser', countBy(sessionEvents,e=>e.browser), ([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`);
+  const geoCount={};
+  sessionEvents.forEach(e=>{ const k=(e.country||'Unknown')+'|'+(e.city||''); geoCount[k]=(geoCount[k]||0)+1; });
+  const geoRows=Object.entries(geoCount).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  fillTable('tbl-geo', geoRows, ([k,v])=>{ const [country,city]=k.split('|'); return `<tr><td>${country}</td><td>${city||'–'}</td><td>${v}</td></tr>`; });
+}
+function dedupeBySession(events){
+  const seen=new Set(); const out=[];
+  events.forEach(e=>{ if(e.sid && !seen.has(e.sid)){ seen.add(e.sid); out.push(e); } });
+  return out;
+}
+
+let LAST_SESSION_ROWS=[];
+function renderSessions(){
+  const bySession={};
+  ALL_EVENTS.slice().reverse().forEach(e=>{ // chronological
+    if(!e.sid) return;
+    if(!bySession[e.sid]) bySession[e.sid]={ meta:e, events:[] };
+    bySession[e.sid].events.push(e);
+    if(e.deviceType) bySession[e.sid].meta=e; // keep richest metadata seen
+  });
+  const rows = Object.values(bySession).sort((a,b)=> (b.events[0].ts||0) - (a.events[0].ts||0));
+  LAST_SESSION_ROWS = rows;
+  fillTable('tbl-sessions', rows.slice(0,100), s=>{
+    const m=s.meta;
+    const games = [...new Set(s.events.filter(e=>e.type==='game_start').map(e=>e.game))];
+    const flow = s.events.map(e=>e.type==='screen_view'?e.screen:e.type).join(' → ');
+    const first = s.events[0];
+    return `<tr>
+      <td>${first.ts?new Date(first.ts).toLocaleString():'–'}</td>
+      <td title="${m.uid||''}">${(m.uid||'').slice(0,8)}…</td>
+      <td>${m.deviceType||'–'} / ${m.os||'–'} / ${m.browser||'–'}</td>
+      <td>${m.country||'–'}${m.city?', '+m.city:''}</td>
+      <td>${m.ip||'–'}</td>
+      <td>${games.join(', ')||'–'}</td>
+      <td class="muted" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${flow}">${flow}</td>
+    </tr>`;
+  });
+}
+
+function renderGames(){
+  const starts = ALL_EVENTS.filter(e=>e.type==='game_start');
+  const ends = ALL_EVENTS.filter(e=>e.type==='game_end');
+  const gameNames = [...new Set([...starts.map(e=>e.game), ...ends.map(e=>e.game)])].filter(Boolean);
+  fillTable('tbl-games', gameNames, g=>{
+    const s = starts.filter(e=>e.game===g);
+    const e = ends.filter(e=>e.game===g);
+    const cpu = s.filter(x=>x.mode==='cpu').length;
+    const diffCounts = countBy(s.filter(x=>x.mode==='cpu'), x=>x.level);
+    const diffStr = diffCounts.map(([k,v])=>`${k}:${v}`).join(' / ') || '–';
+    return `<tr><td>${g}</td><td>${s.length}</td><td>${e.length}</td><td>${cpu}</td><td>${diffStr}</td></tr>`;
+  });
+  const recent = ends.slice(0,60);
+  fillTable('tbl-results', recent, e=>{
+    const badge = e.result==='human_win'||e.result==='win'||e.result==='RED' ? 'win' : (e.result==='draw'?'draw':'loss');
+    return `<tr>
+      <td>${e.ts?new Date(e.ts).toLocaleString():'–'}</td>
+      <td>${e.game||'–'}</td>
+      <td>${e.mode||'–'}</td>
+      <td>${e.level||'–'}</td>
+      <td><span class="badge ${badge}">${e.result||'–'}</span></td>
+      <td>${e.score ?? '–'}</td>
+    </tr>`;
+  });
+}
+
+function renderAds(){
+  const impr = ALL_EVENTS.filter(e=>e.type==='ad_impression');
+  const clicks = ALL_EVENTS.filter(e=>e.type==='ad_click');
+  const slots = [...new Set([...impr.map(e=>e.slot), ...clicks.map(e=>e.slot)])].filter(Boolean);
+  const rows = slots.map(slot=>{
+    const i = impr.filter(e=>e.slot===slot).length;
+    const c = clicks.filter(e=>e.slot===slot).length;
+    return {slot,i,c};
+  }).sort((a,b)=>b.c-a.c);
+  fillTable('tbl-adslots', rows, r=>`<tr><td>${r.slot}</td><td>${r.i}</td><td>${r.c}</td><td>${r.i?((r.c/r.i*100).toFixed(1)+'%'):'–'}</td></tr>`);
+}
+
+function renderRaw(){
+  const rows = ALL_EVENTS.slice(0,500);
+  fillTable('tbl-raw', rows, e=>{
+    const {type,uid,sid,ts,timestamp,page,...rest} = e;
+    delete rest.id; delete rest.userAgent;
+    return `<tr>
+      <td>${ts?new Date(ts).toLocaleString():'–'}</td>
+      <td>${type}</td>
+      <td title="${uid||''}">${(uid||'').slice(0,8)}…</td>
+      <td class="muted">${JSON.stringify(rest)}</td>
+    </tr>`;
+  });
+}
+
+/* ---------- ad settings form ---------- */
+function buildSlotGrid(containerId, prefix){
+  const el=document.getElementById(containerId);
+  el.innerHTML = AD_SLOTS.map(s=>`
+    <div class="row-inline"><span>${s}</span><input id="${prefix}-${s}" placeholder="ad unit id"></div>
+  `).join('');
+}
+buildSlotGrid('adsense-slot-grid','adsense');
+buildSlotGrid('admob-slot-grid','admob');
+document.getElementById('manual-slot-select').innerHTML = AD_SLOTS.map(s=>`<option value="${s}">${s}</option>`).join('');
+
+document.querySelectorAll('input[name="adMode"]').forEach(r=>r.addEventListener('change', updateModeVisibility));
+function updateModeVisibility(){
+  const mode = document.querySelector('input[name="adMode"]:checked').value;
+  document.getElementById('fs-adsense').style.opacity = mode==='adsense' ? 1 : .4;
+  document.getElementById('fs-admob').style.opacity = mode==='admob' ? 1 : .4;
+  document.getElementById('fs-manual').style.opacity = mode==='manual' ? 1 : .4;
+}
+updateModeVisibility();
+
+let currentAdConfig = {mode:'manual', adsenseClientId:'', adsenseSlots:{}, admobAppId:'', admobUnitIds:{}, manualAds:{}};
+
+async function loadAdConfigIntoForm(){
+  try{
+    const doc = await db.collection('config').doc('ads').get();
+    if(doc.exists) currentAdConfig = {...currentAdConfig, ...doc.data()};
+  }catch(e){ console.warn(e); }
+  document.querySelector(`input[name="adMode"][value="${currentAdConfig.mode||'manual'}"]`).checked=true;
+  updateModeVisibility();
+  document.getElementById('adsense-client').value = currentAdConfig.adsenseClientId||'';
+  document.getElementById('admob-app').value = currentAdConfig.admobAppId||'';
+  AD_SLOTS.forEach(s=>{
+    document.getElementById('adsense-'+s).value = (currentAdConfig.adsenseSlots||{})[s]||'';
+    document.getElementById('admob-'+s).value = (currentAdConfig.admobUnitIds||{})[s]||'';
+  });
+  renderManualAdsTable();
+}
+function renderManualAdsTable(){
+  const rows = Object.entries(currentAdConfig.manualAds||{});
+  fillTable('tbl-manual-ads', rows, ([slot,ad])=>{
+    let preview;
+    if(ad.html) preview = 'custom HTML';
+    else if(ad.imageUrl && ad.imageUrl.startsWith('data:')) preview = `<img src="${ad.imageUrl}" style="max-height:36px;max-width:120px;vertical-align:middle;border-radius:4px;"> <span class="muted">embedded file (~${Math.round(ad.imageUrl.length*0.75/1024)}KB)</span>`;
+    else preview = ad.imageUrl || '–';
+    return `<tr><td>${slot}</td><td class="muted">${preview}</td>
+    <td><button class="btn" onclick="deleteManualSlot('${slot}')">Remove</button></td></tr>`;
+  });
+}
+
+/* ---- free file upload: compress client-side, embed as data URL in Firestore ---- */
+let _manualUploadDataUrl = null;
+const MANUAL_UPLOAD_MAX_BYTES = 220 * 1024; // keep each embedded image well under Firestore's 1MB per-document cap
+
+function clearManualUpload(){
+  _manualUploadDataUrl = null;
+  document.getElementById('manual-file').value = '';
+  document.getElementById('manual-file-preview').style.display = 'none';
+  document.getElementById('manual-file-status').textContent = '';
+}
+
+function compressToDataUrl(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Could not read file'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Could not decode image'));
+      img.onload = () => {
+        // Cap dimensions — banners never need to be huge; keeps file size (and Firestore doc size) small.
+        const MAX_W = 900, MAX_H = 500;
+        let w = img.width, h = img.height;
+        const scale = Math.min(1, MAX_W / w, MAX_H / h);
+        w = Math.round(w * scale); h = Math.round(h * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const useTransparency = /png|gif/i.test(file.type);
+        const mime = useTransparency ? 'image/png' : 'image/jpeg';
+        // Try decreasing quality until it fits the size budget (PNG ignores quality param but still benefits from resize).
+        let quality = 0.85;
+        let dataUrl = canvas.toDataURL(mime, quality);
+        while(dataUrl.length * 0.75 > MANUAL_UPLOAD_MAX_BYTES && quality > 0.35 && mime==='image/jpeg'){
+          quality -= 0.1;
+          dataUrl = canvas.toDataURL(mime, quality);
+        }
+        resolve(dataUrl);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById('manual-file').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById('manual-file-status');
+  statusEl.textContent = 'Compressing…';
+  try{
+    const dataUrl = await compressToDataUrl(file);
+    const kb = Math.round(dataUrl.length * 0.75 / 1024);
+    _manualUploadDataUrl = dataUrl;
+    document.getElementById('manual-file-preview-img').src = dataUrl;
+    document.getElementById('manual-file-preview').style.display = 'block';
+    if(kb > MANUAL_UPLOAD_MAX_BYTES/1024){
+      statusEl.innerHTML = `<span style="color:var(--amber)">~${kb}KB after compression — still large. Remember all slots share one 1MB database document; consider a smaller/simpler image.</span>`;
+    } else {
+      statusEl.textContent = `Ready — ~${kb}KB (embedded free in your database, no hosting needed).`;
+    }
+  }catch(err){
+    statusEl.innerHTML = `<span style="color:var(--magenta)">Upload failed: ${err.message}</span>`;
+    _manualUploadDataUrl = null;
+  }
+});
+
+function saveManualSlot(){
+  const slot=document.getElementById('manual-slot-select').value;
+  const imageUrl=document.getElementById('manual-image').value.trim();
+  const linkUrl=document.getElementById('manual-link').value.trim();
+  const html=document.getElementById('manual-html').value.trim();
+  currentAdConfig.manualAds = currentAdConfig.manualAds || {};
+  if(html){
+    currentAdConfig.manualAds[slot] = {html};
+  } else if(_manualUploadDataUrl){
+    currentAdConfig.manualAds[slot] = {imageUrl:_manualUploadDataUrl, linkUrl};
+  } else {
+    currentAdConfig.manualAds[slot] = {imageUrl, linkUrl};
+  }
+  clearManualUpload();
+  document.getElementById('manual-image').value = '';
+  renderManualAdsTable();
+  document.getElementById('save-msg').textContent = 'Slot staged — click "Save Ad Mode + Credentials" to publish.';
+}
+function deleteManualSlot(slot){
+  delete currentAdConfig.manualAds[slot];
+  renderManualAdsTable();
+}
+async function saveAdConfig(){
+  const mode = document.querySelector('input[name="adMode"]:checked').value;
+  const adsenseSlots={}, admobUnitIds={};
+  AD_SLOTS.forEach(s=>{
+    const av=document.getElementById('adsense-'+s).value.trim(); if(av) adsenseSlots[s]=av;
+    const mv=document.getElementById('admob-'+s).value.trim(); if(mv) admobUnitIds[s]=mv;
+  });
+  currentAdConfig = {
+    mode,
+    adsenseClientId: document.getElementById('adsense-client').value.trim(),
+    adsenseSlots,
+    admobAppId: document.getElementById('admob-app').value.trim(),
+    admobUnitIds,
+    manualAds: currentAdConfig.manualAds || {}
+  };
+  try{
+    await db.collection('config').doc('ads').set(currentAdConfig);
+    document.getElementById('save-msg').textContent = 'Saved ✓ — live on next page load of arcade.html';
+  }catch(e){
+    document.getElementById('save-msg').textContent = 'Save failed: '+e.message;
+  }
+}
+
+/* ---------- excel export (SheetJS) ---------- */
+function fileStamp(){ return new Date().toISOString().slice(0,19).replace(/[:T]/g,'-'); }
+function rangeSuffix(){
+  if(!CURRENT_FILTER.fromMs && !CURRENT_FILTER.toMs) return '';
+  const f = CURRENT_FILTER.fromMs ? new Date(CURRENT_FILTER.fromMs).toISOString().slice(0,10) : 'start';
+  const t = CURRENT_FILTER.toMs ? new Date(CURRENT_FILTER.toMs).toISOString().slice(0,10) : 'now';
+  return `_${f}_to_${t}`;
+}
+function requireXLSX(){
+  if(typeof XLSX==='undefined'){ alert('Excel export library failed to load — check your internet connection and try again.'); return false; }
+  return true;
+}
+function sessionsToRows(){
+  return LAST_SESSION_ROWS.map(s=>{
+    const m=s.meta, first=s.events[0];
+    const games=[...new Set(s.events.filter(e=>e.type==='game_start').map(e=>e.game))];
+    const flow = s.events.map(e=>e.type==='screen_view'?e.screen:e.type).join(' -> ');
+    return {
+      'First Seen': first.ts?new Date(first.ts).toLocaleString():'',
+      'User ID': m.uid||'',
+      'Session ID': m.sid||'',
+      'Device': m.deviceType||'',
+      'OS': m.os||'',
+      'Browser': m.browser||'',
+      'Country': m.country||'',
+      'City': m.city||'',
+      'IP': m.ip||'',
+      'Events In Session': s.events.length,
+      'Games Played': games.join(', '),
+      'Flow': flow
+    };
+  });
+}
+function gamesResultsToRows(){
+  return ALL_EVENTS.filter(e=>e.type==='game_end').map(e=>({
+    'Time': e.ts?new Date(e.ts).toLocaleString():'',
+    'Game': e.game||'',
+    'Mode': e.mode||'',
+    'Level': e.level||'',
+    'Result': e.result||'',
+    'Score': e.score ?? '',
+    'User ID': e.uid||'',
+    'Session ID': e.sid||''
+  }));
+}
+function adSlotsToRows(){
+  const impr = ALL_EVENTS.filter(e=>e.type==='ad_impression');
+  const clicks = ALL_EVENTS.filter(e=>e.type==='ad_click');
+  const slots = [...new Set([...impr.map(e=>e.slot), ...clicks.map(e=>e.slot)])].filter(Boolean);
+  return slots.map(slot=>{
+    const i = impr.filter(e=>e.slot===slot).length;
+    const c = clicks.filter(e=>e.slot===slot).length;
+    return { 'Ad Slot ID': slot, 'Impressions': i, 'Clicks': c, 'CTR %': i ? +(c/i*100).toFixed(2) : 0 };
+  }).sort((a,b)=>b.Clicks-a.Clicks);
+}
+function rawEventsToRows(){
+  return ALL_EVENTS.map(e=>{
+    const {id,type,uid,sid,ts,timestamp,page,userAgent,...rest} = e;
+    return {
+      'Time': ts?new Date(ts).toLocaleString():'',
+      'Type': type||'',
+      'User ID': uid||'',
+      'Session ID': sid||'',
+      'Page': page||'',
+      'Details': JSON.stringify(rest)
+    };
+  });
+}
+function exportSessionsExcel(){
+  if(!requireXLSX()) return;
+  const ws = XLSX.utils.json_to_sheet(sessionsToRows());
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Sessions');
+  XLSX.writeFile(wb, `bitbunker-sessions${rangeSuffix()}_${fileStamp()}.xlsx`);
+}
+function exportGamesExcel(){
+  if(!requireXLSX()) return;
+  const ws = XLSX.utils.json_to_sheet(gamesResultsToRows());
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Game Results');
+  XLSX.writeFile(wb, `bitbunker-game-results${rangeSuffix()}_${fileStamp()}.xlsx`);
+}
+function exportRawExcel(){
+  if(!requireXLSX()) return;
+  const ws = XLSX.utils.json_to_sheet(rawEventsToRows());
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Raw Events');
+  XLSX.writeFile(wb, `bitbunker-raw-events${rangeSuffix()}_${fileStamp()}.xlsx`);
+}
+function exportAllExcel(){
+  if(!requireXLSX()) return;
+  const wb = XLSX.utils.book_new();
+  const kpiRows = [
+    { Metric:'Sessions', Value: new Set(ALL_EVENTS.map(e=>e.sid)).size },
+    { Metric:'Unique Users', Value: new Set(ALL_EVENTS.map(e=>e.uid)).size },
+    { Metric:'Games Played', Value: ALL_EVENTS.filter(e=>e.type==='game_start').length },
+    { Metric:'Ad Clicks', Value: ALL_EVENTS.filter(e=>e.type==='ad_click').length },
+    { Metric:'Ad Impressions', Value: ALL_EVENTS.filter(e=>e.type==='ad_impression').length },
+    { Metric:'Date Range', Value: (CURRENT_FILTER.fromMs||CURRENT_FILTER.toMs) ? `${CURRENT_FILTER.fromMs?new Date(CURRENT_FILTER.fromMs).toLocaleDateString():'earliest'} to ${CURRENT_FILTER.toMs?new Date(CURRENT_FILTER.toMs).toLocaleDateString():'latest'}` : 'No filter (most recent events)' }
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(kpiRows), 'Overview');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sessionsToRows()), 'Sessions');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(gamesResultsToRows()), 'Game Results');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(adSlotsToRows()), 'Ad Slots');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rawEventsToRows()), 'Raw Events');
+  XLSX.writeFile(wb, `bitbunker-export${rangeSuffix()}_${fileStamp()}.xlsx`);
+}
+</script>
+</body>
+</html>

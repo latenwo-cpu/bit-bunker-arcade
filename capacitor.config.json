@@ -1,0 +1,12 @@
+{
+  "appId": "app.web.bit_bunker.twa",
+  "appName": "Bit Bunker",
+  "webDir": "www",
+  "backgroundColor": "#0b0e1a",
+  "android": {
+    "backgroundColor": "#0b0e1a"
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

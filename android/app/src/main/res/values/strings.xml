@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Bit Bunker</string>
+    <string name="title_activity_main">Bit Bunker</string>
+    <string name="package_name">app.web.bit_bunker.twa</string>
+    <string name="custom_url_scheme">app.web.bit_bunker.twa</string>
+</resources>
