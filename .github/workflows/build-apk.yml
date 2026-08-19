@@ -1,5 +1,6 @@
-name: Build Android APK # Builds a signed release APK any time you push to main, or manually from the Actions tab.
+name: Build Android APK
 
+# Builds a signed release APK any time you push to main, or manually from the Actions tab.
 on:
   push:
     branches: [ main ]
@@ -15,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies and sync web assets
         run: |
@@ -79,6 +80,8 @@ jobs:
           files: android/app/build/outputs/apk/release/app-release.apk
           body: |
             Auto-built APK from commit ${{ github.sha }}.
-            Download `app-release.apk` below and install it on Android (you may need to tap "install anyway" past the unknown-source prompt — that's normal for apps outside the Play Store).
+            Download `app-release.apk` below and install it on Android
+            (you may need to tap "install anyway" past the unknown-source
+            prompt — that's normal for apps outside the Play Store).
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
