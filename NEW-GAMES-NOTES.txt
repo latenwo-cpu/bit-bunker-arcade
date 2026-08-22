@@ -1,0 +1,78 @@
+3 NEW GAMES ADDED (16 total now)
+----------------------------------
+- Reversi/Othello  -> 2 Players + Vs Computer (Easy/Medium/Hard, minimax AI)
+- Dots & Boxes (4x4 boxes) -> 2 Players + Vs Computer (AI avoids giving away
+  boxes, claims free ones, harder = smarter box-avoidance)
+- Battleship -> 2 Players (hot-seat, pass-the-device between turns, ships
+  auto-placed randomly each game) + Vs Computer (Easy = random shots,
+  Medium/Hard = hunt-and-target AI once it lands a hit)
+
+All three follow the exact same mode-bar pattern as your existing
+Tic-Tac-Toe / Connect Four / Checkers, so they're consistent with the
+rest of the arcade, and difficulty/mode choices persist via localStorage
+the same way.
+
+IMPORTANT: TWO COPIES OF THE ARCADE, NOW RECONCILED
+--------------------------------------------------------------------
+Your project has public/index.html AND public/arcade.html as two full,
+separate copies of the whole site (same for www/). Firebase Hosting
+serves index.html at your root URL (https://pixelarcade.web.app/), while
+arcade.html is what your manifest.json's start_url points PWA/installed-
+app launches to. Both are "live" depending on how someone arrives.
+
+These two files had already drifted apart before this round of changes —
+index.html had Dots & Boxes online multiplayer wired up that arcade.html
+didn't have, plus a couple of other small improvements (a shared
+onlineErrorMessage() helper for clearer connection-error text, and some
+ad-slot polish). Meanwhile arcade.html didn't have those.
+
+I've reconciled them: both public/index.html and public/arcade.html (and
+their www/ copies) now have the exact same game logic and online
+multiplayer — Tic-Tac-Toe, Connect Four, Checkers, and Dots & Boxes all
+support Online mode in both files. Only the <head> section differs
+(index.html keeps its full SEO meta tags/canonical URL; arcade.html keeps
+its lighter head), which is intentional so Google doesn't see duplicate
+page content at two URLs.
+
+Going forward: if you edit game logic by hand, remember to make the same
+edit in BOTH index.html and arcade.html (or just ask me to do it and I'll
+keep both in sync). If you'd rather stop maintaining two copies entirely,
+the cleanest fix is to delete one and have Firebase Hosting redirect to
+the other — let me know if you want that set up instead.
+
+ONLINE MULTIPLAYER UPDATE
+--------------------------------------------------------------------
+Connect Four and Checkers now have a real "Online" mode, wired up the
+exact same way as Tic-Tac-Toe (Create Room / Join Room / 5-letter code,
+via the shared OnlineRoom Firestore engine already in arcade.html — pure
+client-side Firestore reads/writes, no Cloud Functions, so this stays
+100% on the Firebase Spark (free) plan, same as everything else here).
+So now 4 of the 16 games have real online multiplayer: Tic-Tac-Toe,
+Connect Four, Checkers, Dots & Boxes.
+
+Reversi and Battleship are still local (2P hot-seat) + Vs Computer only.
+The pattern to wire them up next is the same one used for Connect
+Four/Checkers:
+  - Flatten the board to a 1D array in the room's `state` (Firestore
+    doesn't support arrays-of-arrays directly, hence e.g. Connect Four's
+    6x7 board is stored as a flat 42-element array, Checkers' 8x8 as 64).
+  - OnlineRoom.create(gameName, initialState) / OnlineRoom.join(code, gameName)
+  - OnlineRoom.move(patchFn) to submit a move as a Firestore transaction
+    (patchFn validates the move against `state` and returns the new state,
+    or null to reject it).
+  - OnlineRoom.onUpdate(callback) to re-render whenever the room doc changes.
+  Search for "c4OnlineDropCol"/"c4OnRoomUpdate" (Connect Four) or
+  "ckOnlineMove"/"ckOnRoomUpdate" (Checkers) in arcade.html as the
+  reference implementations — Reversi would follow the Connect Four shape
+  (simple flat-array patch). Battleship takes more work since it needs two
+  separate per-player boards (each player's ship layout + the other
+  player's shot history) inside one room doc instead of one shared board.
+
+WHAT'S SCOPED OUT FOR NOW
+----------------------------
+Adding "1v1 / vs computer / multiplayer" to the other 10 games (Snake, 2048,
+Space Invaders, Sliding Puzzle, Whack-a-Mole, Word Search, Hangman, Memory,
+Drift3D, Runner3D) needs a design decision per game first, since most of
+them don't have an obvious "vs computer" or "1v1" shape without changing
+what the game is. Let me know your preferred direction for each (or just
+the ones you care about) and I'll build those next.

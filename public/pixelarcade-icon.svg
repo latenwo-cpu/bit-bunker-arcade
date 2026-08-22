@@ -1,0 +1,73 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#1a2140"/>
+      <stop offset="60%" stop-color="#0b0e1a"/>
+      <stop offset="100%" stop-color="#070912"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2de2c8"/>
+      <stop offset="100%" stop-color="#ff3e9d"/>
+    </linearGradient>
+    <linearGradient id="stick" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffe27a"/>
+      <stop offset="100%" stop-color="#ffb400"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- background plate -->
+  <rect x="0" y="0" width="512" height="512" rx="96" fill="url(#bg)"/>
+  <rect x="16" y="16" width="480" height="480" rx="84" fill="none" stroke="#2a3363" stroke-width="4"/>
+
+  <!-- scanlines -->
+  <g opacity="0.10">
+    <rect x="0" y="0" width="512" height="512" fill="url(#scan)"/>
+  </g>
+  <defs>
+    <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect width="4" height="2" fill="#000"/>
+    </pattern>
+  </defs>
+
+  <!-- bunker hatch ring -->
+  <circle cx="256" cy="240" r="150" fill="none" stroke="url(#ring)" stroke-width="14" filter="url(#glow)"/>
+  <circle cx="256" cy="240" r="150" fill="#0b0e1a" opacity="0.0"/>
+
+  <!-- rivets around hatch -->
+  <g fill="#8892b8">
+    <circle cx="256" cy="90"  r="7"/>
+    <circle cx="256" cy="390" r="7"/>
+    <circle cx="106" cy="240" r="7"/>
+    <circle cx="406" cy="240" r="7"/>
+    <circle cx="150" cy="134" r="6"/>
+    <circle cx="362" cy="134" r="6"/>
+    <circle cx="150" cy="346" r="6"/>
+    <circle cx="362" cy="346" r="6"/>
+  </g>
+
+  <!-- inner hatch plate -->
+  <circle cx="256" cy="240" r="118" fill="#141a30" stroke="#2a3363" stroke-width="3"/>
+
+  <!-- joystick glyph -->
+  <g filter="url(#glow)">
+    <rect x="234" y="180" width="44" height="70" rx="18" fill="url(#stick)"/>
+    <circle cx="256" cy="176" r="26" fill="url(#stick)"/>
+    <rect x="196" y="270" width="120" height="26" rx="10" fill="#2de2c8"/>
+  </g>
+
+  <!-- 8-bit corner blocks -->
+  <g fill="#ff3e9d">
+    <rect x="176" y="316" width="16" height="16"/>
+    <rect x="320" y="316" width="16" height="16"/>
+  </g>
+
+  <!-- BB pixel wordmark at base -->
+  <text x="256" y="470" text-anchor="middle" font-family="'Courier New', monospace" font-weight="700" font-size="54" letter-spacing="6" fill="#e8ecff">BB</text>
+</svg>

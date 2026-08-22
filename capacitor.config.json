@@ -1,0 +1,12 @@
+{
+  "appId": "app.web.pixel_arcade.twa",
+  "appName": "Pixel Arcade",
+  "webDir": "www",
+  "backgroundColor": "#0b0e1a",
+  "android": {
+    "backgroundColor": "#0b0e1a"
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
