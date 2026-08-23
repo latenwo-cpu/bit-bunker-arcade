@@ -1279,12 +1279,23 @@ function ensureAdSenseScript(clientId){
   s.crossOrigin='anonymous';
   document.head.appendChild(s);
 }
+function isNativeApp(){
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+}
 function renderAdSlot(el, cfg){
   const slot = el.dataset.adSlot;
   el.innerHTML='';
   el.classList.remove('has-content');
+  el.style.display='';
   const trackClick=()=>logEvent('ad_click',{slot, mode:cfg.mode});
+  const native = isNativeApp();
   if(cfg.mode==='adsense' && cfg.adsenseClientId){
+    // Google AdSense policy forbids serving AdSense ads inside a native app WebView.
+    // Never render it in-app — fall back to the plain placeholder instead.
+    if(native){
+      el.textContent = 'Ad Space — AdSense is web-only (app uses AdMob)';
+      return;
+    }
     const slotId = (cfg.adsenseSlots||{})[slot];
     if(!slotId){ el.textContent='Ad Space — configure AdSense slot "'+slot+'" in admin panel'; return; }
     el.classList.add('has-content');
@@ -1307,12 +1318,17 @@ function renderAdSlot(el, cfg){
       el.textContent='';
       el.style.display='none'; // native banner overlays its own view
       logEvent('ad_impression',{slot, mode:'admob'});
+    } else if(native){
+      el.textContent = 'Ad Space — AdMob unit not configured for "'+slot+'"';
     } else {
       el.textContent = 'AdMob banner ('+slot+') — renders inside the wrapped mobile app';
     }
   } else if(cfg.mode==='manual'){
     const ad = (cfg.manualAds||{})[slot];
-    if(ad && ad.imageUrl){
+    // target controls where a manual ad shows: 'web', 'app', or 'both' (default 'both' for older configs without the field)
+    const target = ad && ad.target ? ad.target : 'both';
+    const targetMatches = target==='both' || (target==='web' && !native) || (target==='app' && native);
+    if(ad && targetMatches && ad.imageUrl){
       el.classList.add('has-content');
       const a=document.createElement('a');
       a.href = ad.linkUrl || '#';
@@ -1323,7 +1339,7 @@ function renderAdSlot(el, cfg){
       a.appendChild(img);
       el.appendChild(a);
       logEvent('ad_impression',{slot, mode:'manual'});
-    } else if(ad && ad.html){
+    } else if(ad && targetMatches && ad.html){
       el.classList.add('has-content');
       el.innerHTML = ad.html;
       el.querySelectorAll('a').forEach(a=>a.addEventListener('click',trackClick));
