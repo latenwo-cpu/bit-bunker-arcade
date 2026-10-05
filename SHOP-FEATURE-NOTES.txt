@@ -1,0 +1,86 @@
+COIN ECONOMY + SHOP ADDED (progression & rewards)
+---------------------------------------------------
+All four HTML copies (public/index.html, public/arcade.html, www/index.html,
+www/arcade.html) now share a coin economy and a Shop screen, built on top of
+the existing Engagement Engine (XP/levels/achievements). Everything is
+still 100% client-side (localStorage) — no Firebase changes required.
+
+1. COINS
+   - New 🪙 balance shown in the header next to the level badge.
+   - Earned automatically alongside XP:
+       - First time playing a game:  +5 coins  (+15 XP)
+       - Replaying a game:           +2 coins  (+5 XP)
+       - Winning a game:             +10 coins (+25 XP)
+       - Daily Challenge:            +20 coins (+30 XP)
+       - Unlocking an achievement:   +15 coins
+       - Leveling up:                +10 coins x new level (bonus)
+
+2. SHOP (new screen — 🛒 button in the header, and a button on Profile)
+   - Themes: swap the whole site's color palette. Neon (default, free),
+     Sunset Arcade, Deep Ocean, Mono Terminal, CRT Green (150-250 coins).
+     Equipping applies instantly via CSS custom properties.
+   - Avatars: cosmetic icon shown on the Profile screen (Ghost, Alien,
+     Robot, Dragon, Champion — 60-300 coins).
+   - Titles: cosmetic label shown under the avatar (Coin Grinder, High
+     Roller, Arcade Legend, Undefeated Champion — 80-500 coins).
+   - Boosts: consumable charges (100/280 coins) that double XP earned
+     for the next 3 or 10 games played. Active charges show as a ⚡N
+     badge in the header.
+
+3. NEW ACHIEVEMENTS (award bonus coins like the rest)
+   - Pocket Change (earn 100 coins total)
+   - Big Spender (earn 1,000 coins total)
+   - Collector (own 5 shop items)
+   - Interior Designer (unlock every theme)
+
+4. PROFILE SCREEN
+   - Now shows the equipped avatar + title above the level, and a Coins
+     stat tile alongside Games Played / Wins / Day Streak.
+   - "Reset Profile" also resets the equipped theme back to default.
+
+Nothing about the existing 20 games, multiplayer, admin panel, or ad
+config changed — this only extends the Engagement Engine and the hub UI.
+As with the rest of the site, if you hand-edit game logic later, make the
+same edit in all four HTML files (or ask me and I'll keep them in sync).
+
+Not touched: the Capacitor/Android bundled copies under
+android/app/src/main/assets/public/ are an older, already-out-of-sync
+build (from before some earlier updates too) — run your normal
+`npx cap sync android` (or copy public/* over them) before your next
+Android build so the app picks up the shop and rewards screen below.
+
+
+DAILY REWARDS SCREEN ADDED (login streak, quests, spin wheel)
+---------------------------------------------------------------
+A second round of progression features, also client-side only, added on
+top of the coin/shop system above. New 🎁 button in the header (next to
+the shop) opens a "Daily Rewards" screen with three sections:
+
+1. LOGIN STREAK CALENDAR
+   - Shows a 7-day cycle of login bonuses (Day 1: 10 coins ... Day 7:
+     100 coins), tied to the existing day-streak counter.
+   - Auto-awarded once per day the first time the site loads (same
+     mechanism that already handled the streak toast) — no click needed.
+
+2. DAILY QUESTS
+   - 3 quests are picked each day (deterministically, so everyone sees
+     the same 3 on the same day) from a pool of 6: play 3/5 games, win
+     1/2 games, play 3 different games, or earn 40 coins.
+   - Each shows a live progress bar and auto-completes with a coin + XP
+     reward the moment you hit the target — same "no claim button
+     needed" pattern as the existing Daily Challenge.
+   - New achievement: Quest Master (complete 10 daily quests total).
+
+3. SPIN THE WHEEL
+   - One free spin per day, plus unlimited paid spins for 50 coins each.
+   - 8 possible prizes (10-150 coins, or a 2-game XP boost charge),
+     landing with a slot-machine-style animation.
+   - New achievement: Lucky Spinner (spin 5 times total).
+
+A pink/violet "🎁 Daily Rewards Available" banner appears at the top of
+the hub whenever there's an unclaimed free spin or an incomplete quest,
+so it's easy to notice without hunting for the button.
+
+All new profile fields (dailyStats, questsCompleted, lastSpinDate, etc.)
+live in the same localStorage profile object as everything else — no
+schema migration needed, and resetting your profile clears these too.

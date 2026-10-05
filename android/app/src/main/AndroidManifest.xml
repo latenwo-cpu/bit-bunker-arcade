@@ -42,4 +42,10 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- For @capacitor/local-notifications (streak/reward reminders).
+         SCHEDULE_EXACT_ALARM was removed on purpose: Google Play restricts it to alarm/calendar
+         apps, and daily reminders do not need to fire to the exact second. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 </manifest>

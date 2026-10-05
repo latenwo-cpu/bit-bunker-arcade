@@ -1,1 +1,15 @@
-﻿node_modules/
+node_modules/
+
+# Never commit signing keys or passwords
+*.keystore
+*.jks
+keystore.properties
+android/keystore.properties
+
+# Android build output
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+*.aab
+*.apk

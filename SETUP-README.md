@@ -19,6 +19,7 @@
 1. Go to https://console.firebase.google.com → **Add project** → name it anything (e.g. "arcade-app") → finish the wizard.
 2. In the project, click **Build → Firestore Database → Create database** → start in **production mode** → pick a region close to your users.
 3. Click **Build → Authentication → Get started → Sign-in method → Email/Password → Enable**.
+   - While you're on that Sign-in method tab, also enable **Google** and **Anonymous** — these power the optional "Cloud Save" sign-in in the Player Profile screen (arcade.html/index.html), which lets a player's coins/XP/shop items follow them across a reinstall or a new device. For Google, the default "Web SDK configuration" it offers is fine; no extra OAuth setup is needed for this to work in a browser tab. Skipping this step just means the Cloud Save buttons show a "sign-in failed" message — everything else keeps working.
 4. Still in Authentication, go to the **Users** tab → **Add user** → create yourself an admin login (email + password). This is the login for `admin.html`.
 5. Go to **Project settings** (gear icon) → scroll to **Your apps** → click the **</> (Web)** icon → register an app (any nickname) → copy the `firebaseConfig` object it gives you.
 6. Paste that config into **both** files:
@@ -41,6 +42,8 @@
      }
    }
    ```
+
+   This snippet only covers the original analytics/ads collections — by now `firestore.rules` in the project root has grown to cover rooms, leaderboards, players/friends, tournaments, and cloudProfiles too. Easiest is to just deploy that file directly (`firebase deploy --only firestore:rules`) instead of retyping rules by hand in the console.
 
    Click **Publish**.
 

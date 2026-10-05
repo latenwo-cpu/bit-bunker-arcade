@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Copy website into the app (public -> www)
+        run: node scripts/sync-web.js
+
       - name: Sync Capacitor Android project
         run: npx cap sync android
 

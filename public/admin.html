@@ -10,6 +10,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="/interstitial-ads.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
@@ -110,6 +112,15 @@
   .row-inline{ display:flex; gap:10px; align-items:center; }
   .row-inline input{ flex:1; }
   .row-inline span{ font-size:11px; color:var(--text-dim); width:150px; flex-shrink:0; }
+
+  /* ---- Game-End Ads tab ---- */
+  .chk-row{ display:flex !important; align-items:center; gap:8px; font-size:12px !important; text-transform:none !important; letter-spacing:0 !important; color:var(--text) !important; margin:8px 0 !important; cursor:pointer; }
+  form.ads-form .chk-row input[type="checkbox"]{ width:auto; accent-color:var(--cyan); }
+  .chk-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+  .progress-wrap{ height:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; overflow:hidden; margin-top:8px; }
+  .progress-bar{ height:100%; width:0; background:var(--cyan); transition:width .15s; }
+  form.ads-form input[type="file"]{ padding:7px; }
+  @media (max-width:640px){ .chk-grid{ grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -150,6 +161,7 @@
     <button class="tab" data-tab="games" onclick="switchTab('games')">Games & Levels</button>
     <button class="tab" data-tab="ads" onclick="switchTab('ads')">Ad Clicks</button>
     <button class="tab" data-tab="settings" onclick="switchTab('settings')">Ad Settings</button>
+    <button class="tab" data-tab="interstitial" onclick="switchTab('interstitial')">Game-End Ads</button>
     <button class="tab" data-tab="raw" onclick="switchTab('raw')">Raw Events</button>
   </div>
 
@@ -233,6 +245,8 @@
   <div class="panel" id="panel-ads">
     <div class="section-title">Clicks by Ad Slot</div>
     <div class="table-wrap"><table><thead><tr><th>Ad Slot ID</th><th>Impressions</th><th>Clicks</th><th>CTR</th></tr></thead><tbody id="tbl-adslots"></tbody></table></div>
+    <div class="section-title">Game-End Ads Performance</div>
+    <div class="table-wrap"><table><thead><tr><th>Ad</th><th>Type</th><th>Impressions</th><th>Clicks</th><th>CTR</th><th>Videos Completed</th><th>Closed With X</th><th>Auto-Closed / Ended</th><th>Skipped / Errors</th></tr></thead><tbody id="tbl-inter-stats"></tbody></table></div>
   </div>
 
   <!-- SETTINGS -->
@@ -302,6 +316,154 @@
     </form>
   </div>
 
+  <!-- GAME-END ADS (interstitial: image / video / HTML) -->
+  <div class="panel" id="panel-interstitial">
+    <div class="section-title">Game-End Ads (shown after a win / loss)</div>
+    <p class="muted">Full-screen ads shown when a game finishes. Players can press <b>X</b> to close, or just wait — image/HTML ads close automatically after a few seconds and video ads close when the video ends. Then they can hit Play Again as normal. Stored at <code>config/interstitial</code> and read live by the arcade.</p>
+
+    <form class="ads-form" style="max-width:860px" onsubmit="return false;">
+      <label class="chk-row"><input type="checkbox" id="inter-enabled"> <b>Enable game-end ads</b> (master switch)</label>
+
+      <fieldset>
+        <legend>When to show</legend>
+        <div class="chk-grid">
+          <label class="chk-row"><input type="checkbox" id="inter-on-win"> After a WIN</label>
+          <label class="chk-row"><input type="checkbox" id="inter-on-lose"> After a LOSS / game over</label>
+          <label class="chk-row"><input type="checkbox" id="inter-on-draw"> After a DRAW / tie</label>
+          <label class="chk-row"><input type="checkbox" id="inter-online"> Also in online multiplayer games</label>
+        </div>
+        <label>Show on</label>
+        <select id="inter-target">
+          <option value="both">Both website and app</option>
+          <option value="web">Website only</option>
+          <option value="app">App only</option>
+        </select>
+        <div class="slot-grid">
+          <div>
+            <label>Delay after game ends (ms)</label>
+            <input type="number" id="inter-delay" min="0" step="100" placeholder="1200">
+          </div>
+          <div>
+            <label>Show every N finished games</label>
+            <input type="number" id="inter-everyn" min="1" step="1" placeholder="1">
+          </div>
+          <div>
+            <label>Minimum seconds between ads</label>
+            <input type="number" id="inter-cooldown" min="0" step="5" placeholder="30">
+          </div>
+          <div>
+            <label>Max ads per visit (0 = unlimited)</label>
+            <input type="number" id="inter-maxsession" min="0" step="1" placeholder="0">
+          </div>
+          <div>
+            <label>X button appears after (seconds, 0 = immediately)</label>
+            <input type="number" id="inter-skip" min="0" step="1" placeholder="0">
+          </div>
+          <div>
+            <label>Image / HTML ads auto-close after (seconds)</label>
+            <input type="number" id="inter-autoclose" min="1" step="1" placeholder="8">
+          </div>
+        </div>
+        <label>If several ads are active</label>
+        <select id="inter-rotation">
+          <option value="random">Pick one at random</option>
+          <option value="sequential">Rotate in order</option>
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend id="inter-form-title">Add an ad</legend>
+
+        <label>Ad name (for your reference + stats)</label>
+        <input id="inter-ad-name" placeholder="e.g. Diwali sale video">
+
+        <label>Ad type</label>
+        <select id="inter-ad-type" onchange="onInterTypeChange()">
+          <option value="video">Video</option>
+          <option value="image">Image</option>
+          <option value="html">Custom HTML</option>
+        </select>
+
+        <div id="inter-media-group">
+          <label>Upload file <span class="muted" id="inter-file-hint">(MP4 / WebM, up to 50 MB)</span></label>
+          <input type="file" id="inter-file" accept="video/mp4,video/webm,video/quicktime">
+          <div class="progress-wrap" id="inter-progress-wrap" style="display:none"><div class="progress-bar" id="inter-progress-bar"></div></div>
+          <div id="inter-file-status" class="muted" style="margin:6px 0 4px; font-size:11px;"></div>
+          <div id="inter-media-preview" style="display:none; margin:8px 0 6px;"></div>
+
+          <label>OR paste a direct file URL <span class="muted">(used if no file is uploaded above)</span></label>
+          <input id="inter-media-url" placeholder="https://example.com/ad.mp4">
+
+          <div id="inter-poster-group">
+            <label>Poster image URL <span class="muted">(optional — shown while the video loads)</span></label>
+            <input id="inter-poster-url" placeholder="https://...">
+            <label class="chk-row" style="margin-top:12px"><input type="checkbox" id="inter-muted"> Start muted (player can still unmute)</label>
+          </div>
+        </div>
+
+        <div id="inter-html-group" style="display:none">
+          <label>Custom HTML</label>
+          <textarea id="inter-html" placeholder="<a href='https://...'><img src='https://...' style='max-width:100%'></a>"></textarea>
+        </div>
+
+        <div id="inter-link-group">
+          <label>Click-through link <span class="muted">(optional — opens when the ad is tapped)</span></label>
+          <input id="inter-link" placeholder="https://...">
+        </div>
+
+        <div class="slot-grid">
+          <div>
+            <label>Show this ad after</label>
+            <select id="inter-ad-showon">
+              <option value="any">Win and loss</option>
+              <option value="win">Win only</option>
+              <option value="lose">Loss / game over only</option>
+            </select>
+          </div>
+          <div>
+            <label>Platform for this ad</label>
+            <select id="inter-ad-target">
+              <option value="both">Both website and app</option>
+              <option value="web">Website only</option>
+              <option value="app">App only</option>
+            </select>
+          </div>
+          <div>
+            <label>X appears after (sec) <span class="muted">blank = global</span></label>
+            <input type="number" id="inter-ad-skip" min="0" step="1" placeholder="global">
+          </div>
+          <div>
+            <label>Auto-close after (sec) <span class="muted">image/HTML · blank = global</span></label>
+            <input type="number" id="inter-ad-autoclose" min="1" step="1" placeholder="global">
+          </div>
+        </div>
+        <label class="chk-row" style="margin-top:14px"><input type="checkbox" id="inter-ad-active" checked> Active</label>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+          <button type="button" class="btn primary" id="inter-add-btn" onclick="saveInterAd()">Add Ad To List</button>
+          <button type="button" class="btn" onclick="previewInterAd()">▶ Preview</button>
+          <button type="button" class="btn" id="inter-cancel-btn" style="display:none" onclick="cancelInterEdit()">Cancel Edit</button>
+        </div>
+        <div class="save-msg" id="inter-ad-msg"></div>
+      </fieldset>
+
+      <div class="section-title" style="margin-top:22px">Your Game-End Ads</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Preview</th><th>Name / Type</th><th>Shows after</th><th>Platform</th><th>Active</th><th></th></tr></thead>
+          <tbody id="tbl-inter-ads"></tbody>
+        </table>
+      </div>
+      <div class="muted" id="inter-size-note" style="margin-top:8px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;">
+        <button type="button" class="btn primary" onclick="saveInterstitialConfig()">Save Game-End Ad Settings</button>
+        <button type="button" class="btn" onclick="loadInterstitialConfig(true)">↻ Reload From Server</button>
+      </div>
+      <div class="save-msg" id="inter-save-msg"></div>
+    </form>
+  </div>
+
   <!-- RAW -->
   <div class="panel" id="panel-raw">
     <div class="section-title-row">
@@ -367,7 +529,7 @@ function doLogin(){
     document.getElementById('login-err').textContent = e.message;
   });
 }
-function doLogout(){ auth.signOut(); }
+function doLogout(){ interLoaded = false; auth.signOut(); }
 
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
@@ -425,8 +587,9 @@ async function refreshAll(){
       (/index/i.test(e.message) ? ' — open the browser console for a link to auto-create the required Firestore index, then retry.' : '');
     ALL_EVENTS=[];
   }
-  renderOverview(); renderSessions(); renderGames(); renderAds(); renderRaw();
+  renderOverview(); renderSessions(); renderGames(); renderAds(); renderRaw(); renderInterstitialStats();
   loadAdConfigIntoForm();
+  loadInterstitialConfig(); // only fetches once per login, so unsaved edits are never overwritten
 }
 
 function countBy(arr, keyFn){
@@ -709,6 +872,505 @@ async function saveAdConfig(){
   }
 }
 
+/* =========================================================================
+   GAME-END ADS (interstitial) — image / video / HTML shown after win/lose
+   Stored in Firestore: config/interstitial
+   Video + large images go to Firebase Storage (folder ad-media/); small
+   images can fall back to being embedded in the document.
+   ========================================================================= */
+const INTER_DEFAULTS = {
+  enabled:false, showOnWin:true, showOnLose:true, showOnDraw:false, showInOnline:false,
+  target:'both', delayMs:1200, everyN:1, cooldownSec:30, maxPerSession:0,
+  rotation:'random', skipAfterSec:0, autoCloseSec:8, ads:[]
+};
+const INTER_VIDEO_MAX_BYTES = 50 * 1024 * 1024;   // keep in sync with storage.rules
+const INTER_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
+const INTER_EMBED_MAX_BYTES = 200 * 1024;         // fallback for images when Storage is unavailable
+const INTER_DOC_LIMIT = 1000000;                  // Firestore 1 MiB document cap (with headroom)
+
+let interCfg = JSON.parse(JSON.stringify(INTER_DEFAULTS));
+let interEditingId = null;
+let interPendingMedia = null;     // {url, path|null, source:'storage'|'embedded'}
+let interLoaded = false;
+let interUploading = false;
+let interStorageTrash = [];     // Storage files to delete only after a successful Save
+
+function escHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function interNewId(){ return 'ad_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function interEl(id){ return document.getElementById(id); }
+function interNum(id, fallback, min){
+  const raw = interEl(id).value.trim();
+  if(raw === '') return fallback;
+  const n = Number(raw);
+  if(!isFinite(n)) return fallback;
+  return (min != null && n < min) ? min : n;
+}
+function interSay(id, msg, color){
+  const el = interEl(id);
+  el.style.color = color || 'var(--green)';
+  el.textContent = msg;
+}
+
+/* ---------- load / fill settings ---------- */
+async function loadInterstitialConfig(force){
+  if(interLoaded && !force) return;
+  try{
+    const doc = await db.collection('config').doc('interstitial').get();
+    interCfg = Object.assign(JSON.parse(JSON.stringify(INTER_DEFAULTS)), doc.exists ? doc.data() : {});
+    if(!Array.isArray(interCfg.ads)) interCfg.ads = [];
+    interStorageTrash = [];
+    interLoaded = true;
+    if(force) interSay('inter-save-msg', 'Reloaded from server.');
+  }catch(e){
+    console.warn(e);
+    interSay('inter-save-msg', 'Could not load game-end ad settings: ' + e.message, 'var(--magenta)');
+  }
+  fillInterSettingsForm();
+  renderInterAdsTable();
+}
+
+function fillInterSettingsForm(){
+  const c = interCfg;
+  interEl('inter-enabled').checked = !!c.enabled;
+  interEl('inter-on-win').checked = c.showOnWin !== false;
+  interEl('inter-on-lose').checked = c.showOnLose !== false;
+  interEl('inter-on-draw').checked = !!c.showOnDraw;
+  interEl('inter-online').checked = !!c.showInOnline;
+  interEl('inter-target').value = c.target || 'both';
+  interEl('inter-delay').value = c.delayMs ?? 1200;
+  interEl('inter-everyn').value = c.everyN ?? 1;
+  interEl('inter-cooldown').value = c.cooldownSec ?? 30;
+  interEl('inter-maxsession').value = c.maxPerSession ?? 0;
+  interEl('inter-skip').value = c.skipAfterSec ?? 0;
+  interEl('inter-autoclose').value = c.autoCloseSec ?? 8;
+  interEl('inter-rotation').value = c.rotation || 'random';
+}
+
+function readInterSettingsForm(){
+  return {
+    enabled: interEl('inter-enabled').checked,
+    showOnWin: interEl('inter-on-win').checked,
+    showOnLose: interEl('inter-on-lose').checked,
+    showOnDraw: interEl('inter-on-draw').checked,
+    showInOnline: interEl('inter-online').checked,
+    target: interEl('inter-target').value,
+    delayMs: interNum('inter-delay', 1200, 0),
+    everyN: Math.max(1, Math.round(interNum('inter-everyn', 1, 1))),
+    cooldownSec: interNum('inter-cooldown', 30, 0),
+    maxPerSession: Math.max(0, Math.round(interNum('inter-maxsession', 0, 0))),
+    skipAfterSec: interNum('inter-skip', 0, 0),
+    autoCloseSec: interNum('inter-autoclose', 8, 1),
+    rotation: interEl('inter-rotation').value
+  };
+}
+
+/* ---------- ad form ---------- */
+function onInterTypeChange(){
+  const type = interEl('inter-ad-type').value;
+  interEl('inter-media-group').style.display = type === 'html' ? 'none' : 'block';
+  interEl('inter-html-group').style.display = type === 'html' ? 'block' : 'none';
+  interEl('inter-poster-group').style.display = type === 'video' ? 'block' : 'none';
+  interEl('inter-link-group').style.display = type === 'html' ? 'none' : 'block';
+  const fileInput = interEl('inter-file');
+  if(type === 'video'){
+    fileInput.accept = 'video/mp4,video/webm,video/quicktime';
+    interEl('inter-file-hint').textContent = '(MP4 / WebM, up to 50 MB)';
+    interEl('inter-media-url').placeholder = 'https://example.com/ad.mp4';
+  } else if(type === 'image'){
+    fileInput.accept = 'image/png,image/jpeg,image/webp,image/gif';
+    interEl('inter-file-hint').textContent = '(PNG / JPG / WebP / GIF, up to 10 MB)';
+    interEl('inter-media-url').placeholder = 'https://example.com/ad.jpg';
+  }
+  clearInterPendingMedia(true);
+}
+
+function clearInterPendingMedia(keepStatus){
+  interPendingMedia = null;
+  interEl('inter-file').value = '';
+  interEl('inter-progress-wrap').style.display = 'none';
+  interEl('inter-progress-bar').style.width = '0%';
+  interEl('inter-media-preview').style.display = 'none';
+  interEl('inter-media-preview').innerHTML = '';
+  if(!keepStatus) interEl('inter-file-status').textContent = '';
+}
+
+function showInterMediaPreview(type, url){
+  const box = interEl('inter-media-preview');
+  box.style.display = 'block';
+  const media = type === 'video'
+    ? `<video src="${escHtml(url)}" controls muted playsinline preload="metadata" style="max-width:260px;max-height:150px;border:1px solid var(--border);border-radius:6px;display:block;margin-bottom:6px;"></video>`
+    : `<img src="${escHtml(url)}" style="max-width:260px;max-height:150px;border:1px solid var(--border);border-radius:6px;display:block;margin-bottom:6px;">`;
+  box.innerHTML = media + `<button type="button" class="btn sm" onclick="clearInterPendingMedia()">Remove upload</button>`;
+}
+
+function compressImageFile(file, maxW, maxH, maxBytes){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Could not read file'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Could not decode image'));
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width, maxH / img.height);
+        const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const mime = /png|gif/i.test(file.type) ? 'image/png' : 'image/jpeg';
+        let q = 0.85;
+        let out = canvas.toDataURL(mime, q);
+        while(out.length * 0.75 > maxBytes && q > 0.3 && mime === 'image/jpeg'){ q -= 0.1; out = canvas.toDataURL(mime, q); }
+        resolve(out);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function uploadToStorage(file, onProgress){
+  return new Promise((resolve, reject) => {
+    if(typeof firebase.storage !== 'function'){ reject(new Error('Firebase Storage SDK not loaded')); return; }
+    const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-60);
+    const path = 'ad-media/' + Date.now() + '-' + safe;
+    const ref = firebase.storage().ref().child(path);
+    const task = ref.put(file, { contentType: file.type || undefined });
+    task.on('state_changed',
+      snap => onProgress(snap.bytesTransferred / snap.totalBytes),
+      err => reject(err),
+      async () => {
+        try{ resolve({ url: await ref.getDownloadURL(), path }); }
+        catch(e){ reject(e); }
+      });
+  });
+}
+
+interEl('inter-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const type = interEl('inter-ad-type').value;
+  const status = interEl('inter-file-status');
+  const wrap = interEl('inter-progress-wrap');
+  const bar = interEl('inter-progress-bar');
+  interPendingMedia = null;
+  interEl('inter-media-preview').style.display = 'none';
+
+  if(type === 'video'){
+    if(!/^video\//.test(file.type)){ status.innerHTML = '<span style="color:var(--magenta)">That is not a video file.</span>'; e.target.value=''; return; }
+    if(file.size > INTER_VIDEO_MAX_BYTES){ status.innerHTML = `<span style="color:var(--magenta)">Video is ${(file.size/1048576).toFixed(1)} MB — max is 50 MB. Compress it or paste a hosted URL instead.</span>`; e.target.value=''; return; }
+  } else {
+    if(!/^image\//.test(file.type)){ status.innerHTML = '<span style="color:var(--magenta)">That is not an image file.</span>'; e.target.value=''; return; }
+    if(file.size > INTER_IMAGE_MAX_BYTES){ status.innerHTML = `<span style="color:var(--magenta)">Image is ${(file.size/1048576).toFixed(1)} MB — max is 10 MB.</span>`; e.target.value=''; return; }
+  }
+
+  interUploading = true;
+  wrap.style.display = 'block';
+  bar.style.width = '0%';
+  status.style.color = '';
+  status.textContent = 'Uploading to Firebase Storage…';
+  try{
+    const res = await uploadToStorage(file, p => {
+      bar.style.width = Math.round(p * 100) + '%';
+      status.textContent = `Uploading… ${Math.round(p * 100)}% (${(file.size/1048576).toFixed(1)} MB)`;
+    });
+    interPendingMedia = { url: res.url, path: res.path, source: 'storage' };
+    status.innerHTML = `<span style="color:var(--green)">Uploaded ✓ (${(file.size/1048576).toFixed(1)} MB). Click "${interEditingId ? 'Update Ad' : 'Add Ad To List'}" to keep it.</span>`;
+    showInterMediaPreview(type, res.url);
+  }catch(err){
+    console.warn('Storage upload failed', err);
+    if(type === 'image'){
+      try{
+        status.textContent = 'Storage unavailable — embedding a compressed copy in the database instead…';
+        const dataUrl = await compressImageFile(file, 1200, 1200, INTER_EMBED_MAX_BYTES);
+        interPendingMedia = { url: dataUrl, path: null, source: 'embedded' };
+        status.innerHTML = `<span style="color:var(--amber)">Embedded ~${Math.round(dataUrl.length*0.75/1024)} KB copy ready (Storage upload failed: ${escHtml(err.message)}).</span>`;
+        showInterMediaPreview('image', dataUrl);
+      }catch(e2){
+        status.innerHTML = `<span style="color:var(--magenta)">Upload failed: ${escHtml(e2.message)}</span>`;
+        e.target.value = '';
+      }
+    } else {
+      status.innerHTML = `<span style="color:var(--magenta)">Video upload failed: ${escHtml(err.message)}.<br>Enable <b>Storage</b> in the Firebase console and deploy <code>storage.rules</code> (see notes), or paste a direct video URL below instead.</span>`;
+      e.target.value = '';
+    }
+  }finally{
+    interUploading = false;
+    wrap.style.display = 'none';
+  }
+});
+
+function buildInterAdFromForm(){
+  const type = interEl('inter-ad-type').value;
+  const existing = interEditingId ? interCfg.ads.find(a => a.id === interEditingId) : null;
+  const ad = {
+    id: interEditingId || interNewId(),
+    name: interEl('inter-ad-name').value.trim() || 'Untitled ad',
+    type,
+    showOn: interEl('inter-ad-showon').value,
+    target: interEl('inter-ad-target').value,
+    active: interEl('inter-ad-active').checked
+  };
+  const skip = interEl('inter-ad-skip').value.trim();
+  const auto = interEl('inter-ad-autoclose').value.trim();
+  if(skip !== '') ad.skipAfterSec = Math.max(0, Number(skip) || 0);
+  if(auto !== '') ad.autoCloseSec = Math.max(1, Number(auto) || 1);
+
+  if(type === 'html'){
+    ad.html = interEl('inter-html').value.trim();
+  } else {
+    const urlInput = interEl('inter-media-url').value.trim();
+    if(interPendingMedia){
+      ad.mediaUrl = interPendingMedia.url;
+      if(interPendingMedia.path) ad.storagePath = interPendingMedia.path;
+    } else if(urlInput){
+      ad.mediaUrl = urlInput;
+    } else if(existing && existing.type === type && existing.mediaUrl){
+      ad.mediaUrl = existing.mediaUrl;
+      if(existing.storagePath) ad.storagePath = existing.storagePath;
+    }
+    ad.linkUrl = interEl('inter-link').value.trim();
+    if(type === 'video'){
+      ad.posterUrl = interEl('inter-poster-url').value.trim();
+      ad.muted = interEl('inter-muted').checked;
+    }
+  }
+  return ad;
+}
+
+function validateInterAd(ad){
+  if(ad.type === 'html'){
+    if(!ad.html) return 'Paste some HTML for this ad.';
+  } else {
+    if(!ad.mediaUrl) return ad.type === 'video' ? 'Upload a video or paste a video URL.' : 'Upload an image or paste an image URL.';
+    if(!/^(https?:\/\/|data:image\/)/i.test(ad.mediaUrl)) return 'The file URL must start with https://';
+    if(ad.type === 'video' && /^data:/i.test(ad.mediaUrl)) return 'Videos must be uploaded to Storage or linked by URL.';
+  }
+  if(ad.linkUrl && !/^https?:\/\//i.test(ad.linkUrl)) return 'The click-through link must start with http:// or https://';
+  if(ad.posterUrl && !/^https?:\/\//i.test(ad.posterUrl)) return 'The poster URL must start with http:// or https://';
+  return '';
+}
+
+function saveInterAd(){
+  if(interUploading){ interSay('inter-ad-msg', 'Please wait for the upload to finish.', 'var(--amber)'); return; }
+  const ad = buildInterAdFromForm();
+  const err = validateInterAd(ad);
+  if(err){ interSay('inter-ad-msg', err, 'var(--magenta)'); return; }
+
+  const idx = interCfg.ads.findIndex(a => a.id === ad.id);
+  if(idx >= 0){
+    const old = interCfg.ads[idx];
+    // Replaced media that lived in Storage -> remove the old file (best effort)
+    if(old.storagePath && old.storagePath !== ad.storagePath) interStorageTrash.push(old.storagePath);
+    interCfg.ads[idx] = ad;
+  } else {
+    interCfg.ads.push(ad);
+  }
+  resetInterForm();
+  renderInterAdsTable();
+  interSay('inter-ad-msg', (idx >= 0 ? 'Ad updated' : 'Ad added') + ' — now click "Save Game-End Ad Settings" to publish.', 'var(--amber)');
+}
+
+function resetInterForm(){
+  interEditingId = null;
+  interEl('inter-form-title').textContent = 'Add an ad';
+  interEl('inter-add-btn').textContent = 'Add Ad To List';
+  interEl('inter-cancel-btn').style.display = 'none';
+  interEl('inter-ad-name').value = '';
+  interEl('inter-ad-type').value = 'video';
+  interEl('inter-media-url').value = '';
+  interEl('inter-poster-url').value = '';
+  interEl('inter-muted').checked = false;
+  interEl('inter-html').value = '';
+  interEl('inter-link').value = '';
+  interEl('inter-ad-showon').value = 'any';
+  interEl('inter-ad-target').value = 'both';
+  interEl('inter-ad-skip').value = '';
+  interEl('inter-ad-autoclose').value = '';
+  interEl('inter-ad-active').checked = true;
+  onInterTypeChange();
+  interEl('inter-file-status').textContent = '';
+}
+
+function cancelInterEdit(){
+  resetInterForm();
+  interSay('inter-ad-msg', '');
+}
+
+function editInterAd(id){
+  const ad = interCfg.ads.find(a => a.id === id);
+  if(!ad) return;
+  resetInterForm();
+  interEditingId = id;
+  interEl('inter-form-title').textContent = 'Editing: ' + (ad.name || 'ad');
+  interEl('inter-add-btn').textContent = 'Update Ad';
+  interEl('inter-cancel-btn').style.display = 'inline-block';
+  interEl('inter-ad-name').value = ad.name || '';
+  interEl('inter-ad-type').value = ad.type;
+  onInterTypeChange();
+  interEl('inter-ad-showon').value = ad.showOn || 'any';
+  interEl('inter-ad-target').value = ad.target || 'both';
+  interEl('inter-ad-skip').value = ad.skipAfterSec != null ? ad.skipAfterSec : '';
+  interEl('inter-ad-autoclose').value = ad.autoCloseSec != null ? ad.autoCloseSec : '';
+  interEl('inter-ad-active').checked = ad.active !== false;
+  if(ad.type === 'html'){
+    interEl('inter-html').value = ad.html || '';
+  } else {
+    interEl('inter-link').value = ad.linkUrl || '';
+    if(ad.mediaUrl && !/^data:/i.test(ad.mediaUrl)) interEl('inter-media-url').value = ad.mediaUrl;
+    interEl('inter-file-status').textContent = ad.storagePath
+      ? 'Current file is stored in Firebase Storage. Upload a new file or change the URL to replace it.'
+      : (/^data:/i.test(ad.mediaUrl || '') ? 'Current image is embedded in the database. Upload a new file to replace it.' : '');
+    if(ad.mediaUrl) showInterMediaPreview(ad.type, ad.mediaUrl);
+    // The preview "Remove upload" button should only clear a *pending* upload, not the saved file
+    interEl('inter-media-preview').querySelector('button').style.display = 'none';
+    if(ad.type === 'video'){
+      interEl('inter-poster-url').value = ad.posterUrl || '';
+      interEl('inter-muted').checked = !!ad.muted;
+    }
+  }
+  interEl('panel-interstitial').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function previewInterAd(){
+  const ad = buildInterAdFromForm();
+  const err = validateInterAd(ad);
+  if(err){ interSay('inter-ad-msg', err, 'var(--magenta)'); return; }
+  if(!window.AdInterstitial){ interSay('inter-ad-msg', 'Preview needs /interstitial-ads.js to be deployed next to admin.html.', 'var(--magenta)'); return; }
+  interSay('inter-ad-msg', '');
+  window.AdInterstitial.preview(ad);
+}
+
+function deleteStorageFile(path){
+  try{
+    if(typeof firebase.storage === 'function' && path) firebase.storage().ref().child(path).delete().catch(()=>{});
+  }catch(e){}
+}
+
+function deleteInterAd(id){
+  const ad = interCfg.ads.find(a => a.id === id);
+  if(!ad) return;
+  if(!confirm('Remove "' + (ad.name || 'this ad') + '"? (Click Save afterwards to publish the change.)')) return;
+  interCfg.ads = interCfg.ads.filter(a => a.id !== id);
+  if(ad.storagePath) interStorageTrash.push(ad.storagePath);
+  if(interEditingId === id) resetInterForm();
+  renderInterAdsTable();
+  interSay('inter-save-msg', 'Ad removed — click "Save Game-End Ad Settings" to publish.', 'var(--amber)');
+}
+
+function toggleInterAd(id){
+  const ad = interCfg.ads.find(a => a.id === id);
+  if(!ad) return;
+  ad.active = ad.active === false ? true : false;
+  renderInterAdsTable();
+  interSay('inter-save-msg', 'Change staged — click "Save Game-End Ad Settings" to publish.', 'var(--amber)');
+}
+
+function renderInterAdsTable(){
+  const showOnLabel = { any:'Win & loss', win:'Win only', lose:'Loss only' };
+  const targetLabel = { both:'Web + App', web:'Website', app:'App' };
+  fillTable('tbl-inter-ads', interCfg.ads, ad => {
+    let thumb = '–';
+    if(ad.type === 'image' && ad.mediaUrl) thumb = `<img src="${escHtml(ad.mediaUrl)}" style="max-height:40px;max-width:90px;border-radius:4px;vertical-align:middle;">`;
+    else if(ad.type === 'video' && ad.mediaUrl) thumb = `<video src="${escHtml(ad.mediaUrl)}#t=0.5" muted playsinline preload="metadata" style="max-height:40px;max-width:90px;border-radius:4px;vertical-align:middle;"></video>`;
+    else if(ad.type === 'html') thumb = '<span class="muted">custom HTML</span>';
+    const where = ad.storagePath ? 'Storage' : (/^data:/i.test(ad.mediaUrl || '') ? 'embedded' : (ad.type === 'html' ? 'inline' : 'URL'));
+    const active = ad.active !== false;
+    return `<tr>
+      <td>${thumb}</td>
+      <td>${escHtml(ad.name || 'Untitled')}<div class="muted">${escHtml(ad.type)} · ${where}</div></td>
+      <td class="muted">${showOnLabel[ad.showOn] || 'Win & loss'}</td>
+      <td class="muted">${targetLabel[ad.target] || 'Web + App'}</td>
+      <td><button class="btn sm" onclick="toggleInterAd('${ad.id}')" style="${active ? 'border-color:var(--green);color:var(--green)' : ''}">${active ? 'ON' : 'OFF'}</button></td>
+      <td style="white-space:nowrap">
+        <button class="btn sm" onclick="editInterAd('${ad.id}')">Edit</button>
+        <button class="btn sm" onclick="previewSavedInterAd('${ad.id}')">▶</button>
+        <button class="btn sm danger" onclick="deleteInterAd('${ad.id}')">Remove</button>
+      </td>
+    </tr>`;
+  });
+  updateInterSizeNote();
+}
+
+function previewSavedInterAd(id){
+  const ad = interCfg.ads.find(a => a.id === id);
+  if(ad && window.AdInterstitial) window.AdInterstitial.preview(ad);
+}
+
+function interPayload(){
+  return Object.assign({}, readInterSettingsForm(), { ads: interCfg.ads, updatedAt: Date.now() });
+}
+function updateInterSizeNote(){
+  const bytes = new TextEncoder().encode(JSON.stringify(interPayload())).length;
+  const kb = Math.round(bytes / 1024);
+  const el = interEl('inter-size-note');
+  const pct = Math.round(bytes / INTER_DOC_LIMIT * 100);
+  el.style.color = pct > 90 ? 'var(--magenta)' : (pct > 60 ? 'var(--amber)' : 'var(--text-dim)');
+  el.textContent = `Settings document size: ${kb} KB of ~976 KB (${pct}%). Uploaded videos and Storage images don't count — only embedded images and HTML do.`;
+}
+
+async function saveInterstitialConfig(){
+  if(interUploading){ interSay('inter-save-msg', 'Please wait for the upload to finish.', 'var(--amber)'); return; }
+  const payload = interPayload();
+  const bytes = new TextEncoder().encode(JSON.stringify(payload)).length;
+  if(bytes > INTER_DOC_LIMIT){
+    interSay('inter-save-msg', `Too large to save (${Math.round(bytes/1024)} KB). Remove embedded images or use Storage / URLs.`, 'var(--magenta)');
+    return;
+  }
+  if(payload.enabled && !payload.ads.some(a => a.active !== false)){
+    if(!confirm('Game-end ads are enabled but no ad is active, so nothing will be shown. Save anyway?')) return;
+  }
+  try{
+    await db.collection('config').doc('interstitial').set(payload);
+    interCfg = Object.assign(JSON.parse(JSON.stringify(INTER_DEFAULTS)), payload);
+    interStorageTrash.forEach(deleteStorageFile); interStorageTrash = [];
+    interSay('inter-save-msg', 'Saved ✓ — live on the next page load of the arcade.');
+    updateInterSizeNote();
+  }catch(e){
+    interSay('inter-save-msg', 'Save failed: ' + e.message, 'var(--magenta)');
+  }
+}
+
+['inter-enabled','inter-on-win','inter-on-lose','inter-on-draw','inter-online','inter-target','inter-delay','inter-everyn',
+ 'inter-cooldown','inter-maxsession','inter-skip','inter-autoclose','inter-rotation'].forEach(id => {
+  interEl(id).addEventListener('change', updateInterSizeNote);
+});
+onInterTypeChange();
+
+/* ---------- stats for the Ad Clicks tab ---------- */
+function interstitialStatRows(){
+  const rows = {};
+  ALL_EVENTS.forEach(e => {
+    if(!/^interstitial_/.test(e.type)) return;
+    const key = e.adName || e.adId || 'Unknown';
+    const r = rows[key] || (rows[key] = { name:key, type:e.adType || '', impressions:0, clicks:0, completed:0, closedX:0, closedAuto:0, other:0 });
+    if(e.adType) r.type = e.adType;
+    if(e.type === 'interstitial_impression') r.impressions++;
+    else if(e.type === 'interstitial_click') r.clicks++;
+    else if(e.type === 'interstitial_complete') r.completed++;
+    else if(e.type === 'interstitial_close'){
+      if(e.reason === 'x' || e.reason === 'escape') r.closedX++;
+      else if(e.reason === 'auto' || e.reason === 'ended') r.closedAuto++;
+      else r.other++;
+    }
+  });
+  return Object.values(rows).sort((a, b) => b.impressions - a.impressions);
+}
+function renderInterstitialStats(){
+  fillTable('tbl-inter-stats', interstitialStatRows(), r =>
+    `<tr><td>${escHtml(r.name)}</td><td>${escHtml(r.type)}</td><td>${r.impressions}</td><td>${r.clicks}</td>
+     <td>${r.impressions ? (r.clicks / r.impressions * 100).toFixed(1) + '%' : '–'}</td>
+     <td>${r.completed}</td><td>${r.closedX}</td><td>${r.closedAuto}</td><td>${r.other}</td></tr>`);
+}
+function interstitialStatsToRows(){
+  return interstitialStatRows().map(r => ({
+    'Ad': r.name, 'Type': r.type, 'Impressions': r.impressions, 'Clicks': r.clicks,
+    'CTR %': r.impressions ? +(r.clicks / r.impressions * 100).toFixed(2) : 0,
+    'Videos Completed': r.completed, 'Closed With X': r.closedX, 'Auto-Closed / Ended': r.closedAuto, 'Skipped / Errors': r.other
+  }));
+}
+
 /* ---------- excel export (SheetJS) ---------- */
 function fileStamp(){ return new Date().toISOString().slice(0,19).replace(/[:T]/g,'-'); }
 function rangeSuffix(){
@@ -813,6 +1475,7 @@ function exportAllExcel(){
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sessionsToRows()), 'Sessions');
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(gamesResultsToRows()), 'Game Results');
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(adSlotsToRows()), 'Ad Slots');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(interstitialStatsToRows()), 'Game-End Ads');
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rawEventsToRows()), 'Raw Events');
   XLSX.writeFile(wb, `pixelarcade-export${rangeSuffix()}_${fileStamp()}.xlsx`);
 }

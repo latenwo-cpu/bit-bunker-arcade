@@ -1,0 +1,121 @@
+NEW FEATURE: NOTIFICATIONS (STREAK & REWARD REMINDERS)
+--------------------------------------------------------
+A new 🔔 button in the header toolbar (next to Spin) opens a Notifications
+screen where players can opt in to reminders for three things: their day
+streak about to break, an unclaimed free daily wheel spin, and an
+unfinished Daily Challenge. Each has its own on/off toggle, plus a shared
+reminder time (8 AM / 12 PM / 5 PM / 7 PM / 9 PM, default 7 PM). A "Send
+Test Notification" button lets players confirm it's working immediately.
+
+TWO DELIVERY PATHS (picked automatically, no user choice needed)
+------------------------------------------------------------------
+1. INSTALLED ANDROID APP (Capacitor)
+   Uses the new @capacitor/local-notifications plugin (added to
+   package.json) to schedule real, OS-level RECURRING notifications
+   ("fire daily at HH:00"). These are genuinely local — no server, no
+   push service, no Firebase Cloud Messaging, no Blaze/paid plan
+   involved. They keep firing even if the app is fully closed or the
+   phone was rebooted, because the OS (not the app) owns the schedule.
+   Trade-off: since there's no live app process at fire time to check
+   "did they already spin today?", these are honest recurring reminders
+   worded generically ("Spin the daily wheel before it resets") rather
+   than ones that skip themselves on days the player already did the
+   thing. Toggling a reminder off cancels that specific scheduled
+   notification; toggling the master switch off cancels all three.
+
+2. PLAIN BROWSER TAB (web/PWA, not installed)
+   There's no free way to wake up a fully-closed browser tab — that
+   needs Web Push (a backend + FCM or similar to trigger sends), which
+   is out of scope for the same reason the rest of this site avoids a
+   backend: it doesn't fit the Spark/free-plan, no-server approach used
+   everywhere else here (SETUP-README.md, CHALLENGE-FEATURE-NOTES.txt,
+   COINS-SHOP-WHEEL-NOTES.txt all note the same trade-off for their own
+   "would need a backend" pieces).
+   Instead, while the tab is open (foreground or backgrounded/minimized)
+   it polls the wall clock every 5 minutes. The first time it crosses
+   your chosen reminder hour on a day you haven't done that thing yet
+   (checked against the same arcade_profile_v1 data Engagement already
+   tracks — lastVisitDate, dailyChallengeDone, canSpinWheel()), it fires
+   a real browser Notification via the standard Notification API. This
+   is a best-effort fallback, not true background push — closing the
+   tab stops it, same as the rest of the site's localStorage-only
+   features.
+
+HOW IT DECIDES WHICH PATH TO USE
+-----------------------------------
+Notify.isNative() checks for window.Capacitor.isNativePlatform() plus
+the LocalNotifications plugin being present. If both are true (i.e.
+running inside the built Android app with the plugin installed), it
+uses the native scheduler; otherwise it falls back to the browser path.
+Nothing else in the site needed to change to support this — same "hook
+into what already exists" approach as Challenge and Coins/Shop/Wheel.
+
+WHAT CHANGED
+------------
+- public/arcade.html AND public/index.html (+ www/ and android/ bundled
+  mirrors, kept in sync per the existing project convention):
+  1. New Notify JS module (settings load/save in a new
+     arcade_notif_settings_v1 localStorage key, permission handling,
+     native + web scheduling, test send) added right after the
+     Challenge module
+  2. New 🔔/🔕 button in the header toolbar
+  3. New #notifications screen (master toggle, 3 reminder toggles, hour
+     picker reusing the existing .mode-bar/.mode-btn pattern, test
+     button, explainer text)
+  4. New CSS for the toggle switches (.notif-switch etc.)
+  5. Notify.init() added to the DOMContentLoaded bootstrap
+- package.json: added "@capacitor/local-notifications": "^8.3.1"
+  (matches the project's existing Capacitor 8.5.0 stack)
+- android/app/src/main/AndroidManifest.xml: added the
+  POST_NOTIFICATIONS (required on Android 13+), RECEIVE_BOOT_COMPLETED,
+  and SCHEDULE_EXACT_ALARM permissions the plugin needs
+
+TO BUILD THE ANDROID APP WITH THIS
+--------------------------------------
+Run `npm install` (pulls in the new plugin), then your normal
+`npx cap sync android` before the next Android build, same as any other
+change to www/. No other setup needed — this doesn't touch Firebase or
+firestore.rules at all.
+
+NOT INCLUDED (would need a backend)
+--------------------------------------
+True push notifications that reach a closed browser tab, or
+"skip today's reminder if you already did it" logic on the native side,
+both need a server: Web Push needs a backend to trigger sends at the
+right time, and per-user conditional native scheduling would need a
+Cloud Function checking Firestore on a timer. That's Blaze-plan
+territory, same line drawn everywhere else in this project — worth
+doing later if it becomes worth the added infra, not needed for a
+casual arcade site today.
+
+------------------------------------------------------------------
+ADDED: 4TH REMINDER TYPE — "A FRIEND BEATS YOUR HIGH SCORE"
+------------------------------------------------------------------
+The Notifications screen now has a 4th toggle (on by default, like the
+other three): "🏆 A friend beats your high score". This one works
+differently from streak/wheel/daily, which are pre-scheduled and fire
+blind on a timer even with the app fully closed:
+
+- It needs live data (your friends' current scores vs. your high
+  scores), which only Firestore has — so it can only run while the app
+  or tab is actually open, once per session, the same foreground-only
+  trade-off already documented for Rivals.checkAll(). There is no
+  scheduled native version of this one.
+- On each session (if enabled, permission granted, and the Friends
+  feature has at least one friend added), it fetches your friends'
+  scores for each game where you have a high score (reusing the same
+  `where(documentId(),'in',[...])` query Leaderboard's Friends tab
+  uses) and compares the best of them to your high score.
+- If a friend has beaten it, it fires a real notification — a native
+  local notification on the installed Android app, or a browser
+  Notification in a tab — not just an in-app toast, so it shows up the
+  same way the other three reminder types do. It won't re-fire for the
+  same friend/game unless they beat their own new best again (the
+  score that was last notified is remembered per game, reusing the
+  existing sentDates storage).
+
+WHAT CHANGED (in addition to the original notes above)
+- Notify module: new `friendReminder` setting (default true), new
+  `checkFriendBeats()` (called once from `Notify.init()`), new
+  NATIVE_IDS.friend id, `fireNativeNow()` now takes an optional id.
+- New notif-toggle-friendReminder row + explainer text update.

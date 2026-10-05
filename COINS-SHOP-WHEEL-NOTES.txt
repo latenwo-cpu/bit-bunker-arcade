@@ -1,0 +1,81 @@
+NEW FEATURE: COINS ECONOMY + SHOP + DAILY SPIN WHEEL
+-------------------------------------------------------
+The old "coins" text you saw was just a collectible inside Neon Runner 3D
+(one game's score bonus) — there was no site-wide currency. This adds a
+real cross-arcade coin economy plus two new ways to spend/earn it, on top
+of the existing XP/level/achievement/streak system.
+
+HOW YOU EARN COINS
+-------------------
+- Play a game: +8 coins first time you open it that ever, +3 on replays
+  (same "first time vs repeat" split XP already used)
+- Win a game: +15 coins
+- Complete the Daily Challenge (the highlighted "🎯 Today" cabinet): +20
+- Level up: +20
+- Keep your daily visit streak alive (2+ days): +3 per streak day, capped
+  at 10 days (so up to +30/day)
+- Unlock any achievement: +25
+- Spin the daily wheel: 5-100 coins depending on the result (see below)
+
+All of this hooks into the SAME choke points the XP system already uses
+(addXp() call sites, track()'s game_start/game_end, checkStreak(),
+evaluateAchievements()) — no per-game code changes needed, so all 21
+games (and any future ones) get coins for free.
+
+THE SHOP (🪙 button in the header, or from the Profile screen)
+-----------------------------------------------------------------
+Spend coins on two kinds of cosmetic, permanent unlocks:
+- 6 Cabinet Themes (Classic/free, Sunset, Matrix, Deep Ice, Royal, Blood
+  Moon — 60 to 150 coins) — recolors the whole site's cyan/magenta/violet
+  accent palette via CSS variables the instant you equip one
+- 8 Avatars (🕹️ default, 🎮🐍👾🚀🔥💎👑 — 30 to 150 coins) — shown on
+  your Player Profile card
+Nothing here is pay-to-win or affects gameplay — purely cosmetic, so it's
+safe to add without touching game balance or scoring.
+
+THE DAILY SPIN WHEEL (🎡 Spin button in the header)
+------------------------------------------------------
+One free spin per calendar day (same todayKey()/midnight-reset pattern
+the Daily Challenge already uses). An animated 8-segment CSS wheel
+(conic-gradient, no images/canvas needed) lands on one of: 5, 10, 15, 20,
+30, or 50 coins, a rare +25 XP bonus, or a low-odds 100-coin JACKPOT
+(triggers confetti + its own achievement). The header button glows/pulses
+when a free spin is waiting.
+
+NEW ACHIEVEMENTS (24 total now, up from 20)
+-----------------------------------------------
+- Coin Collector — earn 500 coins total
+- First Purchase — buy anything in the Shop
+- Wheel Regular — spin the wheel 5 times
+- Jackpot! — hit the wheel's jackpot
+
+WHAT CHANGED
+------------
+- public/arcade.html AND public/index.html (+ www/ and android/ mirrors):
+  1. Engagement module: profile now also tracks coins, totalCoinsEarned,
+     ownedThemes/equippedTheme, ownedAvatars/equippedAvatar, lastSpinDate,
+     totalSpins, jackpots — all in the same arcade_profile_v1 localStorage
+     record, so Reset Profile clears everything in one place like before
+  2. New addCoins/spendCoins/buyTheme/buyAvatar/equipTheme/equipAvatar/
+     canSpinWheel/markWheelSpun/addJackpot/applyEquipped methods exposed
+     from Engagement, used by two new modules below
+  3. New Shop module (renders the theme/avatar grid, handles buy/equip)
+  4. New Wheel module (builds the CSS wheel, weighted prize pick, spin
+     animation, awards the result through Engagement)
+  5. New 🪙 coin badge + 🎡 Spin button in the header toolbar (visible on
+     every screen, same as the existing Challenge/Profile buttons)
+  6. New Shop and Wheel full screens (same back-button/topbar pattern as
+     every other screen)
+  7. Profile screen: added a Coins stat tile, an equipped-avatar display,
+     and Shop/Spin quick-link buttons
+  8. 4 new achievements (see above) + coin CSS (theme swatches, wheel,
+     shop grid, pulsing spin-ready glow)
+
+NOT INCLUDED (would need a backend)
+--------------------------------------
+Everything here is localStorage-only, same Spark-plan-friendly approach
+as the rest of the Engagement engine — so coin balances aren't synced
+across devices and a determined player could edit localStorage directly.
+Fine for a casual site; if that becomes a problem, the fix is the same
+one noted in CHALLENGE-FEATURE-NOTES.txt — move the profile record into
+Firestore behind auth instead of localStorage.

@@ -2,7 +2,7 @@
   "id": "/arcade.html",
   "name": "Pixel Arcade",
   "short_name": "Pixel Arcade",
-  "description": "Play free retro arcade games instantly in your browser: Snake, Space Invaders, Connect Four, Checkers, 2048, Word Search, Hangman, Whack-a-Mole, Sliding Puzzle, and Memory Match.",
+  "description": "Play free retro arcade games instantly in your browser: Snake, Pixel Invaders, Connect Four, Checkers, 2048, Word Search, Hangman, Whack-a-Mole, Sliding Puzzle, and Memory Match.",
   "start_url": "/arcade.html",
   "scope": "/",
   "display": "standalone",

@@ -68,6 +68,4 @@
     <rect x="320" y="316" width="16" height="16"/>
   </g>
 
-  <!-- BB pixel wordmark at base -->
-  <text x="256" y="470" text-anchor="middle" font-family="'Courier New', monospace" font-weight="700" font-size="54" letter-spacing="6" fill="#e8ecff">BB</text>
 </svg>

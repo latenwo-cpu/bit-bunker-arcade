@@ -1,0 +1,266 @@
+ONLINE MULTIPLAYER ADDED TO 3 MORE GAMES
+------------------------------------------------------------------
+Before this change, 4 of 16 games had real online multiplayer
+(Tic-Tac-Toe, Connect Four, Checkers, Dots & Boxes). This update adds
+it to 3 more, using the exact same OnlineRoom Firestore engine (pure
+client-side reads/writes, no Cloud Functions — still 100% on the
+Firebase Spark/free plan):
+
+1. REVERSI / OTHELLO
+   - New "Online" button next to "2 Players" / "Vs Computer".
+   - Board is stored as a flat 64-cell array in the room (host=Black,
+     guest=White), same pattern as Connect Four/Checkers.
+   - Pass-turn logic (if a player has no legal move) is handled inside
+     the Firestore transaction so it's authoritative for both players.
+
+2. BATTLESHIP
+   - New "Online" button next to "2 Players (Hot-seat)" / "Vs Computer".
+   - Each player's fleet + shot history lives in the room doc under
+     `state.host` / `state.guest` (flat 8x8 arrays), so there's no
+     "pass the device" step — each player only ever sees their own
+     screen. The guest's fleet is placed automatically (randomly) the
+     moment they join the room.
+   - Hitting a ship grants another shot (turn stays with the shooter);
+     missing passes the turn, same as the local vs-computer game.
+
+3. MEMORY MATCH
+   - This game was single-player only before. It now has a full mode
+     bar: "1 Player" (unchanged classic solo mode), "2 Players"
+     (local hot-seat, alternating turns on one device), and "Online".
+   - 2-Player and Online share one small turn-based engine: whoever
+     flips a matching pair scores a point and goes again; a mismatch
+     passes the turn. Whoever has the most pairs when the board is
+     fully matched wins (ties are a draw).
+   - The card deck is generated once by the host when the room is
+     created, so both players see the exact same shuffled layout.
+
+All three follow the existing "Create Room / Join Room / 5-letter
+code" UI pattern already used by the other online games, so they're
+consistent with the rest of the arcade. As before, this only works
+once Firebase is configured (FIREBASE_CONFIG filled in + Firestore
+rules deployed, per SETUP-README.md) — without that, these games fall
+back to the same "no backend configured" behavior as everything else.
+
+public/arcade.html, public/index.html, www/arcade.html and
+www/index.html were all updated identically (same game logic in all
+four, per the existing project convention — only the <head> sections
+differ between arcade.html and index.html for SEO reasons).
+
+------------------------------------------------------------------
+ROUND 2: ONLINE MULTIPLAYER ADDED TO 3 MORE GAMES (2048, SNAKE,
+SLIDING PUZZLE)
+------------------------------------------------------------------
+That brought the total to 10 of 16 games with online multiplayer.
+This update adds a new "Online" mode to the 3 remaining games that
+fit a competitive format well, still using the exact same OnlineRoom
+Firestore engine (no Cloud Functions, no new dependencies):
+
+1. 2048
+   - New "Solo" / "Online" mode bar above the board.
+   - Online is a 90-second score race: both players get their own
+     independent board (their own tile spawns), the score ticker
+     syncs to the room every ~250ms, and whichever player has the
+     higher score when the timer hits 0 (or their board gets stuck
+     first) wins. Ties are a draw.
+
+2. SNAKE
+   - New "Solo" / "Online" mode bar above the canvas.
+   - Same score-race idea as 2048, but bounded by a 60-second timer
+     since a snake run ends on collision rather than "stuck". If you
+     crash before time's up, your score locks in as final; if you're
+     still alive when the clock hits 0, whatever your score is at
+     that moment is final.
+
+3. SLIDING PUZZLE
+   - New "Solo" / "Online" mode bar above the board.
+   - Online is a straight race-to-solve: the host's shuffle is stored
+     in the room so both players solve the *exact same* scrambled
+     board. Whoever completes it first is declared the winner the
+     moment their solved state reaches the room (a Firestore
+     transaction guarantees only the first solver gets credited even
+     if both finish around the same time). A live "Your moves"
+     counter is shown, but only completion order decides the winner.
+
+Same UI conventions as before (mode bar, Create/Join Room panel,
+5-letter code, Leave Room), and all four HTML files were kept in
+sync the same way as round 1.
+
+------------------------------------------------------------------
+DRIFT 3D (CAR RACING) — ONLINE MULTIPLAYER ADDED
+------------------------------------------------------------------
+Turbo Drift 3D now has a "Solo" / "Online" mode bar in the garage,
+using the same OnlineRoom Firestore engine as every other online
+game here (no Cloud Functions, still Spark/free plan).
+
+How it works:
+- Create Room / Join Room with a 5-letter code, same as the other
+  games.
+- Whoever CREATES the room picks the track for both racers (their
+  map choice is synced live to the room; the guest's track picker
+  is replaced with a "Race track is chosen by whoever created the
+  room" note showing the live selection). Each player still picks
+  their own car skin independently.
+- Once both players are in the room, the HOST presses START RACE.
+  Both clients then build the same track and start racing at the
+  same time.
+- Each car's position/heading/lap is broadcast to the room roughly
+  5x/second while racing (same cadence class as 2048's online score
+  sync). The other client renders that as a second, live-updating
+  car on the track — you can literally watch your friend's car
+  driving around out there.
+- It's a real race: whoever crosses the finish line after 5 laps
+  first is the winner (a Firestore transaction guarantees only the
+  first finisher is credited, same "first past the post" pattern as
+  the online Sliding Puzzle). The result overlay shows both times
+  once the second player finishes too.
+- "Back to Garage" after an online race resets the room (host-side)
+  so the same two players can start another race without leaving
+  and re-sharing the code.
+
+public/arcade.html, public/index.html, www/arcade.html and
+www/index.html were all updated identically, per the existing
+project convention.
+
+------------------------------------------------------------------
+DRIFT 3D ONLINE — FIXED LAGGY/TELEPORTING OPPONENT CAR
+------------------------------------------------------------------
+The first version synced each car's live position using the same
+transactional OnlineRoom.move() the turn-based games use (read the
+room doc, apply your change, write it back). That's correct for
+turn-based moves, but at racing speed both players were calling it
+5x/second on the SAME document — the two transactions kept
+colliding, Firestore queued/retried them, and updates arrived in
+delayed bursts (the "frozen for 20-30s then jumps" symptom).
+
+Fix: added OnlineRoom.patchField(path, value), a plain (non-
+transactional) field write. Each car now patches only its own leaf
+field (state.pos.host / state.pos.guest) every ~100ms, so the two
+players' updates never touch the same field and never collide —
+they land independently and near-instantly. Opponent-car smoothing
+was also tightened now that updates arrive reliably.
+
+------------------------------------------------------------------
+IN-ROOM CHAT WIDGET (works across every online game)
+------------------------------------------------------------------
+Added a floating chat button + panel (bottom-right corner) that
+appears automatically whenever you're in an active online room —
+Tic-Tac-Toe, Connect Four, Checkers, Reversi, Dots & Boxes,
+Battleship, Memory Match, 2048, Snake, Sliding Puzzle, Word Search,
+Hangman, Whack-a-Mole, and Turbo Drift 3D. No per-game changes were
+needed to wire it up.
+
+How it works:
+- Messages are stored in a Firestore subcollection at
+  rooms/{code}/chat (separate from the game's `state` field, so a
+  fast-moving chat never collides with the game-state transactions).
+- The OnlineRoom engine (public/arcade.html etc.) now exposes
+  OnlineRoom.sendChat(text) and listens to that subcollection any
+  time a room is created/joined; it calls a global onChatRoomUpdate()
+  hook automatically, which is what shows/hides the widget and
+  renders new messages — so it "just works" the moment any game
+  creates or joins a room, and hides again when the room is left
+  (OnlineRoom.detach()/reset()).
+- The last 50 messages are kept synced live; a small unread badge
+  shows on the chat button when the panel is closed and a new message
+  arrives from your friend.
+- Like the rest of online play, this only works once Firebase is
+  configured (FIREBASE_CONFIG filled in + firestore.rules deployed).
+  firestore.rules WAS updated for this: Firestore security rules don't
+  automatically cascade into subcollections, so the existing
+  `match /rooms/{roomCode}` block (which already allowed read/write on
+  the room doc itself) needed a nested `match /chat/{msgId}` block added
+  underneath it to allow the same open access to
+  rooms/{roomCode}/chat/{msgId}. If you've customized your deployed
+  rules, re-deploy firestore.rules (firebase deploy --only
+  firestore:rules) so chat isn't silently blocked by the default
+  deny-all.
+
+public/arcade.html, public/index.html, www/arcade.html and
+www/index.html were all updated identically, per the existing
+project convention.
+
+------------------------------------------------------------------
+NEON BLASTER 3D — REBUILT AS AN INDOOR RANGE + ONLINE FACE-OFF
+------------------------------------------------------------------
+Neon Blaster 3D was a fixed camera "drones fly at you" shooting
+gallery (waves, lives, no online mode). It's now a shooting-RANGE
+game with a moving target board, and it has online multiplayer +
+the same chat widget as every other online game — no extra wiring
+needed for chat since it's the shared floating widget described
+above.
+
+1. LOOKS LIKE A ROOM NOW
+   - Added real walls: two side walls (each with a column of glowing
+     accent strips in your blaster's accent color) and a back wall
+     with a torus "frame" around the target zone, closing the space
+     off instead of fading into open fog. Floor/ceiling neon grid
+     kept from before.
+
+2. MOVING TARGET BOARD, CENTER-BASED SCORING
+   - A single target board (concentric rings drawn on a canvas
+     texture, recolored to match your chosen blaster) hangs on a
+     post at the far end of the range. It continuously bobs up/down
+     and wanders to new random positions (bounded inside the back
+     wall frame) — the pace and travel distance both ramp up over
+     the first ~45 seconds of a round so it gets harder to track.
+   - Shots raycast against the board and read the UV hit position to
+     find the distance from dead center. Six tiers: BULLSEYE (100),
+     INNER RING (75), RING (50), OUTER RING (25), EDGE HIT (10),
+     GRAZE (5, the plain backing outside the rings) — completely
+     missing the board scores 0 and breaks your streak. Consecutive
+     hits build a small streak bonus (+2/hit, capped at +20).
+   - Each round is a straight 60-second timer (replacing the old
+     wave/lives survival format).
+
+3. ONLINE — SIDE-BY-SIDE FACE-OFF
+   - New "Solo" / "Online Face-Off" mode bar + Create/Join Room
+     panel, identical UI convention to every other online game here
+     (OnlineRoom Firestore engine, 5-letter code, Leave Room).
+   - Both players get their OWN target board and timer running at
+     the same time — it's a score race, same idea as the online
+     2048/Snake modes: each hit throttle-syncs your score to the
+     room (≤1 write/250ms via OnlineRoom.move), and whoever has the
+     higher score when both players' 60s are up wins (a tie is a
+     draw). Live "FRIEND <score>" shows in the HUD the whole round.
+   - The floating chat widget just works here too, same as the other
+     13 online games — no per-game chat code needed.
+
+public/arcade.html, public/index.html, www/arcade.html and
+www/index.html were all updated identically, per the existing
+project convention.
+
+------------------------------------------------------------------
+NEON BLASTER 3D — DIFFICULTY OPTIONS + ONGOING LEVEL ESCALATION
+------------------------------------------------------------------
+Feedback after the range rebuild above was that it stayed too easy.
+Two independent fixes:
+
+1. DIFFICULTY PICKER (Easy / Medium / Hard)
+   - New "Difficulty" row next to the Solo/Online mode buttons.
+     Easy = bigger board, slower/shorter wander, ~75s to reach full
+     ramp speed. Medium = the original tuning from the first pass.
+     Hard = smaller board (0.78x), wanders faster and further, and
+     starts already partway up the difficulty ramp instead of from
+     a standing start.
+   - Persists in localStorage, and each difficulty now keeps its own
+     separate "Best" score (a Hard-mode best isn't compared against
+     an Easy-mode one).
+   - Online: the HOST's difficulty is what both players play at
+     (synced into the room the same way Turbo Drift 3D syncs which
+     track to race) — the guest's picker is replaced with a note
+     showing the host's chosen difficulty, same convention as
+     Drift's "track is chosen by whoever created the room" note.
+
+2. LEVEL ESCALATION DURING A ROUND (on top of whichever difficulty)
+   - Every 12 seconds a round is live, LEVEL ticks up (shown in the
+     HUD) with a banner, same as the old wave banner. Each level:
+     shrinks the board a little further (floors out at ~55% of its
+     starting size so it never becomes literally unhittable),
+     shortens how long the board dwells before wandering again, and
+     nudges its travel distance and bob speed up — so even a full
+     Easy-mode run keeps getting harder the longer you survive,
+     instead of plateauing.
+
+public/arcade.html, public/index.html, www/arcade.html and
+www/index.html were all updated identically, per the existing
+project convention.

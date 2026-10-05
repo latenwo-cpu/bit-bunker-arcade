@@ -1,0 +1,62 @@
+NEW FEATURE: GLOBAL LEADERBOARDS
+-----------------------------------
+A new 🏅 button in the header toolbar (and on the Player Profile screen,
+next to Shop/Spin Wheel) opens a Leaderboard screen: pick any of the 21
+games from the dropdown and see the top 20 scores across every player who
+has played it, not just your own device. Your own row is highlighted if
+you're on the board.
+
+HOW IT WORKS
+------------
+Uses Firestore at leaderboards/{gameId}/scores/{uid} — same pure
+client-side reads/writes/transactions pattern as the existing OnlineRoom
+engine, no Cloud Functions, still 100% on the Firebase Spark (free) plan.
+Your FIREBASE_CONFIG in this project is already filled in, so this works
+out of the box; firestore.rules was updated with a new match block for
+the leaderboards collection (open read/write, same trust model already
+documented for rooms/events/chat — there's no Firebase Auth in this app,
+so it can't be scoped to "only you can write your own score" any more
+than the existing Challenge links can be tamper-proofed; see the
+existing note about that in CHALLENGE-FEATURE-NOTES.txt).
+
+Submitting a score piggybacks on the exact same choke point Challenge
+already uses: logEvent('game_end', {game, score}) — the one call every
+scoring game already makes — now also calls Leaderboard.maybeSubmit(),
+which runs a transaction that only overwrites your stored score if the
+new one is higher (so it never needs more than one write per personal
+best, keeping Firestore usage minimal). The very first time any device
+sets a leaderboard score, it prompts once for a display name (stored in
+the same arcade_display_name key Challenge links already use) — you can
+change it any time from the Leaderboard screen's "Change Display Name"
+button.
+
+If Firebase isn't configured (FIREBASE_CONFIG.apiKey left blank), the
+screen just shows "Global leaderboards need Firebase configured — see
+SETUP-README.md" instead of a table — same graceful-degrade style as the
+ads engine and analytics.
+
+WHAT CHANGED
+------------
+- public/arcade.html AND public/index.html (+ www/ and android/ bundled
+  mirrors, kept in sync per the existing project convention):
+  1. New Leaderboard JS module (submit/fetch/render/changeName), added
+     right after the Wheel module
+  2. logEvent() now also calls Leaderboard.maybeSubmit() on game_end,
+     alongside the existing Challenge.maybeResolve() call
+  3. New 🏅 button in the header toolbar and on the Profile screen
+  4. New #leaderboard screen (game picker dropdown, top-20 table,
+     change-name button)
+  5. New CSS for the dropdown/table (.lb-*)
+- firestore.rules: added a `match /leaderboards/{gameId}/scores/{uid}`
+  block (open read/write, consistent with the existing rooms/chat rules)
+
+NOT INCLUDED (would need real auth)
+---------------------------------------
+Because there's no Firebase Auth anywhere in this app, a determined
+player could in theory write directly to Firestore and fake a score —
+same caveat already called out for Challenge links. A tamper-resistant
+version would need signed-in users (or at minimum server-side validation
+via a Cloud Function, which needs the Blaze plan) so a score can be
+checked against something the client doesn't fully control. Not worth
+that complexity for a casual arcade site today; worth revisiting if
+leaderboard-gaming becomes an actual problem.

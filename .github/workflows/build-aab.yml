@@ -1,0 +1,75 @@
+name: Build signed AAB for Google Play
+
+# Run manually: GitHub -> Actions -> "Build signed AAB for Google Play" -> Run workflow
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "Version name shown to users (e.g. 1.0, 1.1)"
+        required: true
+        default: "1.0"
+      version_code:
+        description: "Version code - must be HIGHER than your last Play upload (1, 2, 3...)"
+        required: true
+        default: "1"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Check signing secrets exist
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KSP: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KA: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KP: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          for v in KS KSP KA KP; do
+            if [ -z "${!v}" ]; then echo "::error::Missing GitHub secret for $v - see PLAY-STORE-GUIDE.md step 2"; exit 1; fi
+          done
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Copy website into the app (public -> www)
+        run: node scripts/sync-web.js
+
+      - name: Sync Capacitor Android project
+        run: npx cap sync android
+
+      - name: Decode keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.keystore"
+
+      - name: Build release AAB
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          IN_VERSION_CODE: ${{ inputs.version_code }}
+          IN_VERSION_NAME: ${{ inputs.version_name }}
+        run: |
+          chmod +x gradlew
+          ./gradlew bundleRelease -PVERSION_CODE="$IN_VERSION_CODE" -PVERSION_NAME="$IN_VERSION_NAME"
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixel-arcade-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error

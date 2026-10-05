@@ -1,0 +1,62 @@
+NEW GAME ADDED: SIMON SAYS (21 games total now)
+--------------------------------------------------
+A classic 4-color memory sequence game: the board flashes a growing
+pattern (green/red/yellow/blue), you repeat it back by tapping the
+same pad. Each round adds one more step and the playback speeds up
+slightly (capped so it never gets unfair). One wrong tap ends the run.
+
+WHERE IT LIVES
+--------------
+Fully self-contained, single-player, no "vs computer" or online mode
+(a turn-based memory game doesn't have an obvious 1v1 shape, same
+reasoning as Snake/2048/Minesweeper's solo-only pieces). It plugs into
+all the existing arcade-wide systems with zero special-casing:
+  - New cabinet button on the hub grid (🎵 Simon Says)
+  - New GAME_META entry ('simon') so it shows up in Favorites/Recents,
+    the Explorer/Arcade Legend achievements, and the daily-challenge
+    rotation automatically
+  - Best score (rounds survived) is saved to localStorage
+    ('simonBest') and also reported via logEvent('game_end', {game:
+    'simon', score}) so it appears on the Player Profile's high-score
+    table the same way every other scoring game does
+  - Uses the existing Engagement sound toggle (reads the same
+    arcade_profile_v1.soundOn flag) so muting sound in the header
+    mutes Simon's tones too
+
+WHAT CHANGED
+------------
+- public/arcade.html AND public/index.html (+ their www/ mirrors,
+  kept in sync per the existing two-copies convention) got:
+  1. New CSS block for the color pad (".sm-*" classes)
+  2. New GAME_META + ld+json entry for Simon Says
+  3. New cabinet button in #cabinet-grid
+  4. New <main id="game-simon"> screen
+  5. New "simon: initSimon" entry in openGame()'s init map
+  6. New game logic block (initSimon / simonStart / simonNextRound /
+     simonPlaySequence / simonPress / simonGameOver) added right after
+     the Minesweeper block, following the same function-naming and
+     logEvent('game_start'|'game_end', {...}) pattern as every other
+     game in the file
+- All "20 games" / "20 free games" copy (title tag, meta description,
+  Open Graph, Twitter card, ld+json, FAQ answer, header tagline, the
+  Arcade Legend achievement description) bumped to 21 to match.
+
+NOT TOUCHED
+-----------
+android/ wasn't regenerated in this pass — it's a Capacitor-generated
+wrapper around www/, so the usual `npx cap sync android` after
+`npm install` will pick up the new www/index.html automatically. No
+node_modules/, .git/, or android/build changes are included here (same
+as your existing FIX-NOTES.txt zip convention) — unzip this over your
+project folder, overwrite when prompted.
+
+IDEAS FOR NEXT ROUND (not built yet)
+-------------------------------------
+- Wire Simon Says into a "race" Online mode: both players see the same
+  seeded sequence, first to make a mistake (or slowest to finish a
+  round) loses — would reuse the OnlineRoom engine the same way
+  Connect Four/Checkers do, just with the sequence itself stored as
+  the flat-array `state` instead of a board.
+- A speed-run leaderboard (Firestore, same Spark-plan-friendly pattern
+  as OnlineRoom) showing the global top "rounds survived" instead of
+  only a personal best.

@@ -1,0 +1,127 @@
+NEW FEATURES: FRIENDS LIST, TOURNAMENTS, AND SPECTATING
+--------------------------------------------------------
+Three additions, all using the same Spark-plan-friendly, no-Cloud-
+Functions pattern as everything else here (OnlineRoom, Leaderboard,
+Challenge): pure client-side Firestore reads/writes/transactions.
+
+1. FRIENDS LIST (add by code) + FRIENDS-ONLY LEADERBOARD TAB
+------------------------------------------------------------
+New "👥 Friends" button in the header toolbar opens a screen showing
+your permanent friend code (the same per-device code OnlineRoom already
+generates for hosting rooms) plus an "Add Friend" box and your current
+friends list.
+
+- Every device "registers" itself the moment the arcade loads
+  (players/{code} = {code, uid, name}), so anyone can be added the
+  moment they've opened Pixel Arcade at least once — no sign-up step.
+- Adding a friend looks their code up in that directory and writes an
+  entry to YOUR OWN players/{yourCode}/friends/{theirUid} doc. This is
+  one-directional, like following on a lot of casual sites — there's no
+  request/accept handshake. That keeps it entirely client-side (no
+  backend to arbitrate a handshake), but it also means someone could add
+  you without you knowing. Given the same "no real accounts, anonymous
+  uid" model the rest of this site already runs on, that felt like a
+  reasonable trade-off for a casual arcade; worth adding a mutual-consent
+  step later if it ever becomes a problem.
+- The Leaderboard screen now has a 🌍 Global / 👥 Friends tab. Friends
+  mode fetches your friends' (+ your own) score doc for the selected
+  game via a single `where(documentId(), 'in', [...])` query, so it's
+  one extra read, not N — capped at 30 friends.
+
+2. TOURNAMENTS (scheduled single-elimination bracket, 8 or 16 players)
+------------------------------------------------------------------
+New "🏆 Tourneys" button opens a screen where anyone can create a
+tournament for one of 8 score-based games (2048, Snake, Breakout, Pixel
+Invaders, Whack-a-Mole, Simon Says, Pong, Neon Blaster 3D — the games
+where "higher score wins" cleanly applies), pick a bracket size (8 or
+16), and a start-time preset (1 hour / 3 hours / tomorrow). Anyone can
+join while it's "open"; once the start time passes, the roster locks,
+seeds are shuffled at random, and the bracket goes "active".
+
+HOW A MATCH IS DECIDED WITHOUT A LIVE 1-ON-1 SESSION
+- Rather than requiring both players to be online at the same moment
+  (like the existing OnlineRoom 2-player games), each round is a 20-
+  minute window. Whichever of your two opponents sets the higher score
+  in that game during the window advances — same async, "beat my score"
+  spirit as the existing Challenge feature, just bracketed and time-
+  boxed instead of one-off.
+- This reuses the exact choke point Leaderboard and Challenge already
+  hook into: Tournaments.maybeSubmit() runs on every game_end event, so
+  none of the 21 individual games needed to change. If you have an
+  active tournament match for the game you're currently playing, any
+  new personal-best you set during the round window is written into
+  your match automatically.
+- Advancing a round (or locking the bracket once the start time passes)
+  is done by whichever client happens to be looking at the tournament
+  when the deadline has passed — there's no server-side timer. A
+  Firestore transaction makes this safe even if several people are
+  viewing it at once: only the first write actually applies, everyone
+  else's is a no-op.
+- Ties (including a 0–0 round where nobody played) fall back to a
+  deterministic hash of the match, so every client agrees on the same
+  "coin flip" outcome without needing to talk to each other.
+
+NOT INCLUDED (would need a backend)
+- A live push/reminder the moment your round opens — this only checks
+  once per session (same pattern as the existing Rivals rank-check) and
+  shows a small dot on the header button; it won't wake you up.
+- Tamper-proof scoring — same caveat CHALLENGE-FEATURE-NOTES.txt already
+  documents for challenge links: without server-authoritative scoring
+  (Cloud Functions), a modified client could report a fake score. Fine
+  for a casual bracket among friends; worth revisiting if it's ever used
+  for anything with stakes.
+
+3. SPECTATE (watch a live online match)
+------------------------------------------------------------------
+New "👀 Spectate" button lets anyone who has a room code watch that
+match live and chat with the players, without needing a seat in the
+room. Rather than building custom spectator rendering for all 14
+online-enabled games individually, this is one generic viewer:
+
+- OnlineRoom.spectate(code, game) does a read-only, non-transactional
+  subscribe to the room doc — it never writes to players.host/guest, so
+  it can never collide with (or accidentally take a seat from) an
+  actual player.
+- It renders whatever it generically finds in the room's `state`: a
+  `state.board` flat array (used by Tic-Tac-Toe, Connect Four, Checkers,
+  Reversi, Dots & Boxes, Battleship, Memory, 2048, and Sliding Puzzle) as
+  a plain numbered/lettered grid, and host/guest score fields (used by
+  the 2048/Snake/Neon Blaster score-race modes) as a live side-by-side
+  comparison.
+- The existing floating chat widget "just works" here too — no chat
+  code needed, same as every online game.
+- A lightweight presence doc (rooms/{code}/spectators/{uid}) lets the
+  players see a live "👀 N watching" count in their own chat panel
+  header.
+
+WHY THIS INSTEAD OF PER-GAME REPLAY SAVING
+- The alternative — recording and replaying a run of any of the 21
+  score-based games — would need bespoke input/frame recording wired
+  into each game individually (they don't share a common game loop or
+  input format), breaking the "zero per-game changes" pattern every
+  other cross-cutting feature here relies on. Generic live spectating
+  fit the existing OnlineRoom architecture almost for free instead, so
+  that's what shipped. Worth revisiting replay saving later, scoped to
+  a handful of the simpler score games, if it's wanted specifically.
+
+WHAT CHANGED
+------------
+- public/arcade.html, public/index.html, www/arcade.html, www/index.html
+  (kept in sync, per the existing project convention):
+  1. New Friends, Tournaments, and Spectate JS modules
+  2. OnlineRoom extended with .spectate()/.getUserCode() (exported) and a
+     spectator-presence/count listener
+  3. Leaderboard module extended with a Friends tab (renderFriendsBoard/
+     onTabChange) and an exported .getName()
+  4. logEvent() now also calls Tournaments.maybeSubmit() on game_end
+  5. New "👥 Friends" / "🏆 Tourneys" / "👀 Spectate" header buttons
+  6. New #friends, #tournaments, and #spectate screens
+  7. New CSS for friend rows, tournament cards/brackets, and the generic
+     spectator board/scoreboard
+  8. Friends.init() / Tournaments.init() added to the DOMContentLoaded
+     bootstrap
+- firestore.rules: added players/{code} (+ its friends subcollection),
+  tournaments/{tournamentId}, and rooms/{roomCode}/spectators/{uid}. If
+  you've customized your deployed rules, re-deploy firestore.rules
+  (firebase deploy --only firestore:rules) so these aren't silently
+  blocked by the default deny-all.
