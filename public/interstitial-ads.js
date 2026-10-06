@@ -620,3 +620,182 @@
   window.renderChatMessages = renderChatMessages;
   window.sendChatMessage = sendChatMessage;
 })();
+
+/* =========================================================================
+   PIXEL ARCADE — Hub menu (hamburger)
+   Lives in this file so index.html and arcade.html need no edits.
+   Moves every button from the top toolbar (sound, accessibility, shop, spin,
+   daily gift, season pass, reminders, leaderboards, challenge, friends,
+   tourneys, spectate, profile) into a slide-out menu opened by one
+   "Menu" button. The buttons are MOVED, not copied, so coins, level,
+   notification dots and click actions keep working exactly as before.
+   ========================================================================= */
+(function(){
+  'use strict';
+
+  var SECTIONS = [
+    { title: 'Rewards', labels: ['Open the shop', 'Spin the daily wheel', 'Daily login rewards', 'Season pass'] },
+    { title: 'Play with friends', labels: ['Share or challenge a friend', 'Manage your friends list', 'Tournaments', 'Spectate a live match'] },
+    { title: 'You', labels: ['View your profile and achievements', 'View global leaderboards'] },
+    { title: 'Settings', labels: ['Toggle sound', 'Accessibility settings', 'Notification reminders'] }
+  ];
+
+  // Text shown next to icon-only buttons (keyed by the button's aria-label).
+  var NAMES = {
+    'Toggle sound': 'Sound on / off',
+    'Accessibility settings': 'Accessibility',
+    'Open the shop': 'Shop',
+    'Daily login rewards': 'Daily rewards',
+    'Season pass': 'Season pass',
+    'Notification reminders': 'Reminders',
+    'View global leaderboards': 'Leaderboards',
+    'View your profile and achievements': 'Profile'
+  };
+
+  function injectStyles(){
+    if(document.getElementById('hub-menu-styles')) return;
+    var s = document.createElement('style');
+    s.id = 'hub-menu-styles';
+    s.textContent =
+      '#hub-menu-btn{font-weight:700;letter-spacing:.5px;}' +
+      '#hub-menu-btn .hub-menu-dot{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--magenta,#ff3d81);box-shadow:0 0 0 2px var(--panel-alt,#1b2340);display:none;}' +
+      '#hub-menu-btn.has-dot .hub-menu-dot{display:block;}' +
+      '#hub-menu-overlay{position:fixed;inset:0;z-index:1800;background:rgba(5,7,16,.6);opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s;}' +
+      '#hub-menu-overlay.open{opacity:1;visibility:visible;}' +
+      '#hub-menu-panel{position:fixed;top:0;left:0;bottom:0;z-index:1801;width:min(86vw,330px);background:var(--bg-panel,#141a30);border-right:1px solid var(--border,#2a3363);box-shadow:6px 0 24px rgba(0,0,0,.5);display:flex;flex-direction:column;transform:translateX(-102%);visibility:hidden;transition:transform .22s ease,visibility .22s;padding-top:env(safe-area-inset-top,0px);}' +
+      '#hub-menu-panel.open{transform:translateX(0);visibility:visible;}' +
+      '#hub-menu-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border,#2a3363);font-family:var(--font-display,inherit);font-size:13px;letter-spacing:2px;color:var(--cyan,#2de2c8);}' +
+      '#hub-menu-close{background:none;border:1px solid var(--border,#2a3363);color:var(--text,#fff);width:34px;height:34px;border-radius:17px;font-size:16px;cursor:pointer;}' +
+      '#hub-menu-close:hover{border-color:var(--cyan,#2de2c8);}' +
+      '#hub-menu-list{flex:1;overflow-y:auto;padding:6px 14px 24px;-webkit-overflow-scrolling:touch;}' +
+      '#hub-menu-list h3{margin:16px 0 8px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim,#8892b8);font-weight:600;}' +
+      '#hub-menu-list .icon-btn{width:100%;justify-content:flex-start;border-radius:12px;padding:12px 14px;font-size:14px;margin:0 0 8px;gap:10px;text-align:left;}' +
+      '#hub-menu-list .icon-btn[data-menu-name]::after{content:attr(data-menu-name);}' +
+      '#hub-menu-list .tourney-badge{position:absolute;top:8px;right:12px;}' +
+      '@media (prefers-reduced-motion:reduce){#hub-menu-panel,#hub-menu-overlay{transition:none;}}';
+    document.head.appendChild(s);
+  }
+
+  function build(){
+    var header = document.querySelector('.hub-header');
+    var toolbar = header && header.querySelector('.hub-toolbar');
+    if(!toolbar || document.getElementById('hub-menu-btn')) return;
+    injectStyles();
+
+    // --- menu button (replaces the row of buttons in the header) ---
+    var menuBtn = document.createElement('button');
+    menuBtn.type = 'button';
+    menuBtn.id = 'hub-menu-btn';
+    menuBtn.className = 'icon-btn';
+    menuBtn.setAttribute('aria-label', 'Open menu');
+    menuBtn.setAttribute('aria-expanded', 'false');
+    menuBtn.setAttribute('aria-controls', 'hub-menu-panel');
+    menuBtn.innerHTML = '\u2630 Menu<span class="hub-menu-dot"></span>';
+
+    // --- slide-out panel ---
+    var overlay = document.createElement('div');
+    overlay.id = 'hub-menu-overlay';
+
+    var panel = document.createElement('aside');
+    panel.id = 'hub-menu-panel';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-label', 'Menu');
+
+    var head = document.createElement('div');
+    head.id = 'hub-menu-head';
+    head.innerHTML = '<span>MENU</span>';
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.id = 'hub-menu-close';
+    closeBtn.setAttribute('aria-label', 'Close menu');
+    closeBtn.textContent = '\u2715';
+    head.appendChild(closeBtn);
+
+    var list = document.createElement('div');
+    list.id = 'hub-menu-list';
+
+    panel.appendChild(head);
+    panel.appendChild(list);
+
+    // --- move the existing buttons into sections ---
+    var buttons = Array.prototype.slice.call(toolbar.querySelectorAll('button'));
+    var used = [];
+    function addSection(title, items){
+      if(!items.length) return;
+      var h = document.createElement('h3');
+      h.textContent = title;
+      list.appendChild(h);
+      items.forEach(function(b){ list.appendChild(b); });
+    }
+    SECTIONS.forEach(function(sec){
+      var items = [];
+      sec.labels.forEach(function(lbl){
+        buttons.forEach(function(b){
+          if(used.indexOf(b) === -1 && b.getAttribute('aria-label') === lbl){ items.push(b); used.push(b); }
+        });
+      });
+      addSection(sec.title, items);
+    });
+    addSection('More', buttons.filter(function(b){ return used.indexOf(b) === -1; }));
+
+    // Icon-only buttons get a text name (CSS ::after, so game code that
+    // rewrites the button's icon can't erase it).
+    buttons.forEach(function(b){
+      var aria = b.getAttribute('aria-label') || '';
+      var letters = (b.textContent || '').replace(/[^A-Za-z]/g, '').length;
+      if(NAMES[aria] && letters < 3) b.setAttribute('data-menu-name', NAMES[aria]);
+    });
+
+    // Header keeps only the Menu button (and the streak flame, if shown).
+    toolbar.insertBefore(menuBtn, toolbar.firstChild);
+    document.body.appendChild(overlay);
+    document.body.appendChild(panel);
+
+    // --- open / close ---
+    function open(){
+      overlay.classList.add('open');
+      panel.classList.add('open');
+      menuBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      var first = list.querySelector('button');
+      if(first) setTimeout(function(){ try{ first.focus(); }catch(e){} }, 60);
+    }
+    function close(returnFocus){
+      overlay.classList.remove('open');
+      panel.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      if(returnFocus){ try{ menuBtn.focus(); }catch(e){} }
+    }
+    function isOpen(){ return panel.classList.contains('open'); }
+
+    menuBtn.addEventListener('click', function(){ if(isOpen()) close(true); else open(); });
+    closeBtn.addEventListener('click', function(){ close(true); });
+    overlay.addEventListener('click', function(){ close(true); });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && isOpen()){ close(true); }
+    });
+    // Choosing an item closes the menu so the screen it opens is visible.
+    // (Sound on/off stays open so you can hear the change.)
+    list.addEventListener('click', function(e){
+      var b = e.target && e.target.closest ? e.target.closest('button') : null;
+      if(!b || b.id === 'sound-toggle-btn') return;
+      setTimeout(function(){ close(false); }, 0);
+    });
+
+    // Red dot on Menu when something inside needs attention
+    // (spin ready, daily gift, season tier, tournament news).
+    function refreshDot(){
+      var attention = !!list.querySelector('.badge-dot, .tourney-badge.show, #wheel-btn.spin-ready');
+      menuBtn.classList.toggle('has-dot', attention);
+    }
+    try{
+      new MutationObserver(refreshDot).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    }catch(e){}
+    refreshDot();
+    setInterval(refreshDot, 4000);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build);
+  else build();
+})();
