@@ -278,6 +278,28 @@
         <div class="slot-grid" id="admob-slot-grid"></div>
       </fieldset>
 
+      <fieldset id="fs-admob-inter">
+        <legend>AdMob Interstitials (app only)</legend>
+        <p class="muted" style="margin-top:0">Full-screen AdMob ads after a win, a loss, long play, or hub return. Create <b>Interstitial</b> units in AdMob and paste the IDs here. Saved with the main Save button.</p>
+        <label><input type="checkbox" id="ai-enabled"> Enable AdMob interstitials</label>
+        <label><input type="checkbox" id="ai-test"> Test mode (Google test ads — keep ON until your Play Store release)</label>
+        <label>Unit ID — after a WIN</label><input id="ai-u-win" placeholder="ca-app-pub-…/…">
+        <label>Unit ID — after a LOSS</label><input id="ai-u-lose" placeholder="ca-app-pub-…/…">
+        <label>Unit ID — after long play (5+ min)</label><input id="ai-u-timeout" placeholder="ca-app-pub-…/…">
+        <label>Unit ID — returning to hub</label><input id="ai-u-hub" placeholder="ca-app-pub-…/…">
+        <label>Fallback unit ID (used when one above is empty)</label><input id="ai-u-any" placeholder="ca-app-pub-…/…">
+        <label><input type="checkbox" id="ai-win"> Show after win</label>
+        <label><input type="checkbox" id="ai-lose"> Show after loss</label>
+        <label><input type="checkbox" id="ai-draw"> Show after draw</label>
+        <label><input type="checkbox" id="ai-time"> Show after long play</label>
+        <label>Long-play trigger (minutes)</label><input id="ai-timemin" type="number" min="1">
+        <label>Show every N finished games</label><input id="ai-every" type="number" min="1">
+        <label>Cooldown between ads (seconds)</label><input id="ai-cool" type="number" min="0">
+        <label>Max ads per session (0 = unlimited)</label><input id="ai-max" type="number" min="0">
+        <label>Ad-free games at start of session</label><input id="ai-grace" type="number" min="0">
+        <label>Show on every Nth hub return (0 = off)</label><input id="ai-hub" type="number" min="0">
+      </fieldset>
+
       <fieldset id="fs-manual">
         <legend>Manual Ads</legend>
         <p class="muted" style="margin-top:0">Pick a slot, then upload an image file (stored free, directly in your database — no hosting needed) or paste an image URL, plus a click-through link. Or use raw HTML.</p>
@@ -745,6 +767,7 @@ async function loadAdConfigIntoForm(){
     document.getElementById('admob-'+s).value = (currentAdConfig.admobUnitIds||{})[s]||'';
   });
   renderManualAdsTable();
+  loadAdmobInter();
 }
 function renderManualAdsTable(){
   const rows = Object.entries(currentAdConfig.manualAds||{});
@@ -849,6 +872,30 @@ function deleteManualSlot(slot){
   delete currentAdConfig.manualAds[slot];
   renderManualAdsTable();
 }
+async function loadAdmobInter(){
+  let c = {};
+  try{ const d = await db.collection('config').doc('admobInter').get(); if(d.exists) c = d.data(); }catch(e){ console.warn('admobInter load failed', e); }
+  const u = c.units || {};
+  const val=(id,v,def)=>{ document.getElementById(id).value = (v===undefined||v===null) ? def : v; };
+  const chk=(id,v,def)=>{ document.getElementById(id).checked = (v===undefined) ? def : !!v; };
+  chk('ai-enabled',c.enabled,false); chk('ai-test',c.testMode,true);
+  chk('ai-win',c.onWin,true); chk('ai-lose',c.onLose,true); chk('ai-draw',c.onDraw,false); chk('ai-time',c.timeEnabled,true);
+  val('ai-u-win',u.win,''); val('ai-u-lose',u.lose,''); val('ai-u-timeout',u.timeout,''); val('ai-u-hub',u.hub,''); val('ai-u-any',u.any,'');
+  val('ai-timemin',c.timeMin,5); val('ai-every',c.everyN,2); val('ai-cool',c.cooldownSec,90);
+  val('ai-max',c.maxPerSession,12); val('ai-grace',c.graceGames,1); val('ai-hub',c.hubEveryN,0);
+}
+async function saveAdmobInter(){
+  const v=id=>document.getElementById(id).value.trim();
+  const n=id=>Number(document.getElementById(id).value)||0;
+  const b=id=>document.getElementById(id).checked;
+  await db.collection('config').doc('admobInter').set({
+    enabled:b('ai-enabled'), testMode:b('ai-test'),
+    onWin:b('ai-win'), onLose:b('ai-lose'), onDraw:b('ai-draw'), timeEnabled:b('ai-time'),
+    units:{ win:v('ai-u-win'), lose:v('ai-u-lose'), timeout:v('ai-u-timeout'), hub:v('ai-u-hub'), any:v('ai-u-any') },
+    timeMin:n('ai-timemin')||5, everyN:n('ai-every')||1, cooldownSec:n('ai-cool'),
+    maxPerSession:n('ai-max'), graceGames:n('ai-grace'), hubEveryN:n('ai-hub')
+  });
+}
 async function saveAdConfig(){
   const mode = document.querySelector('input[name="adMode"]:checked').value;
   const adsenseSlots={}, admobUnitIds={};
@@ -866,6 +913,7 @@ async function saveAdConfig(){
   };
   try{
     await db.collection('config').doc('ads').set(currentAdConfig);
+    await saveAdmobInter();
     document.getElementById('save-msg').textContent = 'Saved ✓ — live on next page load of arcade.html';
   }catch(e){
     document.getElementById('save-msg').textContent = 'Save failed: '+e.message;
