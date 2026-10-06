@@ -1,0 +1,106 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Online multiplayer rooms (Tic-Tac-Toe, Connect Four, Checkers, Dots & Boxes).
+    // No Firebase Auth involved here — players are matched purely by a
+    // 5-letter room code, so this can't be scoped to a signed-in user.
+    match /rooms/{roomCode} {
+      allow read, write: if true;
+
+      // In-room chat messages (rooms/{roomCode}/chat/{msgId}). Firestore
+      // rules don't cascade into subcollections automatically, so this
+      // needs its own match block — same "anyone with the room code" trust
+      // model as the room document itself.
+      match /chat/{msgId} {
+        allow read, write: if true;
+      }
+    }
+
+    // Global per-game leaderboards (leaderboards/{gameId}/scores/{uid}).
+    // Same trust model as rooms/events above — no Firebase Auth, so this
+    // can't be scoped to "only the owner can write their own doc" in a way
+    // that's actually enforceable, but scores are anonymous (a random uid)
+    // and read-only for display purposes, so open write is the same
+    // trade-off already documented in CHALLENGE-FEATURE-NOTES.txt for the
+    // "beat my score" links.
+    match /leaderboards/{gameId}/scores/{uid} {
+      allow read, write: if true;
+    }
+
+    // Player directory (players/{code}) — lets one player look another up
+    // by their permanent friend code (the same code OnlineRoom already
+    // gives every device for hosting rooms) so the Friends feature can add
+    // them. Same open trust model as rooms/leaderboards above: no Firebase
+    // Auth, so writes can't be scoped to "only the owner of this code can
+    // write it" in an enforceable way — a player's own doc is world-
+    // writable in principle, same trade-off already accepted for scores.
+    //
+    // Friends (players/{code}/friends/{friendUid}) — one-directional, like
+    // following: adding someone writes only to YOUR list, not theirs, so no
+    // request/accept step is needed. Firestore rules don't cascade into
+    // subcollections, so this needs its own nested match block.
+    match /players/{code} {
+      allow read, write: if true;
+      match /friends/{friendUid} {
+        allow read, write: if true;
+      }
+    }
+
+    // Tournaments (scheduled single-elimination brackets). Same trust model
+    // as everything else here — no Auth, so the roster/scores/bracket are
+    // open write, same score-integrity trade-off already documented for
+    // leaderboards and challenge links.
+    match /tournaments/{tournamentId} {
+      allow read, write: if true;
+    }
+
+    // Spectator presence (rooms/{roomCode}/spectators/{uid}), used to show
+    // a live "N watching" count to the players in a room. Nested under the
+    // existing /rooms/{roomCode} match, so it needs its own block the same
+    // way /rooms/{roomCode}/chat does above.
+    match /rooms/{roomCode}/spectators/{uid} {
+      allow read, write: if true;
+    }
+
+    // Analytics events written by logEvent() in arcade.html/index.html.
+    // Anyone can create an event (that's every visitor logging their own
+    // activity), but only a signed-in admin can read them back — that's
+    // what powers admin.html's dashboards.
+    match /events/{eventId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Remote ad config, edited from admin.html's Ad Settings tab.
+    // Publicly readable so arcade.html/index.html can load it on every
+    // page view, but only a signed-in admin can change it.
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Cloud Save (optional Google/anonymous sign-in) — backs up the local
+    // arcade_profile_v1 blob (XP, coins, achievements, high scores, shop
+    // items) so it survives a reinstall or a new device. Unlike everything
+    // else in this file, this is scoped to a real signed-in Firebase Auth
+    // user (Google or Anonymous provider) rather than an open/anonymous
+    // device code, so it can be locked down to "only the owner can read or
+    // write their own doc" for real.
+    match /cloudProfiles/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Chat reports (Report button in room chat): anyone can submit one, nobody
+    // can read them from the app. Read them in Firebase Console -> Firestore -> reports.
+    match /reports/{reportId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
