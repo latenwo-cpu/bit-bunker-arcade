@@ -928,6 +928,8 @@
       window.goHub.__paWrapped = true;
     }
   }
+  // let banners know whether Test mode is on (they wait for this before loading)
+  window.__paCfgReady = loadCfg().then(function (c) { window.__paAdTest = !!c.testMode; return c; });
   // this file is loaded with defer, so the page's own scripts have already run
   hook();
   window.addEventListener('load', function () { hook(); setTimeout(loadCfg, 1500); });

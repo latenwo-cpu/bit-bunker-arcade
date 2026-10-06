@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/capacitor-shim.js"></script>
 <script id="adsense-script" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5271137719829070" crossorigin="anonymous"></script>
 <meta name="google-adsense-account" content="ca-pub-5271137719829070">
 <meta charset="UTF-8">
@@ -591,6 +592,9 @@
       transform:none !important; filter:saturate(1.05) brightness(1.15) !important;
     }
   }
+
+  /* Daily wheel: a single user-triggered spin; keep its animation even when the phone reports "reduce motion" */
+  .reduced-motion .wheel-dial, .wheel-dial{ transition-duration:4.2s !important; }
 
   /* Dots and Boxes */
   .db-wrap{ width:min(380px,92vw); margin:0 auto; }
@@ -5063,14 +5067,15 @@ const Tournaments = (function(){
   }
   window.AdMobBridge = {
     async showBanner(unitId, slot){
+      try{ if(window.__paCfgReady) await window.__paCfgReady; }catch(e){}
       await ensureInit();
       try{
         await AdMobPlugin.showBanner({
-          adId: unitId,
+          adId: window.__paAdTest ? 'ca-app-pub-3940256099942364/6300978111' : unitId,
           adSize: 'ADAPTIVE_BANNER',
           position: 'BOTTOM_CENTER',
           margin: 0,
-          isTesting: false
+          isTesting: !!window.__paAdTest
         });
       }catch(e){ console.warn('AdMob showBanner failed for slot '+slot, e); }
     },
