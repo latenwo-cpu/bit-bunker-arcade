@@ -10,7 +10,7 @@
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#4fb3ea">
 <title>ARCADE — Play 22 Free Retro &amp; 3D Browser Games Online</title>
-<meta name="description" content="Play 22 free retro &amp; 3D arcade games — Snake, Pong, Breakout, Minesweeper, Connect Four, Checkers, and more. No download, no signup, just click and play.">
+<meta name="description" content="Play 28 free retro &amp; 3D arcade games — Snake, Pong, Breakout, Minesweeper, Connect Four, Checkers, and more. No download, no signup, just click and play.">
 <meta name="keywords" content="free online games, browser games, arcade games, retro games, play snake online, breakout game, pong game, minesweeper online, no download games">
 <meta name="author" content="Pixel Arcade">
 <meta name="robots" content="index, follow">
@@ -21,7 +21,7 @@
 <meta property="og:url" content="https://pixelarcade-44662.web.app/">
 <meta property="og:site_name" content="Pixel Arcade">
 <meta property="og:title" content="ARCADE — Play 22 Free Retro &amp; 3D Browser Games Online">
-<meta property="og:description" content="Snake, Pong, Breakout, Minesweeper, Pixel Invaders, Connect Four, Checkers, Reversi, Battleship, Simon Says, three 3D games, and more — 22 free games, no download or signup required.">
+<meta property="og:description" content="Snake, Pong, Breakout, Minesweeper, Pixel Invaders, Connect Four, Checkers, Reversi, Battleship, Simon Says, three 3D games, and more — 28 free games, no download or signup required.">
 <meta property="og:image" content="https://pixelarcade-44662.web.app/icons/icon-512.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
@@ -29,7 +29,7 @@
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ARCADE — Play 22 Free Retro &amp; 3D Browser Games Online">
-<meta name="twitter:description" content="Snake, Pong, Breakout, Minesweeper, Pixel Invaders, Connect Four, Checkers, Reversi, Battleship, Simon Says, three 3D games, and more — 22 free games, no download or signup required.">
+<meta name="twitter:description" content="Snake, Pong, Breakout, Minesweeper, Pixel Invaders, Connect Four, Checkers, Reversi, Battleship, Simon Says, three 3D games, and more — 28 free games, no download or signup required.">
 <meta name="twitter:image" content="https://pixelarcade-44662.web.app/icons/icon-512.png">
 
 <script type="application/ld+json">
@@ -39,7 +39,7 @@
   "name": "ARCADE",
   "alternateName": "Pixel Arcade",
   "url": "https://pixelarcade-44662.web.app/",
-  "description": "Play 22 free retro arcade games instantly in your browser.",
+  "description": "Play 28 free retro arcade games instantly in your browser.",
   "potentialAction": {
     "@type": "SearchAction",
     "target": "https://pixelarcade-44662.web.app/?s={search_term}",
@@ -66,7 +66,7 @@
     {"@type": "Game", "name": "Breakout", "genre": "Arcade"},
     {"@type": "Game", "name": "Pong", "genre": "Arcade"},
     {"@type": "Game", "name": "Minesweeper", "genre": "Puzzle"},
-    {"@type": "Game", "name": "Simon Says", "genre": "Memory"}
+    {"@type": "Game", "name": "Simon Says", "genre": "Memory"}, {"@type": "Game", "name": "Block Stack", "genre": "Puzzle"}, {"@type": "Game", "name": "Pixel Flap", "genre": "Arcade"}, {"@type": "Game", "name": "Lights Out", "genre": "Puzzle"}, {"@type": "Game", "name": "Frog Crossing", "genre": "Arcade"}, {"@type": "Game", "name": "Ludo", "genre": "Board"}, {"@type": "Game", "name": "Snakes and Ladders", "genre": "Board"}
   ]
 }
 </script>
@@ -83,12 +83,12 @@
     {
       "@type": "Question",
       "name": "Do I need to download or install anything to play?",
-      "acceptedAnswer": {"@type": "Answer", "text": "No. All 22 games run directly in your browser on desktop or mobile — just open the site and click a game to start playing."}
+      "acceptedAnswer": {"@type": "Answer", "text": "No. All 28 games run directly in your browser on desktop or mobile — just open the site and click a game to start playing."}
     },
     {
       "@type": "Question",
       "name": "Can I play against a friend online?",
-      "acceptedAnswer": {"@type": "Answer", "text": "Yes. Select games like Tic-Tac-Toe, Connect Four, Checkers, Reversi, Snake, and Memory Match support online multiplayer using a shareable room code."}
+      "acceptedAnswer": {"@type": "Answer", "text": "Yes. Select games like Tic-Tac-Toe, Connect Four, Checkers, Reversi, Snake, Memory Match, Ludo, and Snakes and Ladders support online multiplayer using a shareable room code."}
     }
   ]
 }
@@ -683,6 +683,23 @@
   .si-controls button{ width:70px; height:44px; font-size:14px; }
 
   /* Snake */
+  /* New games: Block Stack, Pixel Flap, Lights Out, Frog Crossing */
+  .ng-hud{ display:flex; justify-content:center; gap:20px; font-size:14px; margin-bottom:6px; flex-wrap:wrap; }
+  .ng-hud b{ color:var(--amber); }
+  #bs-canvas, #fl-canvas, #fg-canvas{ display:block; width:100%; background:#05070f; border:2px solid var(--border); border-radius:8px; touch-action:none; }
+  .ng-btnrow{ display:flex; justify-content:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .ng-btnrow button{ min-width:52px; height:46px; font-size:18px; background:var(--panel-alt); color:var(--text); border:1px solid var(--border); border-radius:8px; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+  .ng-btnrow button:active{ border-color:var(--cyan); color:var(--cyan); }
+  .ng-hint{ text-align:center; margin:10px auto 0; }
+  .lo-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; max-width:320px; margin:12px auto 0; }
+  .lo-cell{ aspect-ratio:1; border-radius:8px; border:2px solid var(--border); background:var(--bg-panel); cursor:pointer; transition:background .12s, box-shadow .12s; }
+  .lo-cell.on{ background:var(--amber); border-color:var(--amber); box-shadow:0 0 14px rgba(255,180,0,.6); }
+  /* Ludo */
+  #ludo-canvas{ display:block; width:100%; background:#0f1530; border:2px solid var(--border); border-radius:8px; touch-action:manipulation; }
+  .ludo-dice-row{ display:flex; align-items:center; justify-content:center; gap:18px; margin-top:12px; }
+  .ludo-die{ font-size:52px; line-height:1; min-width:60px; text-align:center; color:var(--text); }
+  /* Snakes and Ladders */
+  #sl-canvas{ display:block; width:100%; background:#0f1530; border:2px solid var(--border); border-radius:8px; }
   .sn-hud{ text-align:center; font-size:14px; margin-bottom:6px; }
   #sn-canvas{
     display:block; margin:0 auto; background:var(--bg);
@@ -1285,7 +1302,7 @@
   </div>
   <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Pixel Arcade — Play 22 Free Retro &amp; 3D Browser Games Online</h1>
   <img class="logo" src="/pixelarcade-logo-horizontal.svg" alt="Pixel Arcade" style="height:60px;max-width:90%;">
-  <p class="tagline">22 games · one cabinet · <span class="blink">insert coin▮</span></p>
+  <p class="tagline">28 games · one cabinet · <span class="blink">insert coin▮</span></p>
 </header>
 
 <main id="hub" class="screen active">
@@ -1380,12 +1397,30 @@
     <button class="cabinet" style="--c:var(--green)" onclick="openGame('simon')">
       <span class="cab-icon">🎵</span><span class="cab-name">Simon Says</span>
     </button>
+    <button class="cabinet" style="--c:var(--cyan)" onclick="openGame('blockstack')">
+      <span class="cab-icon">🟦</span><span class="cab-name">Block Stack</span>
+    </button>
+    <button class="cabinet" style="--c:var(--amber)" onclick="openGame('flappy')">
+      <span class="cab-icon">🐦</span><span class="cab-name">Pixel Flap</span>
+    </button>
+    <button class="cabinet" style="--c:var(--violet)" onclick="openGame('lightsout')">
+      <span class="cab-icon">💡</span><span class="cab-name">Lights Out</span>
+    </button>
+    <button class="cabinet" style="--c:var(--green)" onclick="openGame('frogger')">
+      <span class="cab-icon">🐸</span><span class="cab-name">Frog Crossing</span>
+    </button>
+    <button class="cabinet" style="--c:var(--magenta)" onclick="openGame('ludo')">
+      <span class="cab-icon">🎲</span><span class="cab-name">Ludo</span>
+    </button>
+    <button class="cabinet" style="--c:var(--amber)" onclick="openGame('snakesladders')">
+      <span class="cab-icon">🪜</span><span class="cab-name">Snakes and Ladders</span>
+    </button>
   </div>
   <div class="ad-slot ad-banner" data-ad-slot="screen-bottom-1"></div>
 
   <section class="hub-about" style="max-width:680px;margin:32px auto 0;padding:0 16px;color:#0c2b46;font-size:14px;line-height:1.6;">
     <h2 style="font-size:16px;margin-bottom:8px;">About this arcade</h2>
-    <p>Pixel Arcade is a free collection of 22 browser games, built to run instantly with no download, install, or account required. Classic tabletop games like Tic-Tac-Toe, Checkers, Reversi, Connect Four, Dots &amp; Boxes, and Battleship support a local built-in computer opponent with three difficulty levels, as well as pass-and-play and online multiplayer against a friend using a shareable room code. Puzzle and arcade favorites — Snake, Pong, Breakout, Minesweeper, Pixel Invaders, 2048, Sliding Puzzle, Memory Match, Whack-a-Mole, Word Search, Hangman, and Simon Says — are tuned for quick, replayable sessions on desktop or mobile. Three original 3D games (Neon Runner, Turbo Drift, and Neon Blaster) round out the collection with lightweight WebGL gameplay that runs directly in the browser.</p>
+    <p>Pixel Arcade is a free collection of 28 browser games, built to run instantly with no download, install, or account required. Classic tabletop games like Tic-Tac-Toe, Checkers, Reversi, Connect Four, Dots &amp; Boxes, and Battleship support a local built-in computer opponent with three difficulty levels, as well as pass-and-play and online multiplayer against a friend using a shareable room code. Ludo and Snakes and Ladders also support online play for two players, with a computer opponent mode for solo sessions. Puzzle and arcade favorites — Snake, Pong, Breakout, Minesweeper, Pixel Invaders, 2048, Sliding Puzzle, Memory Match, Whack-a-Mole, Word Search, Hangman, Simon Says, Block Stack, Pixel Flap, Lights Out, Frog Crossing, Ludo, and Snakes and Ladders — are tuned for quick, replayable sessions on desktop or mobile. Three original 3D games (Neon Runner, Turbo Drift, and Neon Blaster) round out the collection with lightweight WebGL gameplay that runs directly in the browser.</p>
     <p>Everything on this site is playable for free. No sign-up is required to play; creating an online multiplayer room only needs a nickname. We may show ads to help keep the arcade free to play — see our <a href="/privacy.html" style="color:inherit;text-decoration:underline;">Privacy Policy</a> for details on data collection and cookies.</p>
   </section>
 
@@ -1413,6 +1448,12 @@
     <a href="/games/pong.html" style="color:inherit;text-decoration:underline;font-size:13px;">🏓 Pong</a>
     <a href="/games/minesweeper.html" style="color:inherit;text-decoration:underline;font-size:13px;">💣 Minesweeper</a>
     <a href="/games/simon.html" style="color:inherit;text-decoration:underline;font-size:13px;">🎵 Simon Says</a>
+    <a href="/games/blockstack.html" style="color:inherit;text-decoration:underline;font-size:13px;">🟦 Block Stack</a>
+    <a href="/games/flappy.html" style="color:inherit;text-decoration:underline;font-size:13px;">🐦 Pixel Flap</a>
+    <a href="/games/lightsout.html" style="color:inherit;text-decoration:underline;font-size:13px;">💡 Lights Out</a>
+    <a href="/games/frogger.html" style="color:inherit;text-decoration:underline;font-size:13px;">🐸 Frog Crossing</a>
+    <a href="/games/ludo.html" style="color:inherit;text-decoration:underline;font-size:13px;">🎲 Ludo</a>
+    <a href="/games/snakesladders.html" style="color:inherit;text-decoration:underline;font-size:13px;">🪜 Snakes and Ladders</a>
     </div>
   </section>
 
@@ -2317,6 +2358,172 @@
   <div class="ad-slot ad-banner" data-ad-slot="screen-bottom-17"></div>
 </main>
 
+<main id="game-blockstack" class="screen">
+  <div class="game-topbar">
+    <button class="back-btn" onclick="goHub()">← ARCADE</button>
+    <h2 class="game-title">Block Stack</h2>
+    <button class="restart-btn" onclick="initBlockStack()">↻ Restart</button>
+  </div>
+  <div class="ad-slot ad-banner" data-ad-slot="game-top-18"></div>
+  <div class="ng-hud"><span>Score: <b id="bs-score">0</b></span><span>Lines: <b id="bs-lines">0</b></span><span>Level: <b id="bs-level">1</b></span><span>Best: <b id="bs-best">0</b></span></div>
+  <div class="g3d-stage" style="max-width:240px;">
+    <canvas id="bs-canvas" width="200" height="400"></canvas>
+    <div class="g3d-overlay" id="bs-overlay"></div>
+  </div>
+  <div class="ng-btnrow">
+    <button onclick="bsMove(-1)">◀</button><button onclick="bsRotateCur()">⟳</button><button onclick="bsMove(1)">▶</button><button onclick="bsSoft()">▼</button><button onclick="bsHard()">⤓</button>
+  </div>
+  <p class="g3d-hint ng-hint">← → move · ↑ rotate · ↓ soft drop · Space hard drop</p>
+  <div class="ad-slot ad-banner" data-ad-slot="screen-bottom-18"></div>
+</main>
+
+<main id="game-flappy" class="screen">
+  <div class="game-topbar">
+    <button class="back-btn" onclick="goHub()">← ARCADE</button>
+    <h2 class="game-title">Pixel Flap</h2>
+    <button class="restart-btn" onclick="initFlappy()">↻ Restart</button>
+  </div>
+  <div class="ad-slot ad-banner" data-ad-slot="game-top-19"></div>
+  <div class="ng-hud"><span>Score: <b id="fl-score">0</b></span><span>Best: <b id="fl-best">0</b></span></div>
+  <div class="g3d-stage" style="max-width:320px;">
+    <canvas id="fl-canvas" width="320" height="480"></canvas>
+    <div class="g3d-overlay" id="fl-overlay"></div>
+  </div>
+  <p class="g3d-hint ng-hint">Tap the screen, click, or press Space to flap</p>
+  <div class="ad-slot ad-banner" data-ad-slot="screen-bottom-19"></div>
+</main>
+
+<main id="game-lightsout" class="screen">
+  <div class="game-topbar">
+    <button class="back-btn" onclick="goHub()">← ARCADE</button>
+    <h2 class="game-title">Lights Out</h2>
+    <button class="restart-btn" onclick="initLightsOut()">↻ New Puzzle</button>
+  </div>
+  <div class="ad-slot ad-banner" data-ad-slot="game-top-20"></div>
+  <div class="ng-hud"><span>Moves: <b id="lo-moves">0</b></span><span>Best: <b id="lo-best">-</b></span></div>
+  <p id="lo-status" class="status-msg">Turn every light off. Each tap flips that light and its neighbours.</p>
+  <div class="lo-grid" id="lo-grid"></div>
+  <div class="ad-slot ad-banner" data-ad-slot="screen-bottom-20"></div>
+</main>
+
+<main id="game-frogger" class="screen">
+  <div class="game-topbar">
+    <button class="back-btn" onclick="goHub()">← ARCADE</button>
+    <h2 class="game-title">Frog Crossing</h2>
+    <button class="restart-btn" onclick="initFrogger()">↻ Restart</button>
+  </div>
+  <div class="ad-slot ad-banner" data-ad-slot="game-top-21"></div>
+  <div class="ng-hud"><span>Score: <b id="fg-score">0</b></span><span>Lives: <b id="fg-lives">3</b></span><span>Level: <b id="fg-level">1</b></span><span>Best: <b id="fg-best">0</b></span></div>
+  <p id="fg-status" class="status-msg"></p>
+  <div class="g3d-stage" style="max-width:324px;">
+    <canvas id="fg-canvas" width="324" height="360"></canvas>
+    <div class="g3d-overlay" id="fg-overlay"></div>
+  </div>
+  <div class="ng-btnrow">
+    <button onclick="fgMove(-1,0)">◀</button><button onclick="fgMove(0,-1)">▲</button><button onclick="fgMove(0,1)">▼</button><button onclick="fgMove(1,0)">▶</button>
+  </div>
+  <p class="g3d-hint ng-hint">Arrow keys / WASD, swipe, or the buttons. Reach the top!</p>
+  <div class="ad-slot ad-banner" data-ad-slot="screen-bottom-21"></div>
+</main>
+
+<main id="game-ludo" class="screen">
+  <div class="game-topbar">
+    <button class="back-btn" onclick="goHub()">← ARCADE</button>
+    <h2 class="game-title">Ludo</h2>
+    <button class="restart-btn" onclick="ludoRestart()">↻ Restart</button>
+  </div>
+  <div class="ad-slot ad-banner" data-ad-slot="game-top-22"></div>
+  <div class="mode-bar">
+    <div class="mode-group">
+      <span class="mode-label">Mode</span>
+      <button class="mode-btn" id="ludo-mode-cpu" onclick="setLudoMode('cpu')">Vs Computer</button>
+      <button class="mode-btn" id="ludo-mode-online" onclick="setLudoMode('online')">Online (2 players)</button>
+    </div>
+    <div class="mode-group" id="ludo-count-group">
+      <span class="mode-label">Players</span>
+      <button class="mode-btn" id="ludo-n2" onclick="setLudoCount(2)">You + 1 CPU</button>
+      <button class="mode-btn" id="ludo-n3" onclick="setLudoCount(3)">You + 2 CPU</button>
+      <button class="mode-btn" id="ludo-n4" onclick="setLudoCount(4)">You + 3 CPU</button>
+    </div>
+  </div>
+  <div class="online-panel" id="ludo-online-panel">
+    <div class="online-choice" id="ludo-online-choice">
+      <button class="mode-btn online-btn" onclick="ludoCreateRoom()">＋ Create Room</button>
+      <div class="online-join">
+        <input type="text" id="ludo-join-input" maxlength="6" placeholder="ROOM CODE" autocapitalize="characters" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter') ludoJoinRoom()">
+        <button class="mode-btn online-btn" onclick="ludoJoinRoom()">Join Room</button>
+      </div>
+    </div>
+    <div class="online-room-info" id="ludo-online-room-info" style="display:none;">
+      <p class="room-code-label">Share this code with your friend</p>
+      <div class="room-code-display" id="ludo-room-code-display">------</div>
+      <button class="mode-btn" onclick="ludoCopyRoomCode(this)">📋 Copy Code</button>
+      <button class="mode-btn" onclick="ludoLeaveRoom()">Leave Room</button>
+    </div>
+  </div>
+  <p id="ludo-status" class="status-msg"></p>
+  <div class="g3d-stage" style="max-width:360px;">
+    <canvas id="ludo-canvas" width="360" height="360"></canvas>
+    <div class="g3d-overlay" id="ludo-overlay" style="display:none;"></div>
+  </div>
+  <div class="ludo-dice-row">
+    <div class="ludo-die" id="ludo-die">🎲</div>
+    <button class="g3d-play-btn" id="ludo-roll" onclick="ludoRoll()">🎲 ROLL</button>
+  </div>
+  <p class="g3d-hint ng-hint" id="ludo-scores"></p>
+  <p class="g3d-hint ng-hint" id="ludo-hint">You are Red. Roll a 6 to leave the yard. Land on an opponent to send them home. Get all 4 pieces to the centre to win — a 6, a capture, or reaching home gives an extra roll.</p>
+  <div class="ad-slot ad-banner" data-ad-slot="screen-bottom-22"></div>
+</main>
+
+<main id="game-snakesladders" class="screen">
+  <div class="game-topbar">
+    <button class="back-btn" onclick="goHub()">← ARCADE</button>
+    <h2 class="game-title">Snakes and Ladders</h2>
+    <button class="restart-btn" onclick="slRestart()">↻ Restart</button>
+  </div>
+  <div class="ad-slot ad-banner" data-ad-slot="game-top-23"></div>
+  <div class="mode-bar">
+    <div class="mode-group">
+      <span class="mode-label">Mode</span>
+      <button class="mode-btn" id="sl-mode-cpu" onclick="setSlMode('cpu')">Vs Computer</button>
+      <button class="mode-btn" id="sl-mode-online" onclick="setSlMode('online')">Online (2 players)</button>
+    </div>
+    <div class="mode-group" id="sl-count-group">
+      <span class="mode-label">Players</span>
+      <button class="mode-btn" id="sl-n2" onclick="setSlCount(2)">You + 1 CPU</button>
+      <button class="mode-btn" id="sl-n3" onclick="setSlCount(3)">You + 2 CPU</button>
+      <button class="mode-btn" id="sl-n4" onclick="setSlCount(4)">You + 3 CPU</button>
+    </div>
+  </div>
+  <div class="online-panel" id="sl-online-panel">
+    <div class="online-choice" id="sl-online-choice">
+      <button class="mode-btn online-btn" onclick="slCreateRoom()">＋ Create Room</button>
+      <div class="online-join">
+        <input type="text" id="sl-join-input" maxlength="6" placeholder="ROOM CODE" autocapitalize="characters" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter') slJoinRoom()">
+        <button class="mode-btn online-btn" onclick="slJoinRoom()">Join Room</button>
+      </div>
+    </div>
+    <div class="online-room-info" id="sl-online-room-info" style="display:none;">
+      <p class="room-code-label">Share this code with your friend</p>
+      <div class="room-code-display" id="sl-room-code-display">------</div>
+      <button class="mode-btn" onclick="slCopyRoomCode(this)">📋 Copy Code</button>
+      <button class="mode-btn" onclick="slLeaveRoom()">Leave Room</button>
+    </div>
+  </div>
+  <p id="sl-status" class="status-msg"></p>
+  <div class="g3d-stage" style="max-width:360px;">
+    <canvas id="sl-canvas" width="360" height="392"></canvas>
+    <div class="g3d-overlay" id="sl-overlay" style="display:none;"></div>
+  </div>
+  <div class="ludo-dice-row">
+    <div class="ludo-die" id="sl-die">🎲</div>
+    <button class="g3d-play-btn" id="sl-roll" onclick="slRoll()">🎲 ROLL</button>
+  </div>
+  <p class="g3d-hint ng-hint" id="sl-scores"></p>
+  <p class="g3d-hint ng-hint" id="sl-hint">You are Red. Roll the die and race to square 100. Ladders lift you up, snakes slide you down. You need the exact number to land on 100, and a 6 gives you another roll.</p>
+  <div class="ad-slot ad-banner" data-ad-slot="screen-bottom-23"></div>
+</main>
+
 <main id="profile" class="screen">
   <div class="game-topbar">
     <button class="back-btn" onclick="goHub()">← ARCADE</button>
@@ -2764,7 +2971,7 @@ function logEvent(type, data){
    ENGAGEMENT ENGINE — XP/levels, achievements, streaks, favorites,
    recently-played, sound effects, and win confetti. Runs entirely
    client-side (localStorage) and hooks into logEvent() above, so it works
-   across all 22 games without touching individual game logic.
+   across all 28 games without touching individual game logic.
    ========================================================================= */
 const GAME_META = {
   tictactoe:{name:'Tic-Tac-Toe',icon:'❌'}, wordsearch:{name:'Word Search',icon:'🔤'},
@@ -2778,7 +2985,13 @@ const GAME_META = {
   shooter3d:{name:'Neon Blaster 3D',icon:'🔫'}, bunkerdefense:{name:'Bunker Defense',icon:'🛡️'},
   breakout:{name:'Breakout',icon:'🧱'},
   pong:{name:'Pong',icon:'🏓'}, minesweeper:{name:'Minesweeper',icon:'💣'},
-  simon:{name:'Simon Says',icon:'🎵'}
+  simon:{name:'Simon Says',icon:'🎵'},
+  blockstack:{name:'Block Stack',icon:'🟦'},
+  flappy:{name:'Pixel Flap',icon:'🐦'},
+  lightsout:{name:'Lights Out',icon:'💡'},
+  frogger:{name:'Frog Crossing',icon:'🐸'},
+  ludo:{name:'Ludo',icon:'🎲'},
+  snakesladders:{name:'Snakes and Ladders',icon:'🪜'}
 };
 const GAME_IDS = Object.keys(GAME_META);
 
@@ -2786,7 +2999,7 @@ const ACHIEVEMENTS = [
   {id:'first_play', name:'First Coin', icon:'🪙', desc:'Play your first game', check:p=>p.totalPlays>=1},
   {id:'explorer_5', name:'Explorer', icon:'🧭', desc:'Play 5 different games', check:p=>Object.keys(p.gamesPlayed).length>=5},
   {id:'explorer_10', name:'Cabinet Crawler', icon:'🗺️', desc:'Play 10 different games', check:p=>Object.keys(p.gamesPlayed).length>=10},
-  {id:'explorer_all', name:'Arcade Legend', icon:'👑', desc:'Play all 22 games', check:p=>Object.keys(p.gamesPlayed).length>=GAME_IDS.length},
+  {id:'explorer_all', name:'Arcade Legend', icon:'👑', desc:'Play all 28 games', check:p=>Object.keys(p.gamesPlayed).length>=GAME_IDS.length},
   {id:'first_win', name:'Winner Winner', icon:'🏆', desc:'Win your first game', check:p=>p.totalWins>=1},
   {id:'win_10', name:'On a Roll', icon:'🔥', desc:'Win 10 games total', check:p=>p.totalWins>=10},
   {id:'high_scorer', name:'High Scorer', icon:'⭐', desc:'Score 1,000+ in any game', check:p=>Object.values(p.highScores).some(s=>s>=1000)},
@@ -5669,7 +5882,13 @@ function openGame(name){
     breakout: initBreakout,
     pong: initPong,
     minesweeper: initMinesweeper,
-    simon: initSimon
+    simon: initSimon,
+    blockstack: initBlockStack,
+    flappy: initFlappy,
+    lightsout: initLightsOut,
+    frogger: initFrogger,
+    ludo: initLudo,
+    snakesladders: initSnakesLadders
   };
   inits[name]();
 }
@@ -12545,6 +12764,1208 @@ function simonGameOver(){
   overlay.innerHTML=`<h3>GAME OVER</h3><p>You reached round ${simonSeq.length}. Best: ${simonBest} round${simonBest===1?'':'s'}.</p><button class="g3d-play-btn" onclick="simonStart()">▶ PLAY AGAIN</button>`;
   overlay.style.display='flex';
   if(typeof logEvent==='function') logEvent('game_end',{game:'simon', mode:'solo', result:'loss', score:scored});
+}
+
+/* ---------- 22-25. Block Stack, Pixel Flap, Lights Out, Frog Crossing ---------- */
+function ngActive(id){ const el=document.getElementById(id); return !!(el && el.classList.contains('active')); }
+function ngOverlay(id, title, text, btn, fn){
+  const o=document.getElementById(id);
+  o.innerHTML=`<h3>${title}</h3><p>${text}</p><button class="g3d-play-btn" onclick="${fn}()">${btn}</button>`;
+  o.style.display='flex';
+}
+function ngHide(id){ document.getElementById(id).style.display='none'; }
+function ngLog(type,payload){ if(typeof logEvent==='function') logEvent(type,payload); }
+function ngBest(key){ return parseInt(localStorage.getItem(key)||'0',10)||0; }
+
+document.addEventListener('keydown', e=>{
+  const k=e.key;
+  if(ngActive('game-blockstack')){
+    if(k==='ArrowLeft'){ e.preventDefault(); bsMove(-1); }
+    else if(k==='ArrowRight'){ e.preventDefault(); bsMove(1); }
+    else if(k==='ArrowUp'){ e.preventDefault(); bsRotateCur(); }
+    else if(k==='ArrowDown'){ e.preventDefault(); bsSoft(); }
+    else if(k===' '){ e.preventDefault(); bsHard(); }
+  } else if(ngActive('game-flappy')){
+    if(k===' '||k==='ArrowUp'||k==='w'||k==='W'){ e.preventDefault(); flapNow(); }
+  } else if(ngActive('game-frogger')){
+    if(k==='ArrowLeft'||k==='a'||k==='A'){ e.preventDefault(); fgMove(-1,0); }
+    else if(k==='ArrowRight'||k==='d'||k==='D'){ e.preventDefault(); fgMove(1,0); }
+    else if(k==='ArrowUp'||k==='w'||k==='W'){ e.preventDefault(); fgMove(0,-1); }
+    else if(k==='ArrowDown'||k==='s'||k==='S'){ e.preventDefault(); fgMove(0,1); }
+  }
+});
+
+/* ===== Block Stack ===== */
+const BS_W=10, BS_H=20, BS_C=20;
+const BS_PIECES={
+  I:{m:[[1,1,1,1]],c:'#2de2c8'}, O:{m:[[1,1],[1,1]],c:'#ffb400'}, T:{m:[[0,1,0],[1,1,1]],c:'#9b6bff'},
+  S:{m:[[0,1,1],[1,1,0]],c:'#5cf27a'}, Z:{m:[[1,1,0],[0,1,1]],c:'#ff3e9d'},
+  J:{m:[[1,0,0],[1,1,1]],c:'#4d8bff'}, L:{m:[[0,0,1],[1,1,1]],c:'#ff8a3d'}
+};
+let bsGrid=[], bsCur=null, bsScore=0, bsLines=0, bsLevel=1, bsRunning=false, bsRaf=null, bsLast=0, bsAcc=0, bsBag=[];
+function bsNextType(){
+  if(!bsBag.length){
+    bsBag=Object.keys(BS_PIECES);
+    for(let i=bsBag.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [bsBag[i],bsBag[j]]=[bsBag[j],bsBag[i]]; }
+  }
+  return bsBag.pop();
+}
+function bsCollide(m,x,y){
+  for(let r=0;r<m.length;r++) for(let c=0;c<m[r].length;c++){
+    if(!m[r][c]) continue;
+    const nx=x+c, ny=y+r;
+    if(nx<0||nx>=BS_W||ny>=BS_H) return true;
+    if(ny>=0 && bsGrid[ny][nx]) return true;
+  }
+  return false;
+}
+function bsHud(){
+  document.getElementById('bs-score').textContent=bsScore;
+  document.getElementById('bs-lines').textContent=bsLines;
+  document.getElementById('bs-level').textContent=bsLevel;
+  document.getElementById('bs-best').textContent=Math.max(ngBest('bsBest'),bsScore);
+}
+function bsReset(){
+  if(bsRaf){ cancelAnimationFrame(bsRaf); bsRaf=null; }
+  bsGrid=Array.from({length:BS_H},()=>Array(BS_W).fill(0));
+  bsCur=null; bsScore=0; bsLines=0; bsLevel=1; bsRunning=false; bsLast=0; bsAcc=0; bsBag=[];
+}
+function bsSpawn(){
+  const p=BS_PIECES[bsNextType()];
+  bsCur={m:p.m.map(r=>r.slice()), c:p.c, x:Math.floor((BS_W-p.m[0].length)/2), y:0};
+  if(bsCollide(bsCur.m,bsCur.x,bsCur.y)) bsGameOver();
+}
+function initBlockStack(){
+  bsReset(); bsHud(); bsDraw();
+  ngOverlay('bs-overlay','READY?','Stack the falling blocks and clear full lines. Don\'t let the stack reach the top.','▶ PLAY','startBlockStack');
+}
+function startBlockStack(){
+  bsReset(); ngHide('bs-overlay');
+  bsRunning=true; bsSpawn(); bsHud(); bsDraw();
+  ngLog('game_start',{game:'blockstack', mode:'solo'});
+  if(bsRunning) bsRaf=requestAnimationFrame(bsLoop);
+}
+function bsMove(dx){
+  if(!bsRunning||!bsCur) return;
+  if(!bsCollide(bsCur.m,bsCur.x+dx,bsCur.y)){ bsCur.x+=dx; bsDraw(); }
+}
+function bsRotateCur(){
+  if(!bsRunning||!bsCur) return;
+  const m=bsCur.m, rot=m[0].map((_,i)=>m.map(r=>r[i]).reverse());
+  for(const dx of [0,-1,1,-2,2]){
+    if(!bsCollide(rot,bsCur.x+dx,bsCur.y)){ bsCur.m=rot; bsCur.x+=dx; bsDraw(); return; }
+  }
+}
+function bsStep(){
+  if(!bsCollide(bsCur.m,bsCur.x,bsCur.y+1)){ bsCur.y++; return true; }
+  bsLock(); return false;
+}
+function bsSoft(){
+  if(!bsRunning||!bsCur) return;
+  if(bsStep()) bsScore+=1;
+  bsAcc=0; bsHud(); bsDraw();
+}
+function bsHard(){
+  if(!bsRunning||!bsCur) return;
+  while(!bsCollide(bsCur.m,bsCur.x,bsCur.y+1)){ bsCur.y++; bsScore+=2; }
+  bsLock(); bsAcc=0; bsHud(); bsDraw();
+}
+function bsLock(){
+  bsCur.m.forEach((row,r)=>row.forEach((v,c)=>{
+    const y=bsCur.y+r, x=bsCur.x+c;
+    if(v && y>=0) bsGrid[y][x]=bsCur.c;
+  }));
+  let cleared=0;
+  for(let r=BS_H-1;r>=0;r--){
+    if(bsGrid[r].every(v=>v)){ bsGrid.splice(r,1); bsGrid.unshift(Array(BS_W).fill(0)); cleared++; r++; }
+  }
+  if(cleared){
+    bsScore+=[0,100,300,500,800][cleared]*bsLevel;
+    bsLines+=cleared;
+    bsLevel=Math.floor(bsLines/10)+1;
+  }
+  bsSpawn();
+}
+function bsLoop(ts){
+  bsRaf=null;
+  if(!bsRunning) return;
+  if(!ngActive('game-blockstack')){ bsRunning=false; return; }
+  if(!bsLast) bsLast=ts;
+  bsAcc+=ts-bsLast; bsLast=ts;
+  const interval=Math.max(90, 800-(bsLevel-1)*70);
+  if(bsAcc>=interval){ bsAcc=0; bsStep(); bsHud(); }
+  bsDraw();
+  if(bsRunning) bsRaf=requestAnimationFrame(bsLoop);
+}
+function bsGameOver(){
+  bsRunning=false;
+  if(bsRaf){ cancelAnimationFrame(bsRaf); bsRaf=null; }
+  if(bsScore>ngBest('bsBest')) localStorage.setItem('bsBest',String(bsScore));
+  bsHud(); bsDraw();
+  ngOverlay('bs-overlay','GAME OVER',`Score ${bsScore} · ${bsLines} lines · Best ${ngBest('bsBest')}`,'▶ PLAY AGAIN','startBlockStack');
+  ngLog('game_end',{game:'blockstack', mode:'solo', result:'loss', score:bsScore});
+}
+function bsDraw(){
+  const cv=document.getElementById('bs-canvas'); if(!cv) return;
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#05070f'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  for(let x=1;x<BS_W;x++){ ctx.beginPath(); ctx.moveTo(x*BS_C,0); ctx.lineTo(x*BS_C,cv.height); ctx.stroke(); }
+  for(let y=1;y<BS_H;y++){ ctx.beginPath(); ctx.moveTo(0,y*BS_C); ctx.lineTo(cv.width,y*BS_C); ctx.stroke(); }
+  const cell=(x,y,c)=>{ ctx.fillStyle=c; ctx.fillRect(x*BS_C+1,y*BS_C+1,BS_C-2,BS_C-2); };
+  bsGrid.forEach((row,y)=>row.forEach((v,x)=>{ if(v) cell(x,y,v); }));
+  if(bsCur){
+    let gy=bsCur.y;
+    while(!bsCollide(bsCur.m,bsCur.x,gy+1)) gy++;
+    ctx.globalAlpha=0.22;
+    bsCur.m.forEach((row,r)=>row.forEach((v,c)=>{ if(v) cell(bsCur.x+c,gy+r,bsCur.c); }));
+    ctx.globalAlpha=1;
+    bsCur.m.forEach((row,r)=>row.forEach((v,c)=>{ if(v) cell(bsCur.x+c,bsCur.y+r,bsCur.c); }));
+  }
+}
+
+/* ===== Pixel Flap ===== */
+const FL_W=320, FL_H=480, FL_GROUND=44, FL_GAP=130, FL_PW=54, FL_SPACING=190;
+let flBird={x:80,y:200,vy:0}, flPipes=[], flScore=0, flRunning=false, flRaf=null, flLast=0;
+function flReset(){
+  if(flRaf){ cancelAnimationFrame(flRaf); flRaf=null; }
+  flBird={x:80,y:200,vy:0}; flPipes=[]; flScore=0; flRunning=false; flLast=0;
+}
+function flHud(){
+  document.getElementById('fl-score').textContent=flScore;
+  document.getElementById('fl-best').textContent=Math.max(ngBest('flBest'),flScore);
+}
+function initFlappy(){
+  flReset(); flHud(); flDraw();
+  ngOverlay('fl-overlay','READY?','Flap through the gaps between the pipes. Touch a pipe or the ground and it\'s over.','▶ PLAY','flappyStart');
+  const cv=document.getElementById('fl-canvas');
+  if(cv && !cv._flBound){
+    cv._flBound=true;
+    cv.addEventListener('pointerdown', e=>{ e.preventDefault(); flapNow(); });
+  }
+}
+function flappyStart(){
+  flReset(); ngHide('fl-overlay');
+  flRunning=true; flBird.vy=-6.5; flHud();
+  ngLog('game_start',{game:'flappy', mode:'solo'});
+  flRaf=requestAnimationFrame(flLoop);
+}
+function flapNow(){ if(flRunning) flBird.vy=-7; }
+function flLoop(ts){
+  flRaf=null;
+  if(!flRunning) return;
+  if(!ngActive('game-flappy')){ flRunning=false; return; }
+  if(!flLast) flLast=ts;
+  let dt=(ts-flLast)/16.667; flLast=ts;
+  if(dt>3) dt=3;
+  flUpdate(dt); flDraw();
+  if(flRunning) flRaf=requestAnimationFrame(flLoop);
+}
+function flUpdate(dt){
+  flBird.vy+=0.4*dt; flBird.y+=flBird.vy*dt;
+  const speed=2.4+Math.min(1.2,flScore*0.04);
+  flPipes.forEach(p=>p.x-=speed*dt);
+  const last=flPipes[flPipes.length-1];
+  if(!last || last.x<=FL_W-FL_SPACING){
+    const maxTop=FL_H-FL_GROUND-FL_GAP-70;
+    flPipes.push({x:FL_W+10, gapY:70+Math.random()*(maxTop-70), passed:false});
+  }
+  while(flPipes.length && flPipes[0].x+FL_PW<0) flPipes.shift();
+  flPipes.forEach(p=>{ if(!p.passed && p.x+FL_PW<flBird.x){ p.passed=true; flScore++; flHud(); } });
+  const R=11;
+  if(flBird.y-R<0){ flBird.y=R; if(flBird.vy<0) flBird.vy=0; }
+  if(flBird.y+R>=FL_H-FL_GROUND){ flGameOver(); return; }
+  for(const p of flPipes){
+    if(flBird.x+R>p.x && flBird.x-R<p.x+FL_PW && (flBird.y-R<p.gapY || flBird.y+R>p.gapY+FL_GAP)){ flGameOver(); return; }
+  }
+}
+function flGameOver(){
+  flRunning=false;
+  if(flRaf){ cancelAnimationFrame(flRaf); flRaf=null; }
+  if(flScore>ngBest('flBest')) localStorage.setItem('flBest',String(flScore));
+  flHud(); flDraw();
+  ngOverlay('fl-overlay','GAME OVER',`You passed ${flScore} pipe${flScore===1?'':'s'}. Best: ${ngBest('flBest')}`,'▶ PLAY AGAIN','flappyStart');
+  ngLog('game_end',{game:'flappy', mode:'solo', result:'loss', score:flScore});
+}
+function flDraw(){
+  const cv=document.getElementById('fl-canvas'); if(!cv) return;
+  const ctx=cv.getContext('2d');
+  const g=ctx.createLinearGradient(0,0,0,FL_H); g.addColorStop(0,'#0b1030'); g.addColorStop(1,'#1d2a5c');
+  ctx.fillStyle=g; ctx.fillRect(0,0,FL_W,FL_H);
+  flPipes.forEach(p=>{
+    ctx.fillStyle='#2fbf5a';
+    ctx.fillRect(p.x,0,FL_PW,p.gapY);
+    ctx.fillRect(p.x,p.gapY+FL_GAP,FL_PW,FL_H-FL_GROUND-(p.gapY+FL_GAP));
+    ctx.fillStyle='#5cf27a';
+    ctx.fillRect(p.x-4,p.gapY-18,FL_PW+8,18);
+    ctx.fillRect(p.x-4,p.gapY+FL_GAP,FL_PW+8,18);
+  });
+  ctx.fillStyle='#3a2a1a'; ctx.fillRect(0,FL_H-FL_GROUND,FL_W,FL_GROUND);
+  ctx.fillStyle='#5cf27a'; ctx.fillRect(0,FL_H-FL_GROUND,FL_W,6);
+  ctx.save(); ctx.translate(flBird.x,flBird.y);
+  ctx.rotate(Math.max(-0.5,Math.min(1.1,flBird.vy*0.08)));
+  ctx.fillStyle='#ffb400'; ctx.beginPath(); ctx.arc(0,0,12,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(5,-4,4,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(6,-4,1.8,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#ff3e9d'; ctx.fillRect(8,1,9,5);
+  ctx.restore();
+  ctx.fillStyle='#fff'; ctx.font='bold 34px monospace'; ctx.textAlign='center';
+  ctx.fillText(String(flScore),FL_W/2,60);
+}
+
+/* ===== Lights Out ===== */
+let loState=[], loMoves=0, loStarted=false, loSolved=false;
+function loToggle(i){
+  const r=Math.floor(i/5), c=i%5;
+  [[0,0],[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc])=>{
+    const nr=r+dr, nc=c+dc;
+    if(nr>=0&&nr<5&&nc>=0&&nc<5) loState[nr*5+nc]=!loState[nr*5+nc];
+  });
+}
+function loRender(){
+  const grid=document.getElementById('lo-grid');
+  if(!grid.children.length){
+    grid.innerHTML=Array.from({length:25},(_,i)=>`<button class="lo-cell" aria-label="Light ${i+1}" onclick="loPress(${i})"></button>`).join('');
+  }
+  Array.from(grid.children).forEach((b,i)=>b.classList.toggle('on',!!loState[i]));
+  document.getElementById('lo-moves').textContent=loMoves;
+  const best=ngBest('loBest');
+  document.getElementById('lo-best').textContent=best?best:'-';
+}
+function initLightsOut(){
+  loMoves=0; loStarted=false; loSolved=false; loState=Array(25).fill(false);
+  const presses=6+Math.floor(Math.random()*6);
+  [...Array(25).keys()].sort(()=>Math.random()-0.5).slice(0,presses).forEach(loToggle);
+  if(loState.every(v=>!v)) loToggle(12);
+  document.getElementById('lo-status').textContent='Turn every light off. Each tap flips that light and its neighbours.';
+  loRender();
+}
+function loPress(i){
+  if(loSolved) return;
+  if(!loStarted){ loStarted=true; ngLog('game_start',{game:'lightsout', mode:'solo'}); }
+  loToggle(i); loMoves++; loRender();
+  if(loState.every(v=>!v)){
+    loSolved=true;
+    const best=ngBest('loBest');
+    if(!best || loMoves<best) localStorage.setItem('loBest',String(loMoves));
+    loRender();
+    document.getElementById('lo-status').textContent=`Solved in ${loMoves} moves! Tap "New Puzzle" to play again.`;
+    ngLog('game_end',{game:'lightsout', mode:'solo', result:'win', score:loMoves});
+  }
+}
+
+/* ===== Frog Crossing ===== */
+const FG_COLS=9, FG_ROWS=10, FG_CELL=36, FG_LEN=FG_COLS+4;
+const FG_LANES=[
+  {row:1,dir:1, speed:1.5,n:3,w:1,color:'#ff3e9d'},
+  {row:2,dir:-1,speed:2.2,n:2,w:2,color:'#ffb400'},
+  {row:3,dir:1, speed:1.8,n:3,w:1,color:'#9b6bff'},
+  {row:4,dir:-1,speed:2.6,n:2,w:1,color:'#2de2c8'},
+  {row:6,dir:1, speed:2.0,n:2,w:2,color:'#ff8a3d'},
+  {row:7,dir:-1,speed:1.6,n:3,w:1,color:'#4d8bff'},
+  {row:8,dir:1, speed:2.8,n:2,w:1,color:'#ff3e9d'}
+];
+let fgCars=[], fgFrog={c:4,r:9}, fgMaxRow=9, fgScore=0, fgLives=3, fgLevel=1, fgRunning=false, fgRaf=null, fgLast=0;
+function fgBuildCars(){
+  fgCars=FG_LANES.map(l=>{
+    const off=Math.random()*FG_LEN, step=FG_LEN/l.n;
+    return Array.from({length:l.n},(_,i)=>({x:((off+i*step)%FG_LEN)-2}));
+  });
+}
+function fgResetFrog(){ fgFrog={c:4,r:9}; fgMaxRow=9; }
+function fgHud(){
+  document.getElementById('fg-score').textContent=fgScore;
+  document.getElementById('fg-lives').textContent='❤'.repeat(Math.max(0,fgLives))||'0';
+  document.getElementById('fg-level').textContent=fgLevel;
+  document.getElementById('fg-best').textContent=Math.max(ngBest('fgBest'),fgScore);
+}
+function fgReset(){
+  if(fgRaf){ cancelAnimationFrame(fgRaf); fgRaf=null; }
+  fgScore=0; fgLives=3; fgLevel=1; fgRunning=false; fgLast=0;
+  fgBuildCars(); fgResetFrog();
+  document.getElementById('fg-status').textContent='';
+}
+function initFrogger(){
+  fgReset(); fgHud(); fgDraw();
+  ngOverlay('fg-overlay','READY?','Hop across the busy roads to the top. Dodge the cars — you have 3 lives.','▶ PLAY','froggerStart');
+  const cv=document.getElementById('fg-canvas');
+  if(cv && !cv._fgBound){
+    cv._fgBound=true;
+    let sx=0, sy=0;
+    cv.addEventListener('pointerdown', e=>{ e.preventDefault(); sx=e.clientX; sy=e.clientY; });
+    cv.addEventListener('pointerup', e=>{
+      e.preventDefault();
+      const dx=e.clientX-sx, dy=e.clientY-sy;
+      if(Math.abs(dx)<18 && Math.abs(dy)<18) fgMove(0,-1);
+      else if(Math.abs(dx)>Math.abs(dy)) fgMove(dx>0?1:-1,0);
+      else fgMove(0,dy>0?1:-1);
+    });
+  }
+}
+function froggerStart(){
+  fgReset(); ngHide('fg-overlay');
+  fgRunning=true; fgHud();
+  ngLog('game_start',{game:'frogger', mode:'solo'});
+  fgRaf=requestAnimationFrame(fgLoop);
+}
+function fgMove(dc,dr){
+  if(!fgRunning) return;
+  const nc=fgFrog.c+dc, nr=fgFrog.r+dr;
+  if(nc<0||nc>=FG_COLS||nr<0||nr>=FG_ROWS) return;
+  fgFrog.c=nc; fgFrog.r=nr;
+  if(nr<fgMaxRow){ fgMaxRow=nr; fgScore+=1; }
+  if(nr===0){
+    fgScore+=10*fgLevel; fgLevel++;
+    document.getElementById('fg-status').textContent=`Made it! Level ${fgLevel} — cars get faster.`;
+    fgResetFrog();
+  } else fgCheck();
+  fgHud(); fgDraw();
+}
+function fgCheck(){
+  const li=FG_LANES.findIndex(l=>l.row===fgFrog.r);
+  if(li<0) return;
+  const w=FG_LANES[li].w;
+  if(fgCars[li].some(car=>car.x<fgFrog.c+0.85 && car.x+w>fgFrog.c+0.15)) fgHit();
+}
+function fgHit(){
+  fgLives--;
+  fgResetFrog();
+  document.getElementById('fg-status').textContent='Ouch! Careful…';
+  fgHud();
+  if(fgLives<=0) fgGameOver();
+}
+function fgLoop(ts){
+  fgRaf=null;
+  if(!fgRunning) return;
+  if(!ngActive('game-frogger')){ fgRunning=false; return; }
+  if(!fgLast) fgLast=ts;
+  let dt=(ts-fgLast)/1000; fgLast=ts;
+  if(dt>0.05) dt=0.05;
+  const mult=Math.min(2.2,1+0.12*(fgLevel-1));
+  FG_LANES.forEach((l,i)=>fgCars[i].forEach(car=>{
+    car.x+=l.dir*l.speed*mult*dt;
+    if(l.dir>0 && car.x>=FG_LEN-2) car.x-=FG_LEN;
+    if(l.dir<0 && car.x<-2) car.x+=FG_LEN;
+  }));
+  fgCheck();
+  fgDraw();
+  if(fgRunning) fgRaf=requestAnimationFrame(fgLoop);
+}
+function fgGameOver(){
+  fgRunning=false;
+  if(fgRaf){ cancelAnimationFrame(fgRaf); fgRaf=null; }
+  if(fgScore>ngBest('fgBest')) localStorage.setItem('fgBest',String(fgScore));
+  fgHud(); fgDraw();
+  ngOverlay('fg-overlay','GAME OVER',`Score ${fgScore} · reached level ${fgLevel}. Best: ${ngBest('fgBest')}`,'▶ PLAY AGAIN','froggerStart');
+  ngLog('game_end',{game:'frogger', mode:'solo', result:'loss', score:fgScore});
+}
+function fgDraw(){
+  const cv=document.getElementById('fg-canvas'); if(!cv) return;
+  const ctx=cv.getContext('2d'), S=FG_CELL;
+  for(let r=0;r<FG_ROWS;r++){
+    ctx.fillStyle = r===0 ? '#0e3b52' : (r===5||r===9) ? '#1d4d2a' : '#1a1f33';
+    ctx.fillRect(0,r*S,cv.width,S);
+    if(r>0 && r!==5 && r!==9){ ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(0,r*S+S-1,cv.width,1); }
+  }
+  FG_LANES.forEach((l,i)=>{
+    ctx.fillStyle=l.color;
+    fgCars[i].forEach(car=>{ ctx.fillRect(car.x*S+2,l.row*S+6,l.w*S-4,S-12); });
+  });
+  const fx=fgFrog.c*S, fy=fgFrog.r*S;
+  ctx.fillStyle='#5cf27a'; ctx.fillRect(fx+6,fy+6,S-12,S-12);
+  ctx.fillStyle='#fff'; ctx.fillRect(fx+8,fy+7,5,5); ctx.fillRect(fx+S-13,fy+7,5,5);
+  ctx.fillStyle='#000'; ctx.fillRect(fx+10,fy+9,2,2); ctx.fillRect(fx+S-11,fy+9,2,2);
+}
+
+/* ---------- 26. Ludo (you = Red, vs 1-3 computer players) ---------- */
+const LUDO_C=24;
+const LUDO_PATH=[[1,6],[2,6],[3,6],[4,6],[5,6],[6,5],[6,4],[6,3],[6,2],[6,1],[6,0],[7,0],[8,0],
+  [8,1],[8,2],[8,3],[8,4],[8,5],[9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[14,7],[14,8],
+  [13,8],[12,8],[11,8],[10,8],[9,8],[8,9],[8,10],[8,11],[8,12],[8,13],[8,14],[7,14],[6,14],
+  [6,13],[6,12],[6,11],[6,10],[6,9],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8],[0,7],[0,6]];
+const LUDO_START=[0,13,26,39];
+const LUDO_HOME=[[[1,7],[2,7],[3,7],[4,7],[5,7]],[[7,1],[7,2],[7,3],[7,4],[7,5]],
+  [[13,7],[12,7],[11,7],[10,7],[9,7]],[[7,13],[7,12],[7,11],[7,10],[7,9]]];
+const LUDO_YARD=[[[2,2],[4,2],[2,4],[4,4]],[[10,2],[12,2],[10,4],[12,4]],
+  [[10,10],[12,10],[10,12],[12,12]],[[2,10],[4,10],[2,12],[4,12]]];
+const LUDO_COLORS=['#ff3e5e','#2fbf5a','#ffb400','#3d7bff'];
+const LUDO_NAMES=['Red','Green','Yellow','Blue'];
+const LUDO_STARS=[8,21,34,47];
+const LUDO_SAFE=new Set([0,13,26,39,8,21,34,47]);
+const LUDO_FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
+let ludoCount=parseInt(localStorage.getItem('ludoCount')||'2',10);
+if(![2,3,4].includes(ludoCount)) ludoCount=2;
+let ludoActive=[0,2], ludoPieces={}, ludoTurn=0, ludoDie=null, ludoPhase='roll', ludoSixes=0, ludoGen=0, ludoStarted=false, ludoOver=false, ludoLegalMoves=[];
+// Online (room) state — 2 players: host is always Red (0), guest is always Yellow (2).
+let ludoMode = localStorage.getItem('ludoMode')==='online' ? 'online' : 'cpu';
+let ludoOnlineRole=null, ludoOnlinePlayers=null, ludoOnlineState=null, ludoOnlineStartLogged=false, ludoOnlineEndLogged=false;
+function ludoMe(){ return (ludoMode==='online' && ludoOnlineRole==='guest') ? 2 : 0; }
+
+function ludoPlayers(){ return ludoCount===2?[0,2]:ludoCount===3?[0,1,2]:[0,1,2,3]; }
+function ludoLater(fn,ms){
+  const g=ludoGen;
+  setTimeout(()=>{ if(g!==ludoGen || !ngActive('game-ludo')) return; fn(); }, ms);
+}
+function setLudoCount(n){
+  ludoCount=n; localStorage.setItem('ludoCount',String(n)); initLudo();
+}
+function ludoCell(p,pos){
+  if(pos<0) return null;
+  if(pos<=50) return LUDO_PATH[(LUDO_START[p]+pos)%52];
+  if(pos<=55) return LUDO_HOME[p][pos-51];
+  return [7,7];
+}
+function ludoLegal(p,die){
+  const out=[];
+  ludoPieces[p].forEach((pos,i)=>{
+    if(pos<0){ if(die===6) out.push(i); }
+    else if(pos+die<=56) out.push(i);
+  });
+  return out;
+}
+function ludoCaptures(p,newPos){
+  if(newPos<0||newPos>50) return [];
+  const g=(LUDO_START[p]+newPos)%52;
+  if(LUDO_SAFE.has(g)) return [];
+  const hit=[];
+  ludoActive.forEach(o=>{
+    if(o===p) return;
+    ludoPieces[o].forEach((pos,j)=>{
+      if(pos>=0 && pos<=50 && (LUDO_START[o]+pos)%52===g) hit.push([o,j]);
+    });
+  });
+  return hit;
+}
+function ludoNewPos(p,i,die){ const pos=ludoPieces[p][i]; return pos<0?0:pos+die; }
+function ludoSetStatus(t){ document.getElementById('ludo-status').innerHTML=t; }
+function ludoTag(p){ return `<b style="color:${LUDO_COLORS[p]}">${LUDO_NAMES[p]}</b>`; }
+function ludoRefreshUI(){
+  [2,3,4].forEach(n=>document.getElementById('ludo-n'+n).classList.toggle('active',ludoCount===n));
+  document.getElementById('ludo-die').textContent = ludoDie? LUDO_FACES[ludoDie-1] : '🎲';
+  const cur=ludoActive[ludoTurn], me=ludoMe();
+  const btn=document.getElementById('ludo-roll');
+  const onlineReady = ludoMode!=='online' || (!!ludoOnlineRole && !!OnlineRoom.getCode() && !!ludoOnlinePlayers && !!ludoOnlinePlayers.guest);
+  btn.disabled = !(cur===me && ludoPhase==='roll' && !ludoOver && onlineReady);
+  btn.style.opacity = btn.disabled ? '0.45' : '1';
+  document.getElementById('ludo-scores').textContent = ludoActive.map(p=>`${LUDO_NAMES[p]}: ${ludoPieces[p].filter(x=>x===56).length}/4 home`).join('  ·  ');
+  const hint=document.getElementById('ludo-hint');
+  if(hint) hint.textContent = `You are ${LUDO_NAMES[me]}. Roll a 6 to leave the yard. Land on an opponent to send them home. Get all 4 pieces to the centre to win — a 6, a capture, or reaching home gives an extra roll.`;
+}
+function setLudoMode(m){
+  ludoMode=m; localStorage.setItem('ludoMode',m);
+  OnlineRoom.reset();
+  ludoOnlineRole=null; ludoOnlinePlayers=null; ludoOnlineState=null;
+  ludoOnlineStartLogged=false; ludoOnlineEndLogged=false;
+  initLudo();
+}
+function refreshLudoModeUI(){
+  document.getElementById('ludo-mode-cpu').classList.toggle('active', ludoMode==='cpu');
+  document.getElementById('ludo-mode-online').classList.toggle('active', ludoMode==='online');
+  document.getElementById('ludo-count-group').style.display = ludoMode==='cpu' ? '' : 'none';
+  document.getElementById('ludo-online-panel').classList.toggle('show', ludoMode==='online');
+  const inRoom = ludoMode==='online' && !!ludoOnlineRole && !!OnlineRoom.getCode();
+  document.getElementById('ludo-online-choice').style.display = inRoom ? 'none' : 'flex';
+  document.getElementById('ludo-online-room-info').style.display = inRoom ? 'flex' : 'none';
+  if(inRoom) document.getElementById('ludo-room-code-display').textContent = OnlineRoom.getCode();
+}
+function ludoBindCanvas(){
+  const cv=document.getElementById('ludo-canvas');
+  if(cv && !cv._ludoBound){
+    cv._ludoBound=true;
+    cv.addEventListener('pointerdown', ludoClick);
+  }
+}
+function ludoRestart(){
+  if(ludoMode==='online'){
+    if(ludoOnlineRole==='host' && ludoOnlinePlayers && ludoOnlinePlayers.guest) ludoOnlineRematch();
+    else if(ludoOnlineRole==='guest') ludoSetStatus('Only the host can restart the game.');
+    return;
+  }
+  initLudo();
+}
+function initLudo(){
+  ludoGen++;
+  refreshLudoModeUI();
+  if(ludoMode==='online'){
+    // A room left behind by another game (or a stale listener) is not ours — drop it.
+    if(!ludoOnlineRole && OnlineRoom.getCode()) OnlineRoom.reset();
+    ludoActive=[0,2]; ludoPieces={0:[-1,-1,-1,-1],2:[-1,-1,-1,-1]};
+    ludoTurn=0; ludoDie=null; ludoPhase='roll'; ludoSixes=0; ludoStarted=false; ludoOver=false; ludoLegalMoves=[];
+    document.getElementById('ludo-overlay').style.display='none';
+    if(ludoOnlineRole && OnlineRoom.getCode()){
+      // Re-entering the screen: showScreen() detached the listener, so resume our seat.
+      ludoSetStatus('Reconnecting…');
+      OnlineRoom.onUpdate(ludoOnRoomUpdate);
+      OnlineRoom.join(OnlineRoom.getCode(),'ludo').catch(e=>{
+        console.warn(e);
+        OnlineRoom.reset(); ludoOnlineRole=null; ludoOnlinePlayers=null; ludoOnlineState=null;
+        refreshLudoModeUI();
+        ludoSetStatus('Create or join a room to play online');
+        ludoRefreshUI(); ludoDraw();
+      });
+    } else {
+      ludoSetStatus('Create or join a room to play online');
+    }
+    ludoRefreshUI(); ludoDraw(); ludoBindCanvas();
+    return;
+  }
+  ludoActive=ludoPlayers(); ludoPieces={};
+  ludoActive.forEach(p=>{ ludoPieces[p]=[-1,-1,-1,-1]; });
+  ludoTurn=0; ludoDie=null; ludoPhase='roll'; ludoSixes=0; ludoStarted=false; ludoOver=false; ludoLegalMoves=[];
+  document.getElementById('ludo-overlay').style.display='none';
+  ludoSetStatus('Your turn — tap ROLL.');
+  ludoRefreshUI(); ludoDraw();
+  ludoBindCanvas();
+}
+function ludoRoll(){
+  if(ludoMode==='online'){ ludoOnlineRoll(); return; }
+  if(ludoOver || ludoPhase!=='roll' || ludoActive[ludoTurn]!==0) return;
+  ludoDoRoll();
+}
+function ludoDoRoll(){
+  const p=ludoActive[ludoTurn];
+  if(p===0 && !ludoStarted){ ludoStarted=true; ngLog('game_start',{game:'ludo', mode:'cpu', players:ludoCount}); }
+  ludoDie=1+Math.floor(Math.random()*6);
+  ludoSixes = ludoDie===6 ? ludoSixes+1 : 0;
+  ludoPhase='wait';
+  ludoRefreshUI();
+  if(ludoSixes>=3){
+    ludoSetStatus(`${ludoTag(p)} rolled three 6s in a row — turn lost.`);
+    ludoDraw(); ludoLater(ludoNext,1100); return;
+  }
+  ludoLegalMoves=ludoLegal(p,ludoDie);
+  if(!ludoLegalMoves.length){
+    ludoSetStatus(`${ludoTag(p)} rolled ${ludoDie} — no move possible.`);
+    ludoDraw(); ludoLater(ludoNext,1000); return;
+  }
+  if(p===0 && ludoLegalMoves.length>1){
+    ludoPhase='move';
+    ludoSetStatus(`You rolled ${ludoDie}. Tap a highlighted piece to move it.`);
+    ludoDraw(); ludoRefreshUI(); return;
+  }
+  ludoSetStatus(`${ludoTag(p)} rolled ${ludoDie}.`);
+  ludoDraw();
+  ludoLater(()=>ludoMove(p, p===0 ? ludoLegalMoves[0] : ludoCpuPick(p,ludoDie)), p===0?450:800);
+}
+function ludoCpuPick(p,die){
+  let best=ludoLegalMoves[0], bestScore=-1;
+  ludoLegalMoves.forEach(i=>{
+    const pos=ludoPieces[p][i], np=ludoNewPos(p,i,die);
+    let s=pos+Math.random();
+    if(np===56) s=100+np;
+    else if(ludoCaptures(p,np).length) s=80+np;
+    else if(np>=51) s=55+np*0.1;
+    else if(pos<0) s=60;
+    else if(LUDO_SAFE.has((LUDO_START[p]+np)%52)) s=40+np*0.1;
+    if(s>bestScore){ bestScore=s; best=i; }
+  });
+  return best;
+}
+function ludoMove(p,i){
+  if(ludoOver) return;
+  const die=ludoDie;
+  const np=ludoNewPos(p,i,die);
+  const hit=ludoCaptures(p,np);
+  ludoPieces[p][i]=np;
+  hit.forEach(([o,j])=>{ ludoPieces[o][j]=-1; });
+  ludoLegalMoves=[];
+  if(ludoPieces[p].every(x=>x===56)){ ludoFinish(p); return; }
+  let msg=`${ludoTag(p)} moved.`;
+  if(hit.length) msg=`${ludoTag(p)} captured ${hit.map(([o])=>ludoTag(o)).join(', ')}!`;
+  else if(np===56) msg=`${ludoTag(p)} got a piece home!`;
+  const extra = die===6 || hit.length>0 || np===56;
+  ludoDraw();
+  if(extra){
+    ludoSetStatus(msg+' Roll again.');
+    ludoPhase='roll'; ludoRefreshUI();
+    if(ludoActive[ludoTurn]!==0) ludoLater(ludoDoRoll,800);
+  } else {
+    ludoSetStatus(msg);
+    ludoPhase='wait'; ludoRefreshUI();
+    ludoLater(ludoNext,700);
+  }
+}
+function ludoNext(){
+  ludoTurn=(ludoTurn+1)%ludoActive.length;
+  ludoSixes=0; ludoDie=null; ludoPhase='roll'; ludoLegalMoves=[];
+  const p=ludoActive[ludoTurn];
+  ludoSetStatus(p===0 ? 'Your turn — tap ROLL.' : `${ludoTag(p)} (computer) is rolling…`);
+  ludoRefreshUI(); ludoDraw();
+  if(p!==0) ludoLater(ludoDoRoll,800);
+}
+function ludoFinish(p){
+  ludoOver=true; ludoPhase='over';
+  ludoRefreshUI(); ludoDraw();
+  const won=p===0;
+  const o=document.getElementById('ludo-overlay');
+  o.innerHTML=`<h3>${won?'YOU WIN!':LUDO_NAMES[p].toUpperCase()+' WINS'}</h3><p>${won?'All four of your pieces made it home.':'The computer got all its pieces home first.'}</p><button class="g3d-play-btn" onclick="initLudo()">▶ PLAY AGAIN</button>`;
+  o.style.display='flex';
+  ludoSetStatus(won?'🏆 You won!':`${ludoTag(p)} won.`);
+  ngLog('game_end',{game:'ludo', mode:'cpu', result:won?'win':'loss', score:ludoPieces[0].filter(x=>x===56).length});
+}
+function ludoLayout(){
+  const res=[], counts={};
+  ludoActive.forEach(p=>ludoPieces[p].forEach((pos,i)=>{
+    const [cx,cy]=pos<0?LUDO_YARD[p][i]:ludoCell(p,pos);
+    const key=cx+','+cy, k=counts[key]||0; counts[key]=k+1;
+    let x=(cx+0.5)*LUDO_C, y=(cy+0.5)*LUDO_C;
+    if(pos===56){ x+=(k-1.5)*7; }
+    else if(pos>=0){ x+=k*3; y-=k*3; }
+    res.push({p,i,x,y,pos});
+  }));
+  return res;
+}
+function ludoClick(e){
+  const me=ludoMe();
+  if(ludoPhase!=='move' || ludoActive[ludoTurn]!==me) return;
+  e.preventDefault();
+  const cv=document.getElementById('ludo-canvas'), r=cv.getBoundingClientRect();
+  const x=(e.clientX-r.left)*cv.width/r.width, y=(e.clientY-r.top)*cv.height/r.height;
+  let best=null, bd=1e9;
+  ludoLayout().forEach(pc=>{
+    if(pc.p!==me || !ludoLegalMoves.includes(pc.i)) return;
+    const d=Math.hypot(pc.x-x,pc.y-y);
+    if(d<bd){ bd=d; best=pc; }
+  });
+  if(best && bd<=LUDO_C*0.9){ if(ludoMode==='online') ludoOnlineMove(best.i); else ludoMove(0,best.i); }
+}
+function ludoDraw(){
+  const cv=document.getElementById('ludo-canvas'); if(!cv) return;
+  const ctx=cv.getContext('2d'), C=LUDO_C;
+  ctx.fillStyle='#0f1530'; ctx.fillRect(0,0,cv.width,cv.height);
+  // yards
+  [[0,0,0],[9,0,1],[9,9,2],[0,9,3]].forEach(([qx,qy,p])=>{
+    ctx.fillStyle=LUDO_COLORS[p]; ctx.globalAlpha=ludoActive.includes(p)?0.9:0.3;
+    ctx.fillRect(qx*C,qy*C,6*C,6*C); ctx.globalAlpha=1;
+    ctx.fillStyle='#0f1530'; ctx.fillRect((qx+1)*C,(qy+1)*C,4*C,4*C);
+    LUDO_YARD[p].forEach(([cx,cy])=>{
+      ctx.fillStyle=LUDO_COLORS[p]; ctx.globalAlpha=0.25;
+      ctx.beginPath(); ctx.arc((cx+0.5)*C,(cy+0.5)*C,C*0.45,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1;
+    });
+  });
+  // track
+  LUDO_PATH.forEach(([x,y],idx)=>{
+    ctx.fillStyle='#e8ecff'; ctx.fillRect(x*C+1,y*C+1,C-2,C-2);
+    const sp=LUDO_START.indexOf(idx);
+    if(sp>=0){ ctx.fillStyle=LUDO_COLORS[sp]; ctx.fillRect(x*C+1,y*C+1,C-2,C-2); }
+    if(LUDO_STARS.includes(idx)){ ctx.fillStyle='#7a84b8'; ctx.font='bold 15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('★',(x+0.5)*C,(y+0.55)*C); }
+  });
+  // home columns
+  LUDO_HOME.forEach((cells,p)=>cells.forEach(([x,y])=>{ ctx.fillStyle=LUDO_COLORS[p]; ctx.globalAlpha=0.75; ctx.fillRect(x*C+1,y*C+1,C-2,C-2); ctx.globalAlpha=1; }));
+  // centre
+  const m=7.5*C, a=6*C, b=9*C;
+  [[[a,a],[a,b],[m,m],0],[[a,a],[b,a],[m,m],1],[[b,a],[b,b],[m,m],2],[[a,b],[b,b],[m,m],3]].forEach(([p1,p2,p3,p])=>{
+    ctx.fillStyle=LUDO_COLORS[p]; ctx.beginPath(); ctx.moveTo(...p1); ctx.lineTo(...p2); ctx.lineTo(...p3); ctx.closePath(); ctx.fill();
+  });
+  // pieces
+  const layout=ludoLayout();
+  layout.forEach(pc=>{
+    const legal = ludoPhase==='move' && pc.p===ludoMe() && ludoActive[ludoTurn]===ludoMe() && ludoLegalMoves.includes(pc.i);
+    ctx.beginPath(); ctx.arc(pc.x,pc.y,C*0.38,0,Math.PI*2);
+    ctx.fillStyle=LUDO_COLORS[pc.p]; ctx.fill();
+    ctx.lineWidth=2; ctx.strokeStyle=legal?'#ffffff':'#0b0e1a'; ctx.stroke();
+    if(legal){ ctx.beginPath(); ctx.arc(pc.x,pc.y,C*0.52,0,Math.PI*2); ctx.lineWidth=2; ctx.strokeStyle='#ffffff'; ctx.stroke(); }
+  });
+}
+
+
+/* --- Ludo online (2 players: host = Red, guest = Yellow) ---
+   The room doc is authoritative: every roll and every piece move runs inside
+   an OnlineRoom.move() transaction, so the dice can't be re-rolled and a move
+   can't be applied twice or out of turn. Clients only render what the room says. */
+function ludoOnlineFresh(){
+  return { pieces:{'0':[-1,-1,-1,-1],'2':[-1,-1,-1,-1]}, turn:'host', die:0, phase:'roll', sixes:0, legal:[], ev:{t:'start'}, winner:null };
+}
+function ludoSeatColor(seat){ return seat==='guest' ? 2 : 0; }
+function ludoLegalFor(pcs,die){
+  const out=[];
+  pcs.forEach((pos,i)=>{
+    if(pos<0){ if(die===6) out.push(i); }
+    else if(pos+die<=56) out.push(i);
+  });
+  return out;
+}
+function ludoHitsFor(pieces,p,np){
+  if(np<0||np>50) return [];
+  const g=(LUDO_START[p]+np)%52;
+  if(LUDO_SAFE.has(g)) return [];
+  const hit=[];
+  [0,2].forEach(o=>{
+    if(o===p) return;
+    pieces[o].forEach((pos,j)=>{ if(pos>=0 && pos<=50 && (LUDO_START[o]+pos)%52===g) hit.push([o,j]); });
+  });
+  return hit;
+}
+function ludoOnlineNextTurn(s){ s.turn = s.turn==='host' ? 'guest' : 'host'; s.sixes=0; s.phase='roll'; s.legal=[]; }
+function ludoOnlineApplyMove(s,p,i){
+  const die=s.die, pcs=s.pieces[p], pos=pcs[i], np=pos<0 ? 0 : pos+die;
+  const hit=ludoHitsFor(s.pieces,p,np);
+  pcs[i]=np;
+  hit.forEach(([o,j])=>{ s.pieces[o][j]=-1; });
+  s.legal=[];
+  if(pcs.every(x=>x===56)){ s.phase='over'; s.winner=s.turn; s.ev={t:'win',p}; return; }
+  s.ev={ t: hit.length ? 'capture' : (np===56 ? 'home' : 'move'), p, die, hit: hit.map(h=>h[0]) };
+  const extra = die===6 || hit.length>0 || np===56;
+  if(extra) s.phase='roll'; else ludoOnlineNextTurn(s);
+}
+async function ludoOnlineRoll(){
+  if(ludoMode!=='online' || !OnlineRoom.getCode() || ludoOver) return;
+  if(!ludoOnlinePlayers || !ludoOnlinePlayers.guest) return;       // wait for opponent
+  if(ludoActive[ludoTurn]!==ludoMe() || ludoPhase!=='roll') return; // not your turn
+  await OnlineRoom.move((state,role)=>{
+    if(state.winner || state.phase!=='roll' || state.turn!==role) return null;
+    const s=JSON.parse(JSON.stringify(state)), p=ludoSeatColor(role);
+    s.die=1+Math.floor(Math.random()*6);
+    s.sixes = s.die===6 ? s.sixes+1 : 0;
+    if(s.sixes>=3){ s.ev={t:'sixes',p,die:6}; ludoOnlineNextTurn(s); return s; }
+    s.legal=ludoLegalFor(s.pieces[p],s.die);
+    if(!s.legal.length){ s.ev={t:'none',p,die:s.die}; ludoOnlineNextTurn(s); return s; }
+    if(s.legal.length===1){ ludoOnlineApplyMove(s,p,s.legal[0]); return s; } // only one choice — play it
+    s.phase='move'; s.ev={t:'roll',p,die:s.die};
+    return s;
+  });
+}
+async function ludoOnlineMove(i){
+  if(ludoMode!=='online' || !OnlineRoom.getCode() || ludoOver) return;
+  await OnlineRoom.move((state,role)=>{
+    if(state.winner || state.phase!=='move' || state.turn!==role) return null;
+    if(!(state.legal||[]).includes(i)) return null;
+    const s=JSON.parse(JSON.stringify(state));
+    ludoOnlineApplyMove(s,ludoSeatColor(role),i);
+    return s;
+  });
+}
+async function ludoOnlineRematch(){
+  if(ludoOnlineRole!=='host') return;
+  await OnlineRoom.move((state,role)=> role==='host' ? ludoOnlineFresh() : null);
+}
+function ludoOnlineStatus(){
+  const s=ludoOnlineState, me=ludoMe();
+  if(!ludoOnlinePlayers || !ludoOnlinePlayers.guest){
+    ludoSetStatus('Waiting for opponent — share code <b>'+OnlineRoom.getCode()+'</b>'); return;
+  }
+  if(s.winner){ ludoSetStatus(s.winner===ludoOnlineRole ? '🏆 You won!' : `${ludoTag(ludoSeatColor(s.winner))} won.`); return; }
+  const cur=s.turn==='host' ? 0 : 2, ev=s.ev||{};
+  const who=p=> p===me ? 'You' : ludoTag(p);
+  let head='';
+  switch(ev.t){
+    case 'roll':    head=`${who(ev.p)} rolled ${ev.die}.`; break;
+    case 'move':    head=`${who(ev.p)} rolled ${ev.die} and moved.`; break;
+    case 'capture': head=`${who(ev.p)} captured ${(ev.hit||[]).map(o=>ludoTag(o)).join(', ')}!`; break;
+    case 'home':    head=`${who(ev.p)} got a piece home!`; break;
+    case 'none':    head=`${who(ev.p)} rolled ${ev.die} — no move possible.`; break;
+    case 'sixes':   head=`${who(ev.p)} rolled three 6s in a row — turn lost.`; break;
+  }
+  const tail = cur===me ? (s.phase==='move' ? 'Tap a highlighted piece to move it.' : 'Your turn — tap ROLL.') : (s.phase==='move' ? `${ludoTag(cur)} is choosing a piece…` : `${ludoTag(cur)}'s turn.`);
+  ludoSetStatus((head ? head+' ' : '') + tail);
+}
+function ludoOnlineOverlay(){
+  const o=document.getElementById('ludo-overlay'), s=ludoOnlineState;
+  if(!s || !s.winner){ o.style.display='none'; return; }
+  const won=s.winner===ludoOnlineRole;
+  o.innerHTML = `<h3>${won?'YOU WIN!':LUDO_NAMES[ludoSeatColor(s.winner)].toUpperCase()+' WINS'}</h3>`
+    + `<p>${won?'All four of your pieces made it home.':'Your opponent got all their pieces home first.'}</p>`
+    + (ludoOnlineRole==='host' ? '<button class="g3d-play-btn" onclick="ludoOnlineRematch()">▶ PLAY AGAIN</button>' : '<p>Waiting for the host to start a rematch…</p>');
+  o.style.display='flex';
+}
+function ludoOnRoomUpdate(data, role){
+  ludoOnlineRole=role; ludoOnlinePlayers=data.players; ludoOnlineState=data.state;
+  const s=data.state;
+  ludoActive=[0,2];
+  ludoPieces={0:s.pieces['0'].slice(), 2:s.pieces['2'].slice()};
+  ludoTurn = s.turn==='host' ? 0 : 1;
+  ludoDie = s.die || null;
+  ludoPhase = s.phase;
+  ludoLegalMoves = (s.legal||[]).slice();
+  ludoOver = !!s.winner;
+  refreshLudoModeUI(); ludoRefreshUI(); ludoDraw(); ludoOnlineStatus(); ludoOnlineOverlay();
+  if(data.players.guest && !ludoOnlineStartLogged && !s.winner){
+    ludoOnlineStartLogged=true; ngLog('game_start',{game:'ludo', mode:'online', players:2});
+  }
+  if(s.winner && !ludoOnlineEndLogged){
+    ludoOnlineEndLogged=true;
+    ngLog('game_end',{game:'ludo', mode:'online', result: s.winner===role?'win':'loss', score: ludoPieces[ludoSeatColor(role)].filter(x=>x===56).length});
+  }
+  if(!s.winner) ludoOnlineEndLogged=false;
+}
+async function ludoCreateRoom(){
+  ludoSetStatus('Creating room…');
+  try{
+    OnlineRoom.onUpdate(ludoOnRoomUpdate);
+    await OnlineRoom.create('ludo', ludoOnlineFresh());
+    ludoOnlineRole='host';
+    refreshLudoModeUI();
+  }catch(e){
+    console.warn(e);
+    ludoSetStatus(onlineErrorMessage(e,'create'));
+  }
+}
+async function ludoJoinRoom(){
+  const input=document.getElementById('ludo-join-input');
+  const code=(input.value||'').trim().toUpperCase();
+  if(code.length<4){ input.focus(); return; }
+  ludoSetStatus('Joining room…');
+  try{
+    OnlineRoom.onUpdate(ludoOnRoomUpdate);
+    const role = await OnlineRoom.join(code,'ludo');
+    ludoOnlineRole=role;
+    refreshLudoModeUI();
+  }catch(e){
+    console.warn(e);
+    ludoSetStatus(onlineErrorMessage(e,'join'));
+  }
+}
+function ludoCopyRoomCode(btn){
+  const code=OnlineRoom.getCode();
+  if(!code) return;
+  navigator.clipboard?.writeText(code).catch(()=>{});
+  if(btn){ const old=btn.textContent; btn.textContent='✓ Copied'; setTimeout(()=>btn.textContent=old,1200); }
+}
+function ludoLeaveRoom(){
+  OnlineRoom.reset();
+  ludoOnlineRole=null; ludoOnlinePlayers=null; ludoOnlineState=null;
+  ludoOnlineStartLogged=false; ludoOnlineEndLogged=false;
+  initLudo();
+}
+
+/* ---------- 27. Snakes and Ladders (you = Red, vs 1-3 computer players) ---------- */
+const SL_C=36;
+const SL_LADDERS={1:38,4:14,9:31,21:42,28:84,36:44,51:67,71:91,80:100};
+const SL_SNAKES={16:6,47:26,49:11,56:53,62:19,64:60,87:24,93:73,95:75,98:78};
+const SL_COLORS=['#ff3e5e','#2fbf5a','#ffb400','#3d7bff'];
+const SL_NAMES=['Red','Green','Yellow','Blue'];
+const SL_SNAKE_COLORS=['#2fbf5a','#ff3e9d','#9b6bff','#2de2c8','#ff8a3d'];
+let slCount=parseInt(localStorage.getItem('slCount')||'2',10);
+if(![2,3,4].includes(slCount)) slCount=2;
+let slPlayers=[0,1], slPos=[0,0,0,0], slTurn=0, slDie=null, slPhase='roll', slGen=0, slStarted=false, slOver=false;
+// Online (room) state — 2 players: host is always Red (0), guest is always Green (1).
+let slMode = localStorage.getItem('slMode')==='online' ? 'online' : 'cpu';
+let slOnlineRole=null, slOnlinePlayers=null, slOnlineState=null, slOnlineSeen=null, slOnlineStartLogged=false, slOnlineEndLogged=false;
+function slMe(){ return (slMode==='online' && slOnlineRole==='guest') ? 1 : 0; }
+
+function slLater(fn,ms){
+  const g=slGen;
+  setTimeout(()=>{ if(g!==slGen || !ngActive('game-snakesladders')) return; fn(); }, ms);
+}
+function setSlCount(n){ slCount=n; localStorage.setItem('slCount',String(n)); initSnakesLadders(); }
+function slCenter(n){
+  const idx=n-1, row=Math.floor(idx/10), col=row%2===0 ? idx%10 : 9-(idx%10);
+  return [(col+0.5)*SL_C, (9-row+0.5)*SL_C];
+}
+function slTag(p){ return `<b style="color:${SL_COLORS[p]}">${SL_NAMES[p]}</b>`; }
+function slSetStatus(t){ document.getElementById('sl-status').innerHTML=t; }
+function slRefreshUI(){
+  [2,3,4].forEach(n=>document.getElementById('sl-n'+n).classList.toggle('active',slCount===n));
+  document.getElementById('sl-die').textContent = slDie ? ['⚀','⚁','⚂','⚃','⚄','⚅'][slDie-1] : '🎲';
+  const btn=document.getElementById('sl-roll');
+  const onlineReady = slMode!=='online' || (!!slOnlineRole && !!OnlineRoom.getCode() && !!slOnlinePlayers && !!slOnlinePlayers.guest);
+  btn.disabled = !(slPlayers[slTurn]===slMe() && slPhase==='roll' && !slOver && onlineReady);
+  btn.style.opacity = btn.disabled ? '0.45' : '1';
+  document.getElementById('sl-scores').textContent = slPlayers.map(p=>`${SL_NAMES[p]}: ${slPos[p]||'start'}`).join('  ·  ');
+  const hint=document.getElementById('sl-hint');
+  if(hint) hint.textContent = `You are ${SL_NAMES[slMe()]}. Roll the die and race to square 100. Ladders lift you up, snakes slide you down. You need the exact number to land on 100, and a 6 gives you another roll.`;
+}
+function setSlMode(m){
+  slMode=m; localStorage.setItem('slMode',m);
+  OnlineRoom.reset();
+  slOnlineRole=null; slOnlinePlayers=null; slOnlineState=null; slOnlineSeen=null;
+  slOnlineStartLogged=false; slOnlineEndLogged=false;
+  initSnakesLadders();
+}
+function refreshSlModeUI(){
+  document.getElementById('sl-mode-cpu').classList.toggle('active', slMode==='cpu');
+  document.getElementById('sl-mode-online').classList.toggle('active', slMode==='online');
+  document.getElementById('sl-count-group').style.display = slMode==='cpu' ? '' : 'none';
+  document.getElementById('sl-online-panel').classList.toggle('show', slMode==='online');
+  const inRoom = slMode==='online' && !!slOnlineRole && !!OnlineRoom.getCode();
+  document.getElementById('sl-online-choice').style.display = inRoom ? 'none' : 'flex';
+  document.getElementById('sl-online-room-info').style.display = inRoom ? 'flex' : 'none';
+  if(inRoom) document.getElementById('sl-room-code-display').textContent = OnlineRoom.getCode();
+}
+function slRestart(){
+  if(slMode==='online'){
+    if(slOnlineRole==='host' && slOnlinePlayers && slOnlinePlayers.guest) slOnlineRematch();
+    else if(slOnlineRole==='guest') slSetStatus('Only the host can restart the game.');
+    return;
+  }
+  initSnakesLadders();
+}
+function initSnakesLadders(){
+  slGen++;
+  refreshSlModeUI();
+  if(slMode==='online'){
+    // A room left behind by another game is not ours — drop it.
+    if(!slOnlineRole && OnlineRoom.getCode()) OnlineRoom.reset();
+    slPlayers=[0,1]; slPos=[0,0,0,0]; slTurn=0; slDie=null; slPhase='roll'; slStarted=false; slOver=false; slOnlineSeen=null;
+    document.getElementById('sl-overlay').style.display='none';
+    if(slOnlineRole && OnlineRoom.getCode()){
+      // Re-entering the screen: showScreen() detached the listener, so resume our seat.
+      slSetStatus('Reconnecting…');
+      OnlineRoom.onUpdate(slOnRoomUpdate);
+      OnlineRoom.join(OnlineRoom.getCode(),'snakesladders').catch(e=>{
+        console.warn(e);
+        OnlineRoom.reset(); slOnlineRole=null; slOnlinePlayers=null; slOnlineState=null;
+        refreshSlModeUI(); slSetStatus('Create or join a room to play online');
+        slRefreshUI(); slDraw();
+      });
+    } else {
+      slSetStatus('Create or join a room to play online');
+    }
+    slRefreshUI(); slDraw();
+    return;
+  }
+  slPlayers=[0,1,2,3].slice(0,slCount); slPos=[0,0,0,0];
+  slTurn=0; slDie=null; slPhase='roll'; slStarted=false; slOver=false;
+  document.getElementById('sl-overlay').style.display='none';
+  slSetStatus('Your turn — tap ROLL.');
+  slRefreshUI(); slDraw();
+}
+function slRoll(){
+  if(slMode==='online'){ slOnlineRoll(); return; }
+  if(slOver || slPhase!=='roll' || slPlayers[slTurn]!==0) return;
+  slDoRoll();
+}
+function slDoRoll(){
+  const p=slPlayers[slTurn];
+  if(p===0 && !slStarted){ slStarted=true; ngLog('game_start',{game:'snakesladders', mode:'cpu', players:slCount}); }
+  slDie=1+Math.floor(Math.random()*6);
+  slPhase='wait'; slRefreshUI();
+  const from=slPos[p], to=from+slDie;
+  if(to>100){
+    slSetStatus(`${slTag(p)} rolled ${slDie} — needs an exact roll to reach 100.`);
+    slLater(()=>slAfter(p,false),1000); return;
+  }
+  slSetStatus(`${slTag(p)} rolled ${slDie}.`);
+  slLater(()=>slStep(p,to),350);
+}
+function slStep(p,to){
+  if(slPos[p]<to){
+    slPos[p]++; slDraw(); slRefreshUI();
+    slLater(()=>slStep(p,to),140);
+  } else slLand(p);
+}
+function slLand(p){
+  const pos=slPos[p];
+  const dest = SL_LADDERS[pos] || SL_SNAKES[pos];
+  if(!dest){ slAfter(p,true); return; }
+  const up=!!SL_LADDERS[pos];
+  slSetStatus(up ? `${slTag(p)} found a ladder! 🪜 Up to ${dest}.` : `${slTag(p)} hit a snake! 🐍 Down to ${dest}.`);
+  slLater(()=>{ slPos[p]=dest; slDraw(); slRefreshUI(); slLater(()=>slAfter(p,true),600); },500);
+}
+function slAfter(p,moved){
+  if(slPos[p]===100){ slFinish(p); return; }
+  if(moved && slDie===6){
+    slSetStatus(`${slTag(p)} rolled a 6 — roll again.`);
+    slPhase='roll'; slRefreshUI();
+    if(p!==0) slLater(slDoRoll,800);
+    return;
+  }
+  slNext();
+}
+function slNext(){
+  slTurn=(slTurn+1)%slPlayers.length; slDie=null; slPhase='roll';
+  const p=slPlayers[slTurn];
+  slSetStatus(p===0 ? 'Your turn — tap ROLL.' : `${slTag(p)} (computer) is rolling…`);
+  slRefreshUI(); slDraw();
+  if(p!==0) slLater(slDoRoll,800);
+}
+function slFinish(p){
+  slOver=true; slPhase='over'; slRefreshUI(); slDraw();
+  const won=p===0, o=document.getElementById('sl-overlay');
+  o.innerHTML=`<h3>${won?'YOU WIN!':SL_NAMES[p].toUpperCase()+' WINS'}</h3><p>${won?'You reached square 100 first.':'The computer reached square 100 first.'}</p><button class="g3d-play-btn" onclick="initSnakesLadders()">▶ PLAY AGAIN</button>`;
+  o.style.display='flex';
+  slSetStatus(won ? '🏆 You won!' : `${slTag(p)} won.`);
+  ngLog('game_end',{game:'snakesladders', mode:'cpu', result:won?'win':'loss', score:slPos[0]});
+}
+function slDraw(){
+  const cv=document.getElementById('sl-canvas'); if(!cv) return;
+  const ctx=cv.getContext('2d'), C=SL_C;
+  ctx.fillStyle='#0f1530'; ctx.fillRect(0,0,cv.width,cv.height);
+  for(let n=1;n<=100;n++){
+    const [cx,cy]=slCenter(n), idx=n-1, row=Math.floor(idx/10);
+    ctx.fillStyle=((row+idx)%2===0)?'#1b2340':'#252f58';
+    if(n===100) ctx.fillStyle='#5a4a10';
+    ctx.fillRect(cx-C/2,cy-C/2,C,C);
+    ctx.fillStyle='#7a84b8'; ctx.font='9px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='top';
+    ctx.fillText(String(n),cx-C/2+3,cy-C/2+2);
+  }
+  // ladders
+  Object.entries(SL_LADDERS).forEach(([a,b])=>{
+    const [x1,y1]=slCenter(+a), [x2,y2]=slCenter(+b);
+    const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy), nx=-dy/len*5, ny=dx/len*5;
+    ctx.strokeStyle='#d9a066'; ctx.lineWidth=3; ctx.lineCap='round';
+    [[1,1],[-1,-1]].forEach(([s])=>{ ctx.beginPath(); ctx.moveTo(x1+nx*s,y1+ny*s); ctx.lineTo(x2+nx*s,y2+ny*s); ctx.stroke(); });
+    ctx.lineWidth=2;
+    for(let t=14;t<len-6;t+=16){
+      const px=x1+dx*t/len, py=y1+dy*t/len;
+      ctx.beginPath(); ctx.moveTo(px+nx,py+ny); ctx.lineTo(px-nx,py-ny); ctx.stroke();
+    }
+  });
+  // snakes
+  Object.entries(SL_SNAKES).forEach(([a,b],i)=>{
+    const [hx,hy]=slCenter(+a), [tx,ty]=slCenter(+b);
+    const mx=(hx+tx)/2, my=(hy+ty)/2, dx=tx-hx, dy=ty-hy, len=Math.hypot(dx,dy);
+    const s=(i%2?1:-1)*len*0.2, cxp=mx+(-dy/len)*s, cyp=my+(dx/len)*s;
+    const col=SL_SNAKE_COLORS[i%SL_SNAKE_COLORS.length];
+    ctx.strokeStyle=col; ctx.lineWidth=7; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(hx,hy); ctx.quadraticCurveTo(cxp,cyp,tx,ty); ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=2; ctx.setLineDash([4,6]);
+    ctx.beginPath(); ctx.moveTo(hx,hy); ctx.quadraticCurveTo(cxp,cyp,tx,ty); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=col; ctx.beginPath(); ctx.arc(hx,hy,7,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(hx-3,hy-2,2,0,Math.PI*2); ctx.arc(hx+3,hy-2,2,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(hx-3,hy-2,0.9,0,Math.PI*2); ctx.arc(hx+3,hy-2,0.9,0,Math.PI*2); ctx.fill();
+  });
+  // start strip
+  ctx.fillStyle='#141a30'; ctx.fillRect(0,360,cv.width,32);
+  ctx.fillStyle='#7a84b8'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('START',8,376);
+  // pawns
+  const counts={};
+  slPlayers.forEach(p=>{
+    const pos=slPos[p], key=pos, k=counts[key]||0; counts[key]=k+1;
+    let x,y;
+    if(pos===0){ x=70+p*26; y=376; }
+    else { [x,y]=slCenter(pos); x+=-9+(k%2)*18; y+=4+Math.floor(k/2)*-1; if(k>=2) y-=10; }
+    ctx.beginPath(); ctx.arc(x,y,pos===0?9:8,0,Math.PI*2);
+    ctx.fillStyle=SL_COLORS[p]; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#0b0e1a'; ctx.stroke();
+  });
+}
+
+/* --- Snakes and Ladders online (2 players: host = Red, guest = Green) ---
+   The room doc is authoritative: each roll runs inside one OnlineRoom.move()
+   transaction that rolls the die, applies ladders/snakes and decides whose turn
+   is next, so a roll can't be repeated or taken out of turn. The saved `ev`
+   (die, from, to, dest) lets both clients animate the same pawn movement. */
+function slOnlineFresh(){
+  return { pos:{'0':0,'1':0}, turn:'host', die:0, n:0, ev:{t:'start'}, winner:null };
+}
+function slSeatColor(seat){ return seat==='guest' ? 1 : 0; }
+function slOnlineApplyRoll(state, role){
+  if(state.winner || state.turn!==role) return null;
+  const s=JSON.parse(JSON.stringify(state)), p=slSeatColor(role);
+  const die=1+Math.floor(Math.random()*6), from=s.pos[String(p)], to=from+die;
+  s.die=die; s.n=(s.n||0)+1;
+  const next=()=>{ s.turn = s.turn==='host' ? 'guest' : 'host'; };
+  if(to>100){ s.ev={t:'exact',p,die,from,n:s.n}; next(); return s; }
+  const dest = SL_LADDERS[to] || SL_SNAKES[to] || 0;
+  const fin = dest || to;
+  s.pos[String(p)] = fin;
+  s.ev={ t:'roll', p, die, from, to, dest, n:s.n };
+  if(fin===100){ s.winner=s.turn; return s; }
+  if(die!==6) next();   // a 6 that actually moved gives another roll
+  return s;
+}
+async function slOnlineRoll(){
+  if(slMode!=='online' || !OnlineRoom.getCode() || slOver) return;
+  if(!slOnlinePlayers || !slOnlinePlayers.guest) return;          // wait for opponent
+  if(slPlayers[slTurn]!==slMe() || slPhase!=='roll') return;       // not your turn / still animating
+  await OnlineRoom.move(slOnlineApplyRoll);
+}
+async function slOnlineRematch(){
+  if(slOnlineRole!=='host') return;
+  await OnlineRoom.move((state,role)=> role==='host' ? slOnlineFresh() : null);
+}
+function slOnlineStatus(){
+  const s=slOnlineState, me=slMe();
+  if(!slOnlinePlayers || !slOnlinePlayers.guest){
+    slSetStatus('Waiting for opponent — share code <b>'+OnlineRoom.getCode()+'</b>'); return;
+  }
+  if(s.winner){ slSetStatus(s.winner===slOnlineRole ? '🏆 You won!' : `${slTag(slSeatColor(s.winner))} won.`); return; }
+  const cur=s.turn==='host' ? 0 : 1, ev=s.ev||{};
+  const who=p=> p===me ? 'You' : slTag(p);
+  let head='';
+  if(ev.t==='roll'){
+    head=`${who(ev.p)} rolled ${ev.die}.`;
+    if(ev.dest) head += SL_LADDERS[ev.to] ? ` Ladder! 🪜 Up to ${ev.dest}.` : ` Snake! 🐍 Down to ${ev.dest}.`;
+    if(ev.die===6 && cur===ev.p) head += ' A 6 — roll again.';
+  } else if(ev.t==='exact'){
+    head=`${who(ev.p)} rolled ${ev.die} — needs an exact roll to reach 100.`;
+  }
+  const tail = cur===me ? 'Your turn — tap ROLL.' : `${slTag(cur)}'s turn.`;
+  slSetStatus((head ? head+' ' : '') + tail);
+}
+function slOnlineOverlay(){
+  const o=document.getElementById('sl-overlay'), s=slOnlineState;
+  if(!s || !s.winner){ o.style.display='none'; return; }
+  const won=s.winner===slOnlineRole;
+  o.innerHTML = `<h3>${won?'YOU WIN!':SL_NAMES[slSeatColor(s.winner)].toUpperCase()+' WINS'}</h3>`
+    + `<p>${won?'You reached square 100 first.':'Your opponent reached square 100 first.'}</p>`
+    + (slOnlineRole==='host' ? '<button class="g3d-play-btn" onclick="slOnlineRematch()">▶ PLAY AGAIN</button>' : '<p>Waiting for the host to start a rematch…</p>');
+  o.style.display='flex';
+}
+function slOnlineSettle(){
+  const s=slOnlineState;
+  slOver=!!s.winner; slPhase = s.winner ? 'over' : 'roll';
+  slRefreshUI(); slDraw(); slOnlineStatus(); slOnlineOverlay();
+}
+function slOnlineStepTo(p,to,ev){
+  if(slPos[p]<to){ slPos[p]++; slDraw(); slRefreshUI(); slLater(()=>slOnlineStepTo(p,to,ev),140); return; }
+  if(ev.dest){
+    slSetStatus(SL_LADDERS[ev.to] ? `${slTag(p)} found a ladder! 🪜 Up to ${ev.dest}.` : `${slTag(p)} hit a snake! 🐍 Down to ${ev.dest}.`);
+    slLater(()=>{ slPos[p]=ev.dest; slDraw(); slRefreshUI(); slLater(slOnlineSettle,600); },500);
+  } else slOnlineSettle();
+}
+function slOnRoomUpdate(data, role){
+  slOnlineRole=role; slOnlinePlayers=data.players; slOnlineState=data.state;
+  const s=data.state, ev=s.ev||{};
+  slPlayers=[0,1];
+  slTurn = s.turn==='host' ? 0 : 1;
+  slDie = s.die || null;
+  slGen++;                                   // cancel any animation still running
+  const fresh = ev.t==='roll' && ev.n!==slOnlineSeen && slPos[ev.p]===ev.from;
+  slOnlineSeen = ev.n===undefined ? null : ev.n;
+  refreshSlModeUI();
+  if(data.players.guest && !slOnlineStartLogged && !s.winner){
+    slOnlineStartLogged=true; ngLog('game_start',{game:'snakesladders', mode:'online', players:2});
+  }
+  if(s.winner && !slOnlineEndLogged){
+    slOnlineEndLogged=true;
+    ngLog('game_end',{game:'snakesladders', mode:'online', result: s.winner===role?'win':'loss', score:s.pos[String(slSeatColor(role))]});
+  }
+  if(!s.winner) slOnlineEndLogged=false;
+  if(fresh){
+    const other=1-ev.p; slPos[other]=s.pos[String(other)];
+    slPhase='wait'; slOver=false;
+    slSetStatus(`${ev.p===slMe()?'You':slTag(ev.p)} rolled ${ev.die}.`);
+    slRefreshUI(); slDraw();
+    slLater(()=>slOnlineStepTo(ev.p,ev.to,ev),350);
+  } else {
+    slPos[0]=s.pos['0']; slPos[1]=s.pos['1'];
+    slOnlineSettle();
+  }
+}
+async function slCreateRoom(){
+  slSetStatus('Creating room…');
+  try{
+    OnlineRoom.onUpdate(slOnRoomUpdate);
+    await OnlineRoom.create('snakesladders', slOnlineFresh());
+    slOnlineRole='host';
+    refreshSlModeUI();
+  }catch(e){ console.warn(e); slSetStatus(onlineErrorMessage(e,'create')); }
+}
+async function slJoinRoom(){
+  const input=document.getElementById('sl-join-input');
+  const code=(input.value||'').trim().toUpperCase();
+  if(code.length<4){ input.focus(); return; }
+  slSetStatus('Joining room…');
+  try{
+    OnlineRoom.onUpdate(slOnRoomUpdate);
+    const role = await OnlineRoom.join(code,'snakesladders');
+    slOnlineRole=role;
+    refreshSlModeUI();
+  }catch(e){ console.warn(e); slSetStatus(onlineErrorMessage(e,'join')); }
+}
+function slCopyRoomCode(btn){
+  const code=OnlineRoom.getCode();
+  if(!code) return;
+  navigator.clipboard?.writeText(code).catch(()=>{});
+  if(btn){ const old=btn.textContent; btn.textContent='✓ Copied'; setTimeout(()=>btn.textContent=old,1200); }
+}
+function slLeaveRoom(){
+  OnlineRoom.reset();
+  slOnlineRole=null; slOnlinePlayers=null; slOnlineState=null; slOnlineSeen=null;
+  slOnlineStartLogged=false; slOnlineEndLogged=false;
+  initSnakesLadders();
 }
 
 /* ---------- Bootstrap: session start + ad rendering ---------- */

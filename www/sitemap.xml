@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://pixelarcade-44662.web.app/</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://pixelarcade-44662.web.app/</loc><lastmod>2026-10-10</lastmod></url>
   <url><loc>https://pixelarcade-44662.web.app/about.html</loc><lastmod>2026-10-09</lastmod></url>
   <url><loc>https://pixelarcade-44662.web.app/contact.html</loc><lastmod>2026-10-09</lastmod></url>
   <url><loc>https://pixelarcade-44662.web.app/terms.html</loc><lastmod>2026-10-09</lastmod></url>
@@ -26,4 +26,10 @@
   <url><loc>https://pixelarcade-44662.web.app/games/pong.html</loc><lastmod>2026-10-09</lastmod></url>
   <url><loc>https://pixelarcade-44662.web.app/games/minesweeper.html</loc><lastmod>2026-10-09</lastmod></url>
   <url><loc>https://pixelarcade-44662.web.app/games/simon.html</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://pixelarcade-44662.web.app/games/blockstack.html</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://pixelarcade-44662.web.app/games/flappy.html</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://pixelarcade-44662.web.app/games/lightsout.html</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://pixelarcade-44662.web.app/games/frogger.html</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://pixelarcade-44662.web.app/games/ludo.html</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://pixelarcade-44662.web.app/games/snakesladders.html</loc><lastmod>2026-10-10</lastmod></url>
 </urlset>
