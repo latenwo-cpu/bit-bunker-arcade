@@ -10,7 +10,7 @@
  * Bump CACHE_VERSION whenever the precache list below changes so
  * clients pick up the new list instead of reusing a stale cache.
  */
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v6';
 const STATIC_CACHE = `pixelarcade-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `pixelarcade-runtime-${CACHE_VERSION}`;
 
@@ -23,6 +23,8 @@ const APP_SHELL = [
   '/',
   '/arcade.html',
   '/interstitial-ads.js',
+  '/consent.js',
+  '/chat-moderation.js',
   '/manifest.json',
   '/offline.html',
   '/pixelarcade-icon.svg',
@@ -60,7 +62,8 @@ const APP_SHELL = [
   '/games/lightsout.html',
   '/games/frogger.html',
   '/games/ludo.html',
-  '/games/snakesladders.html'
+  '/games/snakesladders.html',
+  '/games/bunkerdefense.html'
 ];
 
 // The 3D games (Neon Runner / Turbo Drift / Neon Blaster) pull in three.js
@@ -88,6 +91,7 @@ const NEVER_INTERCEPT_HOSTS = [
   'accounts.google.com',
   'pagead2.googlesyndication.com',
   'googleads.g.doubleclick.net',
+  'fundingchoicesmessages.google.com',
   'googlesyndication.com',
   'google-analytics.com',
   'googletagmanager.com',

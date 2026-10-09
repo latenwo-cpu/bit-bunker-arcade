@@ -820,11 +820,12 @@
               everyN: 2, cooldownSec: 90, maxPerSession: 12, graceGames: 1,
               timeEnabled: true, timeMin: 5, hubEveryN: 0, delayMs: 1200 };
 
-  var cfg = null, inited = null, busy = false;
+  var cfg = null, busy = false;
   var shown = 0, games = 0, hubCount = 0, lastShown = 0, playMs = 0, t0 = 0, pending = null;
 
   function safeLog(t, d) { try { if (typeof window.logEvent === 'function') window.logEvent(t, d); } catch (e) {} }
-  function ensureInit() { if (!inited) inited = P.initialize({}).catch(function () {}); return inited; }
+  // AdMob is initialised by PaConsent (consent.js) only once Google's consent flow allows ads.
+  function ensureInit() { return window.PaConsent ? window.PaConsent.ensure() : Promise.resolve(false); }
 
   function loadCfg() {
     if (cfg) return Promise.resolve(cfg);
@@ -866,7 +867,7 @@
     busy = true;
     setTimeout(function () { busy = false; }, 60000);
     try {
-      await ensureInit();
+      if (!(await ensureInit())) { busy = false; return false; } // no consent yet: no ad request
       await P.prepareInterstitial({ adId: id, isTesting: !!cfg.testMode });
       await P.showInterstitial();
       shown++; lastShown = Date.now(); playMs = 0;

@@ -1,0 +1,68 @@
+LUDO — ONLINE MULTIPLAYER ADDED
+------------------------------------------------------------------
+Ludo now has a "Mode" bar: "Vs Computer" (unchanged, still 2-4 players
+with CPUs) and "Online (2 players)". Online uses the same OnlineRoom
+Firestore engine as Tic-Tac-Toe, Connect Four, Reversi, etc. — no Cloud
+Functions, no new dependencies, still the Firebase Spark/free plan.
+
+HOW IT PLAYS
+- Create Room / Join Room with the 5-letter code (same UI as the other
+  online games). Host = Red, guest = Yellow (opposite corners, same as the
+  2-player CPU game). Host moves first.
+- The room document is authoritative. Every ROLL and every PIECE MOVE runs
+  inside an OnlineRoom.move() transaction, so the dice can't be re-rolled,
+  a move can't be applied twice, and nobody can act out of turn or move an
+  illegal piece. Clients only render what the room says.
+- Rules match the CPU game: 6 to leave the yard, safe squares/stars,
+  captures send a piece home, a 6 / capture / piece reaching home gives an
+  extra roll, three 6s in a row loses the turn, exact roll needed for home.
+- If a roll leaves only one legal piece it is played automatically; with
+  2+ choices the roller taps a highlighted piece.
+- Winner overlay shows for both players. The HOST gets "PLAY AGAIN" (or
+  the top Restart button), which resets the room for a rematch.
+- Leaving the Ludo screen and coming back reconnects to your seat.
+- The shared floating chat widget works automatically (no Ludo-specific
+  code needed), and the game logs game_start / game_end (mode:'online').
+
+LIMITS
+- Online is 2 players only: OnlineRoom has exactly two seats
+  (players.host / players.guest). 3-4 player online would need an engine
+  change (more seats) and was left out to avoid touching the 14 other
+  online games that share that engine.
+- Firestore rules: no change needed — rooms/{code} is already open.
+
+FILES CHANGED
+public/arcade.html and public/index.html (identical Ludo changes).
+Then run:  npm run sync:web   (refreshes www/ for the Android build)
+           firebase deploy --only hosting
+Note: the www/ folder in the zip was an older build with no Ludo at all,
+so it was not hand-patched — sync:web regenerates it from public/.
+
+==================================================================
+SNAKES AND LADDERS — ONLINE MULTIPLAYER ADDED (same engine/pattern)
+------------------------------------------------------------------
+- New Mode bar: "Vs Computer" (unchanged, 2-4 players) / "Online (2 players)".
+- Create Room / Join Room with the 5-letter code. Host = Red (moves first),
+  guest = Green. 2 players only (OnlineRoom has two seats).
+- Each ROLL is one OnlineRoom.move() transaction: it rolls the die, applies
+  ladders/snakes, handles "exact roll to land on 100", gives an extra roll on
+  a 6 that moved, and passes the turn. Rolls can't be repeated or taken out
+  of turn. The saved result (die/from/to/ladder-or-snake destination) lets
+  both screens animate the same pawn movement.
+- Winner overlay for both; host gets PLAY AGAIN (or top Restart) for a rematch.
+- Reconnects to your seat if you leave the screen and return; chat widget and
+  game_start/game_end logging work automatically. No Firestore rules change.
+- Only public/arcade.html and public/index.html changed (Ludo + S&L patches
+  are both in the same files). Then: npm run sync:web && firebase deploy --only hosting
+
+==================================================================
+SEO / SITE / APP FILES UPDATED FOR BOTH GAMES
+------------------------------------------------------------------
+- public/games/ludo.html + snakesladders.html: new "Play ... online with a
+  friend" section, new FAQ entry (visible + FAQPage JSON-LD, kept in sync).
+- public/arcade.html + index.html: FAQ schema answer and the About paragraph
+  now list Ludo / Snakes and Ladders as online-multiplayer games.
+- public/sitemap.xml: lastmod bumped to 2026-10-10 for /, ludo, snakesladders.
+- public/sw.js: CACHE_VERSION v3 -> v4 so installed browsers refresh.
+- www/ regenerated with the project's own scripts/sync-web.js (copy of public/
+  minus admin.html, sw.js, offline.html) so the Android app matches the site.

@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
 <script src="/capacitor-shim.js"></script>
+<script src="/consent.js"></script>
 <script id="adsense-script" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5271137719829070" crossorigin="anonymous"></script>
 <meta name="google-adsense-account" content="ca-pub-5271137719829070">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/pixelarcade-icon.svg">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#4fb3ea">
-<title>ARCADE — Play 22 Free Retro &amp; 3D Browser Games Online</title>
+<title>ARCADE — Play 28 Free Retro &amp; 3D Browser Games Online</title>
 <meta name="description" content="Play 28 free retro &amp; 3D arcade games — Snake, Pong, Breakout, Minesweeper, Connect Four, Checkers, and more. No download, no signup, just click and play.">
 <meta name="keywords" content="free online games, browser games, arcade games, retro games, play snake online, breakout game, pong game, minesweeper online, no download games">
 <meta name="author" content="Pixel Arcade">
@@ -20,17 +21,17 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://pixelarcade-44662.web.app/">
 <meta property="og:site_name" content="Pixel Arcade">
-<meta property="og:title" content="ARCADE — Play 22 Free Retro &amp; 3D Browser Games Online">
+<meta property="og:title" content="ARCADE — Play 28 Free Retro &amp; 3D Browser Games Online">
 <meta property="og:description" content="Snake, Pong, Breakout, Minesweeper, Pixel Invaders, Connect Four, Checkers, Reversi, Battleship, Simon Says, three 3D games, and more — 28 free games, no download or signup required.">
-<meta property="og:image" content="https://pixelarcade-44662.web.app/icons/icon-512.png">
-<meta property="og:image:width" content="512">
-<meta property="og:image:height" content="512">
+<meta property="og:image" content="https://pixelarcade-44662.web.app/feature-graphic.png">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="500">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ARCADE — Play 22 Free Retro &amp; 3D Browser Games Online">
+<meta name="twitter:title" content="ARCADE — Play 28 Free Retro &amp; 3D Browser Games Online">
 <meta name="twitter:description" content="Snake, Pong, Breakout, Minesweeper, Pixel Invaders, Connect Four, Checkers, Reversi, Battleship, Simon Says, three 3D games, and more — 28 free games, no download or signup required.">
-<meta name="twitter:image" content="https://pixelarcade-44662.web.app/icons/icon-512.png">
+<meta name="twitter:image" content="https://pixelarcade-44662.web.app/feature-graphic.png">
 
 <script type="application/ld+json">
 {
@@ -100,6 +101,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="/interstitial-ads.js" defer></script>
+<script src="/chat-moderation.js" defer></script>
 <!-- Three.js (for 3D games) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -288,7 +290,19 @@
     font-weight:700;
     letter-spacing:.5px;
     font-size:13px;
+    /* Sits on its own dark pill so the green text stays readable even when the
+       page behind it looks light/blue-white (bright mode, forced themes, etc.) */
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:8px 14px;
+    width:fit-content;
+    max-width:min(92vw,520px);
+    margin-left:auto;
+    margin-right:auto;
+    box-sizing:border-box;
   }
+  .status-msg:empty{ background:none; border-color:transparent; }
 
   /* Word Search */
   .ws-wrap{ display:flex; gap:24px; flex-wrap:wrap; justify-content:center; align-items:flex-start; }
@@ -698,6 +712,30 @@
   #ludo-canvas{ display:block; width:100%; background:#0f1530; border:2px solid var(--border); border-radius:8px; touch-action:manipulation; }
   .ludo-dice-row{ display:flex; align-items:center; justify-content:center; gap:18px; margin-top:12px; }
   .ludo-die{ font-size:52px; line-height:1; min-width:60px; text-align:center; color:var(--text); }
+  /* Ludo die: drawn with CSS pips (no emoji/font dependence) on its own white face,
+     so it is visible on any background and on every phone. */
+  .ludo-die.pdie{
+    width:66px; height:66px; min-width:66px; padding:10px; box-sizing:border-box;
+    display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); gap:3px;
+    background:#ffffff; border:3px solid #0b0e1a; border-radius:14px;
+    box-shadow:0 4px 0 #0b0e1a, 0 8px 16px rgba(0,0,0,.35);
+  }
+  .pdie i{ display:block; border-radius:50%; }
+  .pdie i.pip{ background:#0b0e1a; }
+  .pdie .pdie-q{ grid-column:1 / -1; grid-row:1 / -1; align-self:center; justify-self:center; font-size:30px; line-height:1; color:#0b0e1a; }
+  @keyframes ludoTumble{
+    0%{ transform:rotate(0) scale(1); }
+    25%{ transform:rotate(-20deg) translateY(-6px) scale(1.12); }
+    50%{ transform:rotate(16deg) translateY(-10px) scale(1.15); }
+    75%{ transform:rotate(-10deg) translateY(-4px) scale(1.08); }
+    100%{ transform:rotate(0) scale(1); }
+  }
+  /* A dice roll is a short one-tap action, so (like the daily wheel) keep it
+     animating even when the phone reports "reduce motion". */
+  .pdie.rolling, .reduced-motion .pdie.rolling{
+    animation-name:ludoTumble !important; animation-duration:.4s !important;
+    animation-iteration-count:infinite !important; animation-timing-function:ease-in-out !important;
+  }
   /* Snakes and Ladders */
   #sl-canvas{ display:block; width:100%; background:#0f1530; border:2px solid var(--border); border-radius:8px; }
   .sn-hud{ text-align:center; font-size:14px; margin-bottom:6px; }
@@ -1300,7 +1338,7 @@
     <button class="icon-btn" onclick="Engagement.openProfile()" aria-label="View your profile and achievements">🏆 <span id="player-level-badge">LV 1</span></button>
     <span id="streak-badge" class="streak-badge"></span>
   </div>
-  <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Pixel Arcade — Play 22 Free Retro &amp; 3D Browser Games Online</h1>
+  <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Pixel Arcade — Play 28 Free Retro &amp; 3D Browser Games Online</h1>
   <img class="logo" src="/pixelarcade-logo-horizontal.svg" alt="Pixel Arcade" style="height:60px;max-width:90%;">
   <p class="tagline">28 games · one cabinet · <span class="blink">insert coin▮</span></p>
 </header>
@@ -1453,12 +1491,15 @@
     <a href="/games/lightsout.html" style="color:inherit;text-decoration:underline;font-size:13px;">💡 Lights Out</a>
     <a href="/games/frogger.html" style="color:inherit;text-decoration:underline;font-size:13px;">🐸 Frog Crossing</a>
     <a href="/games/ludo.html" style="color:inherit;text-decoration:underline;font-size:13px;">🎲 Ludo</a>
+    <a href="/games/bunkerdefense.html" style="color:inherit;text-decoration:underline;font-size:13px;">🛡️ Bunker Defense</a>
     <a href="/games/snakesladders.html" style="color:inherit;text-decoration:underline;font-size:13px;">🪜 Snakes and Ladders</a>
     </div>
   </section>
 
   <footer class="hub-footer" style="max-width:680px;margin:24px auto 40px;padding:16px;text-align:center;font-size:13px;color:#0c2b46;opacity:.85;">
     <a href="/privacy.html" style="color:inherit;text-decoration:underline;margin:0 10px;">Privacy Policy</a>
+    <span>·</span>
+    <a href="#" data-pa-privacy-choices style="display:none;color:inherit;text-decoration:underline;margin:0 10px;">Privacy &amp; ad choices</a>
     <span>·</span>
     <a href="mailto:pheonixadvertising1@gmail.com" style="color:inherit;text-decoration:underline;margin:0 10px;">Contact</a>
     <p style="margin-top:10px;">© 2026 Pixel Arcade. All games on this site are original implementations.</p>
@@ -2467,7 +2508,7 @@
     <div class="g3d-overlay" id="ludo-overlay" style="display:none;"></div>
   </div>
   <div class="ludo-dice-row">
-    <div class="ludo-die" id="ludo-die">🎲</div>
+    <div class="ludo-die pdie" id="ludo-die" role="img" aria-label="Dice"><b class="pdie-q">?</b></div>
     <button class="g3d-play-btn" id="ludo-roll" onclick="ludoRoll()">🎲 ROLL</button>
   </div>
   <p class="g3d-hint ng-hint" id="ludo-scores"></p>
@@ -5271,17 +5312,16 @@ const Tournaments = (function(){
   if(!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return;
   const AdMobPlugin = window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
   if(!AdMobPlugin) return;
-  let _initPromise=null;
+  // AdMob is initialised by PaConsent (consent.js) ONLY after the Google consent
+  // flow says ads may be requested. Never call AdMobPlugin.initialize() directly.
   function ensureInit(){
-    if(!_initPromise){
-      _initPromise = AdMobPlugin.initialize({}).catch(e=>{ console.warn('AdMob initialize failed', e); });
-    }
-    return _initPromise;
+    return window.PaConsent ? window.PaConsent.ensure() : Promise.resolve(false);
   }
   window.AdMobBridge = {
     async showBanner(unitId, slot){
       try{ if(window.__paCfgReady) await window.__paCfgReady; }catch(e){}
-      await ensureInit();
+      const canRequestAds = await ensureInit();
+      if(!canRequestAds) return; // consent not given / not ready: no ad request
       try{
         await AdMobPlugin.showBanner({
           adId: window.__paAdTest ? 'ca-app-pub-3940256099942364/6300978111' : unitId,
@@ -13196,6 +13236,43 @@ const LUDO_FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
 let ludoCount=parseInt(localStorage.getItem('ludoCount')||'2',10);
 if(![2,3,4].includes(ludoCount)) ludoCount=2;
 let ludoActive=[0,2], ludoPieces={}, ludoTurn=0, ludoDie=null, ludoPhase='roll', ludoSixes=0, ludoGen=0, ludoStarted=false, ludoOver=false, ludoLegalMoves=[];
+let ludoRolling=false, ludoRollTimer=null;
+const LUDO_PIPS={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
+// Paint a die face (1-6) with CSS pips; null/0 shows a blank "?" die.
+function ludoDieFace(n){
+  const el=document.getElementById('ludo-die'); if(!el) return;
+  if(!n){ el.innerHTML='<b class="pdie-q">?</b>'; el.setAttribute('aria-label','Dice'); return; }
+  const on=LUDO_PIPS[n]; let h='';
+  for(let i=1;i<=9;i++) h+= on.includes(i) ? '<i class="pip"></i>' : '<i></i>';
+  el.innerHTML=h; el.setAttribute('aria-label','Dice showing '+n);
+}
+function ludoCancelRoll(){
+  if(ludoRollTimer){ clearInterval(ludoRollTimer); ludoRollTimer=null; }
+  ludoRolling=false;
+  const el=document.getElementById('ludo-die'); if(el) el.classList.remove('rolling');
+}
+// Tumble the die through random faces, then settle on `final` and call done().
+function ludoRollAnim(final, done){
+  const el=document.getElementById('ludo-die');
+  ludoCancelRoll();
+  if(!el){ done(); return; }
+  ludoRolling=true;
+  el.classList.add('rolling');
+  const btn=document.getElementById('ludo-roll'); if(btn) btn.disabled=true;
+  let ticks=0, last=0;
+  const flip=()=>{ let r; do{ r=1+Math.floor(Math.random()*6); }while(r===last); last=r; ludoDieFace(r); };
+  flip();
+  ludoRollTimer=setInterval(()=>{
+    ticks++;
+    if(ticks>=8){
+      ludoCancelRoll();
+      ludoDieFace(final);
+      done();
+      return;
+    }
+    flip();
+  },70);
+}
 // Online (room) state — 2 players: host is always Red (0), guest is always Yellow (2).
 let ludoMode = localStorage.getItem('ludoMode')==='online' ? 'online' : 'cpu';
 let ludoOnlineRole=null, ludoOnlinePlayers=null, ludoOnlineState=null, ludoOnlineStartLogged=false, ludoOnlineEndLogged=false;
@@ -13241,11 +13318,11 @@ function ludoSetStatus(t){ document.getElementById('ludo-status').innerHTML=t; }
 function ludoTag(p){ return `<b style="color:${LUDO_COLORS[p]}">${LUDO_NAMES[p]}</b>`; }
 function ludoRefreshUI(){
   [2,3,4].forEach(n=>document.getElementById('ludo-n'+n).classList.toggle('active',ludoCount===n));
-  document.getElementById('ludo-die').textContent = ludoDie? LUDO_FACES[ludoDie-1] : '🎲';
+  if(!ludoRolling) ludoDieFace(ludoDie);
   const cur=ludoActive[ludoTurn], me=ludoMe();
   const btn=document.getElementById('ludo-roll');
   const onlineReady = ludoMode!=='online' || (!!ludoOnlineRole && !!OnlineRoom.getCode() && !!ludoOnlinePlayers && !!ludoOnlinePlayers.guest);
-  btn.disabled = !(cur===me && ludoPhase==='roll' && !ludoOver && onlineReady);
+  btn.disabled = !(cur===me && ludoPhase==='roll' && !ludoOver && onlineReady && !ludoRolling);
   btn.style.opacity = btn.disabled ? '0.45' : '1';
   document.getElementById('ludo-scores').textContent = ludoActive.map(p=>`${LUDO_NAMES[p]}: ${ludoPieces[p].filter(x=>x===56).length}/4 home`).join('  ·  ');
   const hint=document.getElementById('ludo-hint');
@@ -13285,6 +13362,7 @@ function ludoRestart(){
 }
 function initLudo(){
   ludoGen++;
+  ludoCancelRoll();
   refreshLudoModeUI();
   if(ludoMode==='online'){
     // A room left behind by another game (or a stale listener) is not ours — drop it.
@@ -13318,6 +13396,7 @@ function initLudo(){
   ludoBindCanvas();
 }
 function ludoRoll(){
+  if(ludoRolling) return;
   if(ludoMode==='online'){ ludoOnlineRoll(); return; }
   if(ludoOver || ludoPhase!=='roll' || ludoActive[ludoTurn]!==0) return;
   ludoDoRoll();
@@ -13328,6 +13407,12 @@ function ludoDoRoll(){
   ludoDie=1+Math.floor(Math.random()*6);
   ludoSixes = ludoDie===6 ? ludoSixes+1 : 0;
   ludoPhase='wait';
+  if(p===0) ludoSetStatus('Rolling…');
+  const g=ludoGen;
+  ludoRollAnim(ludoDie, ()=>{ if(g!==ludoGen || !ngActive('game-ludo')) return; ludoAfterRoll(p); });
+  ludoRefreshUI();
+}
+function ludoAfterRoll(p){
   ludoRefreshUI();
   if(ludoSixes>=3){
     ludoSetStatus(`${ludoTag(p)} rolled three 6s in a row — turn lost.`);
@@ -13568,7 +13653,9 @@ function ludoOnlineOverlay(){
     + (ludoOnlineRole==='host' ? '<button class="g3d-play-btn" onclick="ludoOnlineRematch()">▶ PLAY AGAIN</button>' : '<p>Waiting for the host to start a rematch…</p>');
   o.style.display='flex';
 }
+function ludoOnlineSig(s){ return JSON.stringify([s.turn,s.die,s.phase,s.pieces,s.ev]); }
 function ludoOnRoomUpdate(data, role){
+  const prev=ludoOnlineState;
   ludoOnlineRole=role; ludoOnlinePlayers=data.players; ludoOnlineState=data.state;
   const s=data.state;
   ludoActive=[0,2];
@@ -13578,7 +13665,16 @@ function ludoOnRoomUpdate(data, role){
   ludoPhase = s.phase;
   ludoLegalMoves = (s.legal||[]).slice();
   ludoOver = !!s.winner;
-  refreshLudoModeUI(); ludoRefreshUI(); ludoDraw(); ludoOnlineStatus(); ludoOnlineOverlay();
+  // A new roll = the previous snapshot was waiting for a roll and something changed.
+  const newRoll = !!(prev && prev.phase==='roll' && !prev.winner && s.die>0 && s.ev && s.ev.t!=='start' && ludoOnlineSig(prev)!==ludoOnlineSig(s));
+  const render=()=>{ refreshLudoModeUI(); ludoRefreshUI(); ludoDraw(); ludoOnlineStatus(); ludoOnlineOverlay(); };
+  if(newRoll){
+    ludoSetStatus('Rolling…');
+    const g=ludoGen;
+    ludoRollAnim(s.die, ()=>{ if(g!==ludoGen || !ngActive('game-ludo')) return; render(); });
+  } else {
+    render();
+  }
   if(data.players.guest && !ludoOnlineStartLogged && !s.winner){
     ludoOnlineStartLogged=true; ngLog('game_start',{game:'ludo', mode:'online', players:2});
   }
@@ -14002,5 +14098,5 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
-<footer style="text-align:center;font-size:13px;padding:24px 12px;opacity:.85"><a href="/">Home</a> · <a href="/about.html">About</a> · <a href="/contact.html">Contact</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy Policy</a></footer></body>
+<footer style="text-align:center;font-size:13px;padding:24px 12px;opacity:.85"><a href="/">Home</a> · <a href="/about.html">About</a> · <a href="/contact.html">Contact</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy Policy</a><span> · </span><a href="#" data-pa-privacy-choices style="display:none">Privacy &amp; ad choices</a></footer></body>
 </html>
