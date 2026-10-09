@@ -63,7 +63,7 @@
       try{ db = (typeof fbDB !== 'undefined') ? fbDB : null; }catch(e){}
       if(!db){ cfg = Object.assign({}, DEFAULTS); resolve(cfg); return; }
       db.collection(CFG_DOC[0]).doc(CFG_DOC[1]).get().then(function(doc){
-        cfg = Object.assign({}, DEFAULTS, doc.exists ? doc.data() : {});
+        cfg = Object.assign({}, DEFAULTS, doc.exists ? doc.data() : {}); cfg.enabled = false; /* disabled while applying for AdSense */
         if(!Array.isArray(cfg.ads)) cfg.ads = [];
         resolve(cfg);
       }).catch(function(e){
@@ -928,6 +928,8 @@
       window.goHub.__paWrapped = true;
     }
   }
+  // let banners know whether Test mode is on (they wait for this before loading)
+  window.__paCfgReady = loadCfg().then(function (c) { window.__paAdTest = !!c.testMode; return c; });
   // this file is loaded with defer, so the page's own scripts have already run
   hook();
   window.addEventListener('load', function () { hook(); setTimeout(loadCfg, 1500); });

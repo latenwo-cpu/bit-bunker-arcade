@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/capacitor-shim.js"></script>
 <script id="adsense-script" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5271137719829070" crossorigin="anonymous"></script>
 <meta name="google-adsense-account" content="ca-pub-5271137719829070">
 <meta charset="UTF-8">
@@ -8,7 +9,7 @@
 <link rel="icon" type="image/svg+xml" href="/pixelarcade-icon.svg">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#4fb3ea">
-<title>ARCADE — Play 21 Free Retro &amp; 3D Browser Games Online</title>
+<title>ARCADE — Play 22 Free Retro &amp; 3D Browser Games Online</title>
 <meta name="description" content="Play 22 free retro &amp; 3D arcade games — Snake, Pong, Breakout, Minesweeper, Connect Four, Checkers, and more. No download, no signup, just click and play.">
 <meta name="keywords" content="free online games, browser games, arcade games, retro games, play snake online, breakout game, pong game, minesweeper online, no download games">
 <meta name="author" content="Pixel Arcade">
@@ -19,7 +20,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://pixelarcade-44662.web.app/">
 <meta property="og:site_name" content="Pixel Arcade">
-<meta property="og:title" content="ARCADE — Play 21 Free Retro &amp; 3D Browser Games Online">
+<meta property="og:title" content="ARCADE — Play 22 Free Retro &amp; 3D Browser Games Online">
 <meta property="og:description" content="Snake, Pong, Breakout, Minesweeper, Pixel Invaders, Connect Four, Checkers, Reversi, Battleship, Simon Says, three 3D games, and more — 22 free games, no download or signup required.">
 <meta property="og:image" content="https://pixelarcade-44662.web.app/icons/icon-512.png">
 <meta property="og:image:width" content="512">
@@ -27,7 +28,7 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ARCADE — Play 21 Free Retro &amp; 3D Browser Games Online">
+<meta name="twitter:title" content="ARCADE — Play 22 Free Retro &amp; 3D Browser Games Online">
 <meta name="twitter:description" content="Snake, Pong, Breakout, Minesweeper, Pixel Invaders, Connect Four, Checkers, Reversi, Battleship, Simon Says, three 3D games, and more — 22 free games, no download or signup required.">
 <meta name="twitter:image" content="https://pixelarcade-44662.web.app/icons/icon-512.png">
 
@@ -591,6 +592,9 @@
       transform:none !important; filter:saturate(1.05) brightness(1.15) !important;
     }
   }
+
+  /* Daily wheel: a single user-triggered spin; keep its animation even when the phone reports "reduce motion" */
+  .reduced-motion .wheel-dial, .wheel-dial{ transition-duration:4.2s !important; }
 
   /* Dots and Boxes */
   .db-wrap{ width:min(380px,92vw); margin:0 auto; }
@@ -1279,7 +1283,7 @@
     <button class="icon-btn" onclick="Engagement.openProfile()" aria-label="View your profile and achievements">🏆 <span id="player-level-badge">LV 1</span></button>
     <span id="streak-badge" class="streak-badge"></span>
   </div>
-  <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Pixel Arcade — Play 21 Free Retro &amp; 3D Browser Games Online</h1>
+  <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Pixel Arcade — Play 22 Free Retro &amp; 3D Browser Games Online</h1>
   <img class="logo" src="/pixelarcade-logo-horizontal.svg" alt="Pixel Arcade" style="height:60px;max-width:90%;">
   <p class="tagline">22 games · one cabinet · <span class="blink">insert coin▮</span></p>
 </header>
@@ -1381,7 +1385,7 @@
 
   <section class="hub-about" style="max-width:680px;margin:32px auto 0;padding:0 16px;color:#0c2b46;font-size:14px;line-height:1.6;">
     <h2 style="font-size:16px;margin-bottom:8px;">About this arcade</h2>
-    <p>Pixel Arcade is a free collection of 21 browser games, built to run instantly with no download, install, or account required. Classic tabletop games like Tic-Tac-Toe, Checkers, Reversi, Connect Four, Dots &amp; Boxes, and Battleship support a local built-in computer opponent with three difficulty levels, as well as pass-and-play and online multiplayer against a friend using a shareable room code. Puzzle and arcade favorites — Snake, Pong, Breakout, Minesweeper, Pixel Invaders, 2048, Sliding Puzzle, Memory Match, Whack-a-Mole, Word Search, Hangman, and Simon Says — are tuned for quick, replayable sessions on desktop or mobile. Three original 3D games (Neon Runner, Turbo Drift, and Neon Blaster) round out the collection with lightweight WebGL gameplay that runs directly in the browser.</p>
+    <p>Pixel Arcade is a free collection of 22 browser games, built to run instantly with no download, install, or account required. Classic tabletop games like Tic-Tac-Toe, Checkers, Reversi, Connect Four, Dots &amp; Boxes, and Battleship support a local built-in computer opponent with three difficulty levels, as well as pass-and-play and online multiplayer against a friend using a shareable room code. Puzzle and arcade favorites — Snake, Pong, Breakout, Minesweeper, Pixel Invaders, 2048, Sliding Puzzle, Memory Match, Whack-a-Mole, Word Search, Hangman, and Simon Says — are tuned for quick, replayable sessions on desktop or mobile. Three original 3D games (Neon Runner, Turbo Drift, and Neon Blaster) round out the collection with lightweight WebGL gameplay that runs directly in the browser.</p>
     <p>Everything on this site is playable for free. No sign-up is required to play; creating an online multiplayer room only needs a nickname. We may show ads to help keep the arcade free to play — see our <a href="/privacy.html" style="color:inherit;text-decoration:underline;">Privacy Policy</a> for details on data collection and cookies.</p>
   </section>
 
@@ -1415,7 +1419,7 @@
   <footer class="hub-footer" style="max-width:680px;margin:24px auto 40px;padding:16px;text-align:center;font-size:13px;color:#0c2b46;opacity:.85;">
     <a href="/privacy.html" style="color:inherit;text-decoration:underline;margin:0 10px;">Privacy Policy</a>
     <span>·</span>
-    <a href="mailto:contact@pixelarcade-44662.web.app" style="color:inherit;text-decoration:underline;margin:0 10px;">Contact</a>
+    <a href="mailto:pheonixadvertising1@gmail.com" style="color:inherit;text-decoration:underline;margin:0 10px;">Contact</a>
     <p style="margin-top:10px;">© 2026 Pixel Arcade. All games on this site are original implementations.</p>
   </footer>
 </main>
@@ -5063,14 +5067,15 @@ const Tournaments = (function(){
   }
   window.AdMobBridge = {
     async showBanner(unitId, slot){
+      try{ if(window.__paCfgReady) await window.__paCfgReady; }catch(e){}
       await ensureInit();
       try{
         await AdMobPlugin.showBanner({
-          adId: unitId,
+          adId: window.__paAdTest ? 'ca-app-pub-3940256099942364/6300978111' : unitId,
           adSize: 'ADAPTIVE_BANNER',
           position: 'BOTTOM_CENTER',
           margin: 0,
-          isTesting: false
+          isTesting: !!window.__paAdTest
         });
       }catch(e){ console.warn('AdMob showBanner failed for slot '+slot, e); }
     },
@@ -12576,5 +12581,5 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
-</body>
+<footer style="text-align:center;font-size:13px;padding:24px 12px;opacity:.85"><a href="/">Home</a> · <a href="/about.html">About</a> · <a href="/contact.html">Contact</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy Policy</a></footer></body>
 </html>
