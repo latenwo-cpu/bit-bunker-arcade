@@ -2,6 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Admin = signed in with email+password (admin.html). Anonymous and Google
+    // sign-ins (Cloud Save players) are NOT admins.
+    function isAdmin() {
+      return request.auth != null
+          && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+
     // Online multiplayer rooms (Tic-Tac-Toe, Connect Four, Checkers, Dots & Boxes).
     // No Firebase Auth involved here — players are matched purely by a
     // 5-letter room code, so this can't be scoped to a signed-in user.
@@ -69,7 +76,7 @@ service cloud.firestore {
     // what powers admin.html's dashboards.
     match /events/{eventId} {
       allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
 
     // Remote ad config, edited from admin.html's Ad Settings tab.
@@ -77,7 +84,7 @@ service cloud.firestore {
     // page view, but only a signed-in admin can change it.
     match /config/{docId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
     // Cloud Save (optional Google/anonymous sign-in) — backs up the local
@@ -98,7 +105,7 @@ service cloud.firestore {
       allow create: if request.resource.data.type == 'chat'
                     && request.resource.data.text is string
                     && request.resource.data.text.size() <= 300;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
 
     // Deny everything else by default.

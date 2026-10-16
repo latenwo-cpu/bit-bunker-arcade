@@ -3,7 +3,7 @@
 <head>
 <script src="/capacitor-shim.js"></script>
 <script src="/consent.js"></script>
-<script id="adsense-script" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5271137719829070" crossorigin="anonymous"></script>
+<script>(function(){var c=window.Capacitor;if(c&&c.isNativePlatform&&c.isNativePlatform())return;var s=document.createElement('script');s.id='adsense-script';s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5271137719829070';document.head.appendChild(s);})();</script>
 <meta name="google-adsense-account" content="ca-pub-5271137719829070">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -5367,45 +5367,38 @@ function renderAdSlot(el, cfg){
   el.innerHTML='';
   el.classList.remove('has-content');
   el.style.display='';
-  const trackClick=()=>logEvent('ad_click',{slot, mode:cfg.mode});
   const native = isNativeApp();
-  if(cfg.mode==='adsense' && cfg.adsenseClientId){
-    // Google AdSense policy forbids serving AdSense ads inside a native app WebView.
-    // Never render it in-app — fall back to the plain placeholder instead.
-    if(native){
-      el.style.display='none'; el.textContent='';
-      return;
-    }
-    const slotId = (cfg.adsenseSlots||{})[slot];
-    if(!slotId){ el.style.display='none'; el.textContent=''; return; }
+  const trackClick=()=>logEvent('ad_click',{slot, mode:cfg.mode});
+  // Platform decides the network: Android app = AdMob only, website = AdSense only.
+  // Google AdSense policy forbids AdSense inside an app WebView, so the app never loads it.
+  const admobUnit = (cfg.admobUnitIds||{})[slot];
+  const adsenseClient = cfg.adsenseClientId || 'ca-pub-5271137719829070';
+  const adsenseSlot = (cfg.adsenseSlots||{})[slot];
+  if(native && admobUnit && window.AdMobBridge && typeof window.AdMobBridge.showBanner==='function'){
+    window.AdMobBridge.showBanner(admobUnit, slot);
+    el.textContent='';
+    el.style.display='none'; // native banner overlays its own view
+    logEvent('ad_impression',{slot, mode:'admob'});
+    return;
+  }
+  if(!native && adsenseSlot){
     el.classList.add('has-content');
     const ins=document.createElement('ins');
     ins.className='adsbygoogle';
     ins.style.display='block';
-    ins.setAttribute('data-ad-client', cfg.adsenseClientId);
-    ins.setAttribute('data-ad-slot', slotId);
+    ins.setAttribute('data-ad-client', adsenseClient);
+    ins.setAttribute('data-ad-slot', adsenseSlot);
     ins.setAttribute('data-ad-format','auto');
     ins.setAttribute('data-full-width-responsive','true');
     el.appendChild(ins);
     try{ (window.adsbygoogle = window.adsbygoogle || []).push({}); }catch(e){}
     logEvent('ad_impression',{slot, mode:'adsense'});
-  } else if(cfg.mode==='admob'){
-    // AdMob only works inside a native app (via a WebView wrapper like Capacitor/Cordova).
-    // If the native shell exposes a bridge, ask it to show a banner for this slot.
-    const unitId = (cfg.admobUnitIds||{})[slot];
-    if(window.AdMobBridge && typeof window.AdMobBridge.showBanner==='function' && unitId){
-      window.AdMobBridge.showBanner(unitId, slot);
-      el.textContent='';
-      el.style.display='none'; // native banner overlays its own view
-      logEvent('ad_impression',{slot, mode:'admob'});
-    } else if(native){
-      el.style.display='none'; el.textContent='';
-    } else {
-      el.textContent = 'AdMob banner ('+slot+') — renders inside the wrapped mobile app';
-    }
-  } else if(cfg.mode==='manual'){
+    return;
+  }
+  if(cfg.mode==='manual' || cfg.mode==='adsense' || cfg.mode==='admob'){
+    // Fallback: own (manual) ads when the platform's network has no unit for this slot.
+    // target controls where a manual ad shows: 'web', 'app', or 'both' (default 'both')
     const ad = (cfg.manualAds||{})[slot];
-    // target controls where a manual ad shows: 'web', 'app', or 'both' (default 'both' for older configs without the field)
     const target = ad && ad.target ? ad.target : 'both';
     const targetMatches = target==='both' || (target==='web' && !native) || (target==='app' && native);
     if(ad && targetMatches && ad.imageUrl){
@@ -5419,21 +5412,20 @@ function renderAdSlot(el, cfg){
       a.appendChild(img);
       el.appendChild(a);
       logEvent('ad_impression',{slot, mode:'manual'});
+      return;
     } else if(ad && targetMatches && ad.html){
       el.classList.add('has-content');
       el.innerHTML = ad.html;
       el.querySelectorAll('a').forEach(a=>a.addEventListener('click',trackClick));
       logEvent('ad_impression',{slot, mode:'manual'});
-    } else {
-      el.style.display='none'; el.textContent='';
+      return;
     }
-  } else {
-    el.style.display='none'; el.textContent='';
   }
+  el.style.display='none'; el.textContent='';
 }
 async function renderAllAdSlots(){
   const cfg = await loadAdsConfig();
-  if(cfg.mode==='adsense') ensureAdSenseScript(cfg.adsenseClientId);
+  if(!isNativeApp()) ensureAdSenseScript(cfg.adsenseClientId || 'ca-pub-5271137719829070');
   document.querySelectorAll('.ad-slot').forEach(el=>renderAdSlot(el,cfg));
 }
 

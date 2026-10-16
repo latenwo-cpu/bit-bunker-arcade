@@ -17,6 +17,18 @@
       "**/*.bat",
       "**/downloads/**"
     ],
+    "redirects": [
+      {
+        "source": "/download",
+        "destination": "https://github.com/latenwo-cpu/bit-bunker-arcade/releases/latest/download/app-debug.apk",
+        "type": 302
+      },
+      {
+        "source": "/android",
+        "destination": "https://github.com/latenwo-cpu/bit-bunker-arcade/releases/latest/download/app-debug.apk",
+        "type": 302
+      }
+    ],
     "headers": [
       {
         "source": "/sw.js",
