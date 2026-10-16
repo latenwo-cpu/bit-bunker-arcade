@@ -1501,7 +1501,7 @@
     <span>·</span>
     <a href="#" data-pa-privacy-choices style="display:none;color:inherit;text-decoration:underline;margin:0 10px;">Privacy &amp; ad choices</a>
     <span>·</span>
-    <a href="mailto:pheonixadvertising1@gmail.com" style="color:inherit;text-decoration:underline;margin:0 10px;">Contact</a>
+    <a href="mailto:support@pixelarcade.com" style="color:inherit;text-decoration:underline;margin:0 10px;">Contact</a>
     <p style="margin-top:10px;">© 2026 Pixel Arcade. All games on this site are original implementations.</p>
   </footer>
 </main>
@@ -5362,6 +5362,11 @@ function ensureAdSenseScript(clientId){
 function isNativeApp(){
   return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 }
+// Accepts 'pub-123' or 'ca-pub-123' (or empty) and always returns 'ca-pub-...'.
+function paAdsenseClient(id){
+  id=String(id||'').trim()||'ca-pub-5271137719829070';
+  return id.indexOf('ca-')===0 ? id : 'ca-'+id;
+}
 function renderAdSlot(el, cfg){
   const slot = el.dataset.adSlot;
   el.innerHTML='';
@@ -5372,7 +5377,7 @@ function renderAdSlot(el, cfg){
   // Platform decides the network: Android app = AdMob only, website = AdSense only.
   // Google AdSense policy forbids AdSense inside an app WebView, so the app never loads it.
   const admobUnit = (cfg.admobUnitIds||{})[slot];
-  const adsenseClient = cfg.adsenseClientId || 'ca-pub-5271137719829070';
+  const adsenseClient = paAdsenseClient(cfg.adsenseClientId);
   const adsenseSlot = (cfg.adsenseSlots||{})[slot];
   if(native && admobUnit && window.AdMobBridge && typeof window.AdMobBridge.showBanner==='function'){
     window.AdMobBridge.showBanner(admobUnit, slot);
@@ -5425,7 +5430,7 @@ function renderAdSlot(el, cfg){
 }
 async function renderAllAdSlots(){
   const cfg = await loadAdsConfig();
-  if(!isNativeApp()) ensureAdSenseScript(cfg.adsenseClientId || 'ca-pub-5271137719829070');
+  if(!isNativeApp()) ensureAdSenseScript(paAdsenseClient(cfg.adsenseClientId));
   document.querySelectorAll('.ad-slot').forEach(el=>renderAdSlot(el,cfg));
 }
 
