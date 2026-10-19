@@ -816,7 +816,7 @@
   if (!native || !P) return;
 
   var TEST_UNIT = 'ca-app-pub-3940256099942364/1033173712';
-  var DEF = { enabled: false, testMode: true, units: {}, onWin: true, onLose: true, onDraw: false,
+  var DEF = { enabled: false, testMode: false, units: {}, onWin: true, onLose: true, onDraw: false,
               everyN: 2, cooldownSec: 90, maxPerSession: 12, graceGames: 1,
               timeEnabled: true, timeMin: 5, hubEveryN: 0, delayMs: 1200 };
 

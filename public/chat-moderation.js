@@ -91,6 +91,7 @@
          typeof fbDB !== 'undefined' && fbDB){
         fbDB.collection('reports').add({
           type: 'chat',
+          reporter: (typeof getUserId === 'function') ? getUserId() : null,
           room: (typeof OnlineRoom !== 'undefined' && OnlineRoom.getCode) ? (OnlineRoom.getCode() || null) : null,
           msgId: m.id || null,
           uid: m.uid || null,

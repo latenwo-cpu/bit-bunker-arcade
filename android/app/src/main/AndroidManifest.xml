@@ -44,6 +44,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Advertising ID: AdMob uses it. Declaring it explicitly is required for apps targeting Android 13+
+         and must match the Advertising ID answer in Play Console (Yes). -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+
     <!-- For @capacitor/local-notifications (streak/reward reminders).
          SCHEDULE_EXACT_ALARM was removed on purpose: Google Play restricts it to alarm/calendar
          apps, and daily reminders do not need to fire to the exact second. -->
