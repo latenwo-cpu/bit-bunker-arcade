@@ -1,0 +1,53 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/*.apk",
+      "**/*.exe",
+      "**/*.dll",
+      "**/*.bat",
+      "**/downloads/**"
+    ],
+    "redirects": [
+      {
+        "source": "/download",
+        "destination": "https://github.com/latenwo-cpu/bit-bunker-arcade/releases/latest/download/app-debug.apk",
+        "type": 302
+      },
+      {
+        "source": "/android",
+        "destination": "https://github.com/latenwo-cpu/bit-bunker-arcade/releases/latest/download/app-debug.apk",
+        "type": 302
+      }
+    ],
+    "headers": [
+      {
+        "source": "/sw.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "/manifest.json",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
+    ]
+  }
+}

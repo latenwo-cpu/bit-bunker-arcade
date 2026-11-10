@@ -1,0 +1,102 @@
+NEW FEATURE: CLOUD SAVE (OPTIONAL GOOGLE / ANONYMOUS SIGN-IN)
+--------------------------------------------------------------
+A new "Cloud Save" card on the Player Profile screen lets a player
+optionally sign in (Google or Anonymous, via Firebase Auth) so their
+coins/XP/level/achievements/high scores/shop purchases — the
+arcade_profile_v1 blob Engagement already maintains in localStorage —
+survive a reinstall of the app or a move to a new device. Previously
+this data lived only in that device's localStorage and was permanently
+lost on reinstall/uninstall or a fresh browser profile.
+
+WHY GOOGLE VS ANONYMOUS ARE BOTH OFFERED
+------------------------------------------
+- ANONYMOUS creates a Firebase Auth account with no login step, but its
+  session is still just local device/browser storage under the hood —
+  it protects you from things like the app's storage getting cleared
+  or switching between the installed app and a browser tab that happen
+  to share the same underlying storage, but it does NOT survive an
+  actual reinstall or a different device, since there's no portable
+  credential tying it to you.
+- GOOGLE is the one that actually survives a reinstall or a new
+  device, since it's tied to a real account you can sign into anywhere.
+- Signing in with Google while already signed in anonymously LINKS the
+  two (auth.currentUser.linkWithPopup) instead of starting a fresh
+  identity, so a player who tries Anonymous first and later adds Google
+  doesn't lose anything in between. If that Google account already has
+  its own cloud save from elsewhere (auth/credential-already-in-use),
+  it signs into that existing account instead of failing.
+
+HOW SYNC WORKS
+------------------
+- cloudProfiles/{authUid} in Firestore stores one doc: { profile:
+  <the exact arcade_profile_v1 object>, updatedAt }.
+- Every time Engagement.save() writes to localStorage (i.e. on every
+  XP/coin/achievement change — 29 call sites, none of which needed to
+  change), it also calls CloudSave.queuePush(), which debounces for
+  2.5s and then writes the current profile to Firestore if signed in.
+- On sign-in (including automatically on page load if a session
+  persists), CloudSave checks whether a cloud save already exists for
+  that account:
+  - If this device already has real local progress (any plays/coins/
+    XP) AND a cloud save exists, the player is asked (a plain confirm()
+    dialog, consistent with the prompt()-based dialogs already used
+    elsewhere in this file) whether to load the cloud save here
+    (overwriting local) or keep local (overwriting the cloud save).
+  - If local has no real progress yet (a fresh device), the cloud save
+    is applied automatically with no prompt.
+  - If no cloud save exists yet, the current local profile is pushed up
+    as the first sync.
+- Restoring a cloud save writes it into the same arcade_profile_v1
+  localStorage key, then calls a new Engagement.reloadFromStorage() (re-
+  reads it into Engagement's in-memory profile and re-renders the
+  header badge / hub extras / profile screen) — no page reload needed.
+
+WHAT THIS DOES NOT COVER
+----------------------------
+- This only backs up the profile blob (XP/coins/achievements/high
+  scores/shop/streak). It does NOT change the separate anonymous
+  "arcade_uid" identity used by OnlineRoom/Leaderboard/Friends/
+  Tournaments, or migrate your friends list/room history to a new
+  device — those remain tied to the device the same as before. Folding
+  those into the same signed-in account too would be a much bigger
+  change (rewriting the global leaderboard/friends identity model,
+  which several other features build on) and wasn't part of this ask.
+- Native Google Sign-In: this uses the Firebase JS SDK's
+  signInWithPopup/signInWithRedirect, same as it would in any browser
+  tab. Inside the installed Capacitor Android app's WebView, popups are
+  unreliable, so sign-in falls back to signInWithRedirect there — this
+  works but is a plain in-app browser redirect, not the polished native
+  "Sign in with Google" bottom sheet you'd get from a dedicated native
+  plugin (e.g. @capacitor-firebase/authentication). Worth adding later
+  if the redirect flow feels rough in the built app; not needed for
+  this to work today.
+
+WHAT CHANGED
+------------
+- public/arcade.html, public/index.html, www/arcade.html,
+  www/index.html (kept in sync, per the existing project convention):
+  1. Added the firebase-auth-compat.js SDK script tag.
+  2. New CloudSave JS module (sign-in/out, push/pull, restore-vs-keep
+     prompt), added right after the Notify module.
+  3. Engagement.save() now also calls CloudSave.queuePush() (debounced).
+  4. New Engagement.reloadFromStorage() + exposed on the Engagement
+     return object.
+  5. New "Cloud Save" card (#cloud-save-card) on the Player Profile
+     screen, rendered by CloudSave.renderScreen().
+  6. CloudSave.init() added to the DOMContentLoaded bootstrap.
+- firestore.rules: added cloudProfiles/{uid}, locked to `request.auth
+  != null && request.auth.uid == uid` — the first rule in this project
+  that can rely on real Firebase Auth ownership, since everything else
+  here uses open/anonymous device codes instead of real accounts.
+  Re-deploy firestore.rules (firebase deploy --only firestore:rules) or
+  these are silently blocked by the default deny-all.
+- SETUP-README.md: added a step to enable the Google and Anonymous
+  sign-in providers alongside the existing Email/Password one.
+
+TO BUILD THE ANDROID APP WITH THIS
+--------------------------------------
+No new native dependency was added (this reuses the Firebase JS SDK
+already loaded via firebasejs/10.12.2, just with firebase-auth-compat.js
+added), so no package.json/Gradle changes are needed — just your normal
+`npx cap sync android` before the next Android build, same as any other
+change to www/.

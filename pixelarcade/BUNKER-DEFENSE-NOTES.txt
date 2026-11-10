@@ -1,0 +1,104 @@
+NEW GAME ADDED: BUNKER DEFENSE (22 games total now)
+------------------------------------------------------
+A 3D tower-defense game built in the same Three.js engine as Neon Runner
+3D / Turbo Drift 3D / Neon Blaster 3D. Low-poly enemies spawn around the
+edge of a circular arena and march toward your bunker's core hatch at
+the center. You control a turret mounted on the hatch: move the mouse
+(or drag a finger) to aim, hold the mouse button (or touch) down to
+auto-fire a stream of energy bolts. Score points and survive as many
+waves as you can — each wave sends more enemies, a little faster, with
+tougher types mixed in the longer you last.
+
+ENEMY TYPES
+-----------
+- Grunt (magenta): 1 hit to kill, baseline speed. The bulk of every wave.
+- Runner (amber): fast, but dies in 1 hit. Starts appearing from wave 2.
+- Brute (violet): takes 3 hits, moves slowly, deals double core damage
+  if it reaches the hatch. Starts appearing from wave 3, chance rises
+  slowly with each wave (capped).
+
+CORE / SCORING
+---------------
+- The bunker core starts with 10 HP. A grunt or runner reaching the
+  center costs 1 HP; a brute costs 2. Game over at 0 HP.
+- Points: Grunt 10, Runner 15, Brute 30, plus a wave-clear bonus
+  (wave number x 20) awarded the moment the last enemy in a wave dies.
+- Best wave reached is saved to localStorage ('bunkerBestWave') and
+  shown on the briefing screen; score is reported via
+  logEvent('game_end', {game:'bunkerdefense', mode:'solo', score}) the
+  same way every other scoring game reports to the Player Profile's
+  high-score table, coins, and XP.
+
+WHERE IT LIVES / HOW IT'S WIRED IN
+------------------------------------
+Fully self-contained, single-player only — no "vs computer" or online
+mode, same reasoning as Simon Says (a single shared arena doesn't have
+an obvious competitive shape without a bigger redesign). It plugs into
+every existing arcade-wide system with zero special-casing:
+  - New cabinet button on the hub grid (🛡️ Bunker Defense), styled
+    "cabinet-3d" like the other three 3D games
+  - New GAME_META entry ('bunkerdefense') so it shows up in
+    Favorites/Recents, the Explorer/Arcade Legend achievements, and the
+    daily-challenge rotation automatically
+  - Reuses the shared 3D helpers already in the file (make3DRenderer,
+    fit3DCanvas) and the existing .g3d-garage / .g3d-stage / .g3d-hud /
+    .g3d-overlay / .g3d-reticle / .g3d-wavebanner CSS — no new CSS
+    needed. (.g3d-wavebanner existed in the CSS already, defined but
+    unused until now — Bunker Defense is the first game to actually use
+    it, for "WAVE n" / "WAVE n CLEARED" banners.)
+  - Follows the same stop3D convention as the other 3D games (set on
+    start, cleared on backToGarage) so navigating away mid-round always
+    cleans up the renderer/animation loop correctly.
+  - The bunker/hatch centerpiece deliberately echoes the arcade's own
+    logo (ring + rivets around a central hatch) as a nod to the "Bit
+    Bunker" origins mentioned in your icon file.
+
+WHAT CHANGED
+------------
+- public/arcade.html AND public/index.html (+ their www/ mirrors) got:
+  1. New cabinet button in #cabinet-grid
+  2. New <main id="game-bunkerdefense"> screen (briefing + 3D stage)
+  3. New GAME_META entry + "bunkerdefense: initBunkerDefense" in
+     openGame()'s init map
+  4. New BunkerDefense game module (Three.js scene/turret/enemy-wave/
+     projectile logic) plus wrapper functions (initBunkerDefense,
+     bunkerStart, bunkerRestart, bunkerBackToMenu), inserted right after
+     the Neon Blaster 3D module
+  5. All "21 games" / "21 free games" copy (meta description, Open
+     Graph, Twitter card, ld+json, FAQ answer, header tagline, the
+     Arcade Legend achievement description, and the engagement-engine
+     comment) bumped to 22 to match
+
+NOT TOUCHED
+-----------
+android/ wasn't regenerated in this pass — it's a Capacitor-generated
+wrapper around www/, so `npx cap sync android` after `npm install` will
+pick up the new www/index.html automatically. No node_modules/, .git/,
+or android/build changes are included — unzip this over your project
+folder and overwrite when prompted.
+
+IDEAS FOR NEXT ROUND (not built yet)
+-------------------------------------
+- A global "furthest wave reached" leaderboard (Firestore, same
+  Spark-plan-friendly pattern as the existing Leaderboard feature)
+  instead of only a personal best.
+- A second turret slot / co-op "Online" mode where two players defend
+  the same core together, sharing core HP — would need the core state
+  synced through OnlineRoom the same way Connect Four/Checkers are.
+- Power-ups dropped by tougher enemies (temporary fire-rate boost,
+  a one-time area-clear "EMP" charge, etc.) to add more moment-to-moment
+  variety inside a single run.
+
+FIX (this update)
+------------------
+The very first version of this file shipped with a bug: the CSS rule
+that gives the 3D canvases their size (#runner-canvas, #drift-canvas,
+#shooter-canvas{ width:100%; aspect-ratio:16/10; ... }) never had
+#bunker-canvas added to it. That meant the Bunker Defense <canvas> had
+no real width/height, so nothing ever rendered — but the game loop
+itself (waves, enemy movement, core damage, scoring) was still running
+invisibly underneath, which is why you'd see the score and wave number
+ticking up on a blank/background-colored screen with enemies silently
+draining the core. Added #bunker-canvas to both the base sizing rule
+and its mobile aspect-ratio override — the arena, turret, and enemies
+now actually render.

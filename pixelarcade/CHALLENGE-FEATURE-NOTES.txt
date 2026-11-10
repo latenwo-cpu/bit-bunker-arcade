@@ -1,0 +1,76 @@
+NEW FEATURE: SHARE / CHALLENGE A FRIEND
+-----------------------------------------
+A "🔗 Challenge" button (header toolbar, visible on every screen — hub,
+in any game, and the profile page) lets a player send a shareable link
+that says "I scored X in <Game> — beat it?" On mobile this opens the
+native share sheet (Web Share API); on desktop it copies the link +
+message to the clipboard with a toast confirming it. There's also a
+"🔗 Share My Best Score" button on the Player Profile screen.
+
+HOW IT DECIDES WHAT TO SHARE
+-----------------------------
+- If you're inside a specific game when you hit Challenge, it shares
+  YOUR best score for that exact game (if you have one yet — otherwise
+  it just invites them to play that game).
+- If you're on the hub or profile screen, it finds your single highest
+  score across every game you've played and shares that instead.
+- If you have no scores at all yet, it falls back to a generic "come
+  play Pixel Arcade with me" invite for the whole site.
+
+Links look like:
+  https://pixelarcade-44662.web.app/?challenge=simon&score=14&from=Alex
+
+WHAT HAPPENS WHEN A FRIEND OPENS THE LINK
+-------------------------------------------
+A banner slides down from the top of the page: "Alex scored 14 in
+Simon Says — think you can beat it?" with an Accept button (jumps
+straight into that game) and a dismiss (✕). The challenge stays
+"pending" in sessionStorage until they either dismiss it or finish a
+round of that specific game — the moment that game reports a score
+(via the same logEvent('game_end', {score:...}) every scoring game
+already calls), a toast fires automatically:
+  - "🏆 You beat Alex's score of 14!" (if they beat it)
+  - "So close! Alex scored 14, you got 11. Try again?" (if not)
+  - "🎯 Challenge accepted!" (for non-scoring games where there's no
+    numeric score to compare, e.g. Tic-Tac-Toe)
+
+WHY THIS NEEDED ZERO PER-GAME CHANGES
+----------------------------------------
+Same trick as the Engagement engine: everything hooks into choke
+points that already exist and run for all 21 games —
+  - The header toolbar (outside any <main class="screen">) is visible
+    no matter which screen is active, so one button works everywhere.
+  - profile.highScores (already populated automatically by every
+    scoring game via logEvent) is read directly — no new tracking.
+  - The incoming-challenge resolution hooks into logEvent() itself
+    (the single function every game already calls on game_end), so
+    new games get "beat the challenge" detection for free with no
+    extra wiring, the same way they already get XP/achievements/daily
+    challenge for free.
+
+WHAT CHANGED
+------------
+- public/arcade.html AND public/index.html (+ www/ mirrors):
+  1. New Challenge JS module (share/accept/dismiss/maybeResolve/init)
+     added right after the Engagement engine
+  2. logEvent() now also calls Challenge.maybeResolve() on game_end
+  3. Challenge.init() added to the DOMContentLoaded bootstrap
+  4. New "🔗 Challenge" button in the header toolbar
+  5. New "🔗 Share My Best Score" button on the Player Profile screen
+  6. New .challenge-banner CSS (slide-down banner + accept/dismiss
+     buttons), reusing the existing toast system for the follow-up
+     "you beat it" / "so close" messages
+  7. Fixed a stray "0 / 20" default on the profile screen to "0 / 21"
+     (leftover from before Simon Says was added)
+
+NOT INCLUDED (would need a backend)
+--------------------------------------
+This version encodes everything in the URL, so it works entirely
+client-side on the free Firebase Spark plan — but it also means a
+challenge link only proves "I got this score," it's not independently
+verified. A tamper-proof version would need to write the score to
+Firestore (rooms/scores collection) when sharing and have the banner
+look it up by ID instead of trusting the URL — same pattern as
+OnlineRoom, just for one-shot challenges instead of live 2-player
+rooms. Worth doing later if score-fudging becomes an actual problem;
+not worth the complexity for a casual arcade site today.
