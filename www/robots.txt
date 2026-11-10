@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /arcade.html
 
-Sitemap: https://pixelarcade-44662.web.app/sitemap.xml
+Sitemap: https://gamexpixel.com/sitemap.xml

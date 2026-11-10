@@ -63,7 +63,7 @@ Create app -> Free -> Game. Then complete the "Set up your app" tasks:
 
 | Task | What to enter |
 |---|---|
-| Privacy policy URL | `https://pixelarcade-44662.web.app/privacy.html` (deploy first) |
+| Privacy policy URL | `https://gamexpixel.com/privacy.html` (deploy first) |
 | App access | All functionality available without login |
 | Ads | **Yes, contains ads** |
 | Target audience | **13+ / 18+ only.** Do NOT pick under-13 (that triggers the strict Families policy) |

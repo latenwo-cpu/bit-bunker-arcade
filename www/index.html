@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>(function(){var h=location.hostname;if(/\.(web\.app|firebaseapp\.com)$/.test(h)){location.replace('https://gamexpixel.com'+location.pathname+location.search+location.hash);}})();</script>
 <script src="/capacitor-shim.js"></script>
 <script src="/consent.js"></script>
-<script>(function(){var c=window.Capacitor;if(c&&c.isNativePlatform&&c.isNativePlatform())return;var s=document.createElement('script');s.id='adsense-script';s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5271137719829070';document.head.appendChild(s);})();</script>
+<script>(function(){var c=window.Capacitor;if(c&&c.isNativePlatform&&c.isNativePlatform())return;if(/[?&]play=/.test(location.search))return;var s=document.createElement('script');s.id='adsense-script';s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5271137719829070';document.head.appendChild(s);})();</script>
 <meta name="google-adsense-account" content="ca-pub-5271137719829070">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,15 +16,15 @@
 <meta name="keywords" content="free online games, browser games, arcade games, retro games, play snake online, breakout game, pong game, minesweeper online, no download games">
 <meta name="author" content="Pixel Arcade">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://pixelarcade-44662.web.app/">
+<link rel="canonical" href="https://gamexpixel.com/">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://pixelarcade-44662.web.app/">
+<meta property="og:url" content="https://gamexpixel.com/">
 <meta property="og:site_name" content="Pixel Arcade">
 <meta property="og:title" content="ARCADE — Play 28 Free Retro &amp; 3D Browser Games Online">
 <meta property="og:description" content="Snake, Paddle Duel, Brick Smash, Mine Finder, Pixel Invaders, Four in a Row, Checkers, Reversi, Sea Battle, Color Echo, three 3D games, and more — 28 free games, no download or signup required.">
-<meta property="og:image" content="https://pixelarcade-44662.web.app/feature-graphic.png">
+<meta property="og:image" content="https://gamexpixel.com/feature-graphic.png">
 <meta property="og:image:width" content="1024">
 <meta property="og:image:height" content="500">
 
@@ -31,7 +32,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ARCADE — Play 28 Free Retro &amp; 3D Browser Games Online">
 <meta name="twitter:description" content="Snake, Paddle Duel, Brick Smash, Mine Finder, Pixel Invaders, Four in a Row, Checkers, Reversi, Sea Battle, Color Echo, three 3D games, and more — 28 free games, no download or signup required.">
-<meta name="twitter:image" content="https://pixelarcade-44662.web.app/feature-graphic.png">
+<meta name="twitter:image" content="https://gamexpixel.com/feature-graphic.png">
 
 <script type="application/ld+json">
 {
@@ -39,11 +40,11 @@
   "@type": "WebSite",
   "name": "ARCADE",
   "alternateName": "Pixel Arcade",
-  "url": "https://pixelarcade-44662.web.app/",
+  "url": "https://gamexpixel.com/",
   "description": "Play 28 free retro arcade games instantly in your browser.",
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://pixelarcade-44662.web.app/?s={search_term}",
+    "target": "https://gamexpixel.com/?s={search_term}",
     "query-input": "required name=search_term"
   },
   "hasPart": [
@@ -1314,6 +1315,9 @@
   .tourney-badge.show{ display:block; }
   #tourney-header-btn{ position:relative; }
 
+
+  /* No ads on game-play screens (AdSense: no ads on screens without publisher content) */
+  html.pa-no-ads .google-auto-placed, html.pa-no-ads ins.adsbygoogle, html.pa-no-ads .adsbygoogle-noablate, html.pa-no-ads iframe[id^="aswift_"]{ display:none !important; }
 </style>
 </head>
 <body>
@@ -1338,7 +1342,7 @@
     <button class="icon-btn" onclick="Engagement.openProfile()" aria-label="View your profile and achievements">🏆 <span id="player-level-badge">LV 1</span></button>
     <span id="streak-badge" class="streak-badge"></span>
   </div>
-  <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Pixel Arcade — Play 28 Free Retro &amp; 3D Browser Games Online</h1>
+  <h1 style="font-size:15px;line-height:1.4;text-align:center;margin:8px auto 0;padding:0 12px;max-width:680px;color:#0c2b46;">Pixel Arcade — Play 28 Free Retro &amp; 3D Browser Games Online</h1>
   <img class="logo" src="/pixelarcade-logo-horizontal.svg" alt="Pixel Arcade" style="height:60px;max-width:90%;">
   <p class="tagline">28 games · one cabinet · <span class="blink">insert coin▮</span></p>
 </header>
@@ -1462,6 +1466,8 @@
     <p>Everything on this site is playable for free. No sign-up is required to play; creating an online multiplayer room only needs a nickname. We may show ads to help keep the arcade free to play — see our <a href="/privacy.html" style="color:inherit;text-decoration:underline;">Privacy Policy</a> for details on data collection and cookies.</p>
   </section>
 
+  <section class="hub-guides" style="max-width:680px;margin:24px auto 0;padding:0 16px;color:#0c2b46;font-size:14px;line-height:1.7;"><h2 style="font-size:16px;margin-bottom:8px;">Strategy guides &amp; tips</h2><p>Want to get better? Our free guides explain the rules, the strategy and the history behind the games.</p><ul style="padding-left:20px;"><li><a href="/guides/tictactoe.html" style="color:inherit;text-decoration:underline;">How to Never Lose at Tic-Tac-Toe</a></li><li><a href="/guides/connect4.html" style="color:inherit;text-decoration:underline;">Four in a Row Strategy: Control the Center</a></li><li><a href="/guides/checkers.html" style="color:inherit;text-decoration:underline;">Checkers Strategy for Beginners</a></li><li><a href="/guides/2048.html" style="color:inherit;text-decoration:underline;">2048 Tips: The Corner Strategy</a></li><li><a href="/guides/minesweeper.html" style="color:inherit;text-decoration:underline;">Minesweeper Logic: Reading the Numbers</a></li><li><a href="/guides/snake.html" style="color:inherit;text-decoration:underline;">Snake Strategy: Surviving a Long Tail</a></li><li><a href="/guides/reversi.html" style="color:inherit;text-decoration:underline;">Reversi Strategy: Corners and Mobility</a></li><li><a href="/guides/hangman.html" style="color:inherit;text-decoration:underline;">Hangman Strategy: Which Letters to Guess First</a></li></ul><p><a href="/guides/" style="color:inherit;text-decoration:underline;">See all guides</a></p></section>
+
   <section class="hub-links" style="max-width:680px;margin:24px auto 0;padding:0 16px;color:#0c2b46;">
     <h2 style="font-size:16px;margin-bottom:10px;">Play each game</h2>
     <div style="display:flex;flex-wrap:wrap;gap:10px;">
@@ -1497,6 +1503,10 @@
   </section>
 
   <footer class="hub-footer" style="max-width:680px;margin:24px auto 40px;padding:16px;text-align:center;font-size:13px;color:#0c2b46;opacity:.85;">
+    <a href="/guides/" style="color:inherit;text-decoration:underline;margin:0 10px;">Guides</a><span>·</span>
+    <a href="/about.html" style="color:inherit;text-decoration:underline;margin:0 10px;">About</a><span>·</span>
+    <a href="/contact.html" style="color:inherit;text-decoration:underline;margin:0 10px;">Contact</a><span>·</span>
+    <a href="/terms.html" style="color:inherit;text-decoration:underline;margin:0 10px;">Terms</a><span>·</span>
     <a href="/privacy.html" style="color:inherit;text-decoration:underline;margin:0 10px;">Privacy Policy</a>
     <span>·</span>
     <a href="#" data-pa-privacy-choices style="display:none;color:inherit;text-decoration:underline;margin:0 10px;">Privacy &amp; ad choices</a>
@@ -5432,7 +5442,7 @@ function renderAdSlot(el, cfg){
     logEvent('ad_impression',{slot, mode:'admob'});
     return;
   }
-  if(!native && adsenseSlot){
+  if(!native && adsenseSlot && slot==='screen-bottom-1'){
     el.classList.add('has-content');
     const ins=document.createElement('ins');
     ins.className='adsbygoogle';
@@ -5912,6 +5922,7 @@ function showScreen(id){
   OnlineRoom.detach(); // stop any active room listener when leaving a screen
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  document.documentElement.classList.toggle('pa-no-ads', id!=='hub');
   window.scrollTo(0,0);
   logEvent('screen_view',{screen:id});
 }
@@ -14124,7 +14135,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
   Rivals.checkAll();
   Friends.init();
   Tournaments.init();
-  // Deep link from /games/<slug>.html landing pages, e.g. /arcade.html?play=snake
+  // Deep link from /games/<slug>.html landing pages, e.g. /?play=snake
   try{
     const playParam = new URLSearchParams(location.search).get('play');
     if(playParam && GAME_META[playParam]){

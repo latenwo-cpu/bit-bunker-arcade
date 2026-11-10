@@ -23,8 +23,8 @@
 - Check Firebase Console -> Firestore -> `reports` **at least every 48 h** and delete/ban abusive content (Play's UGC policy requires you to act on reports).
 
 ## Play Console answers
-- **Privacy policy URL:** https://pixelarcade-44662.web.app/privacy.html
-- **Account/data deletion URL:** https://pixelarcade-44662.web.app/delete-data.html (also say users can delete in-app)
+- **Privacy policy URL:** https://gamexpixel.com/privacy.html
+- **Account/data deletion URL:** https://gamexpixel.com/delete-data.html (also say users can delete in-app)
 - **Ads:** Yes. **Advertising ID:** Yes (Advertising + Analytics).
 - **Target audience:** 13+ (or 18+). Not under 13.
 - **Content rating:** answer honestly - users can interact online (chat); virtual coins/spin wheel with no real-money value.
