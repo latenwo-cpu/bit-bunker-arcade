@@ -10,7 +10,7 @@
  * Bump CACHE_VERSION whenever the precache list below changes so
  * clients pick up the new list instead of reusing a stale cache.
  */
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 const STATIC_CACHE = `pixelarcade-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `pixelarcade-runtime-${CACHE_VERSION}`;
 

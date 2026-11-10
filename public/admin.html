@@ -190,6 +190,8 @@
     <div class="kpi-row">
       <div class="kpi"><div class="v" id="kpi-sessions">–</div><div class="l">Sessions</div></div>
       <div class="kpi"><div class="v" id="kpi-users">–</div><div class="l">Unique Users</div></div>
+      <div class="kpi"><div class="v" id="kpi-users-app">–</div><div class="l">App Users</div></div>
+      <div class="kpi"><div class="v" id="kpi-users-web">–</div><div class="l">Website Users</div></div>
       <div class="kpi"><div class="v" id="kpi-gamestarts">–</div><div class="l">Games Played</div></div>
       <div class="kpi"><div class="v" id="kpi-adclicks">–</div><div class="l">Ad Clicks</div></div>
       <div class="kpi"><div class="v" id="kpi-adimpr">–</div><div class="l">Ad Impressions</div></div>
@@ -326,8 +328,9 @@
 
         <label>Click-through Link</label>
         <input id="manual-link" placeholder="https://...">
-        <label>OR raw HTML (overrides image/link + upload if set)</label>
-        <textarea id="manual-html" placeholder="<a href='...'>...</a>"></textarea>
+        <label>OR raw HTML / ad-network script tag (overrides image/link + upload if set)</label>
+        <div class="muted" style="font-size:11px;margin-bottom:6px">Paste any ad tag here, e.g. <code>&lt;script async src="https://adspheonix.onrender.com/tag/ZONE_ID.js"&gt;&lt;/script&gt;</code> — scripts are executed on the site.</div>
+        <textarea id="manual-html" placeholder="<script async src='https://.../tag/ZONE_ID.js'></script>  or  <a href='...'>...</a>"></textarea>
         <button class="btn" style="margin-top:12px" onclick="saveManualSlot()">Save This Slot</button>
         <div class="section-title" style="margin-top:20px">Configured Manual Slots</div>
         <div class="table-wrap"><table><thead><tr><th>Slot</th><th>Preview</th><th>Show on</th><th></th></tr></thead><tbody id="tbl-manual-ads"></tbody></table></div>
@@ -624,6 +627,9 @@ function fillTable(tbodyId, rows, mapFn){
   tbody.innerHTML = rows.length ? rows.map(mapFn).join('') : '<tr><td colspan="10" class="muted">No data yet</td></tr>';
 }
 
+function isAppEvent(e){
+  return /^https?:\/\/localhost/i.test(e.page || '') || /;\s*wv\)/.test(e.userAgent || '');
+}
 function renderOverview(){
   const sessions = new Set(ALL_EVENTS.map(e=>e.sid)).size;
   const users = new Set(ALL_EVENTS.map(e=>e.uid)).size;
@@ -632,6 +638,10 @@ function renderOverview(){
   const adimpr = ALL_EVENTS.filter(e=>e.type==='ad_impression').length;
   document.getElementById('kpi-sessions').textContent=sessions;
   document.getElementById('kpi-users').textContent=users;
+  const appUsers = new Set(ALL_EVENTS.filter(isAppEvent).map(e=>e.uid)).size;
+  const webUsers = new Set(ALL_EVENTS.filter(e=>!isAppEvent(e)).map(e=>e.uid)).size;
+  document.getElementById('kpi-users-app').textContent = appUsers;
+  document.getElementById('kpi-users-web').textContent = webUsers;
   document.getElementById('kpi-gamestarts').textContent=gamestarts;
   document.getElementById('kpi-adclicks').textContent=adclicks;
   document.getElementById('kpi-adimpr').textContent=adimpr;
